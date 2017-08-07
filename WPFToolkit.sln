@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvvmUtils", "MvvmUtils\Mvvm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{E916BDF5-0F15-4B2E-BD9B-AFA489262999}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UIResources", "CustomControls\UIResources.csproj", "{62E94D91-D60D-49FB-B130-02E4530AAE65}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UIResources", "UIResources\UIResources.csproj", "{62E94D91-D60D-49FB-B130-02E4530AAE65}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -94,13 +94,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CustomControls\UIResources.csproj">
-      <Project>{62e94d91-d60d-49fb-b130-02e4530aae65}</Project>
-      <Name>UIResources</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MvvmUtils\MvvmUtils.csproj">
       <Project>{5b67fbbb-fb21-4f22-b897-57f0792554ac}</Project>
       <Name>MvvmUtils</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UIResources\UIResources.csproj">
+      <Project>{62e94d91-d60d-49fb-b130-02e4530aae65}</Project>
+      <Name>UIResources</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
