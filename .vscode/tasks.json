@@ -14,7 +14,7 @@
                 "/m",
                 "/t:build",
                 "${workspaceRoot}\\WPFToolkit.sln",
-                "/p:Configuration=Debug",
+                "/p:Configuration=Release",
                 "/p:Platform=Any CPU"
             ],
             "group": "build",
@@ -30,7 +30,7 @@
         {
             "taskName": "Run",
             "windows": {
-                   "command": "${workspaceRoot}\\Test\\bin\\Debug\\Test.exe"
+                   "command": "${workspaceRoot}\\Test\\bin\\Release\\Test.exe"
             }, 
             //"command": "msbuild", 
             "group": "build",

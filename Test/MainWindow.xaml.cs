@@ -64,7 +64,7 @@ namespace Test
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : UserWindow
     {
         private Number number = null;
         public MainWindow()
@@ -122,7 +122,9 @@ namespace Test
 
         private void NumericBox_ValueChanged_1(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            Trace.WriteLine("ValueChanged,  IsManual = " + (e as NumericBoxValueChangedEventArgs<double>).IsManual);
+            var args = e as NumericBoxValueChangedEventArgs<double>;
+            Trace.TraceInformation("ValueChanged,  OldValue = {0}, NewValue = {1}, IsManual = {2}, IsBusy = {3}",
+                 args.OldValue, args.NewValue, args.IsManual, args.IsBusy);
         }
     }
 }

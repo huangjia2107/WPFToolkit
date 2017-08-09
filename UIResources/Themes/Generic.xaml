@@ -3,10 +3,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/UIResources;component/Themes/Styles/ButtonStyle.xaml"/>
+        <ResourceDictionary Source="/UIResources;component/Themes/Styles/RepeatButtonStyle.xaml"/>
+
         <ResourceDictionary Source="/UIResources;component/Themes/Styles/ProgressBarStyle.xaml"/>
         <ResourceDictionary Source="/UIResources;component/Themes/Styles/NumericBoxStyle.xaml"/>
-    </ResourceDictionary.MergedDictionaries>
-
-
+        <ResourceDictionary Source="/UIResources;component/Themes/Styles/UserWindowStyle.xaml"/>
+    </ResourceDictionary.MergedDictionaries> 
     
 </ResourceDictionary>

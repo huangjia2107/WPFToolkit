@@ -3,6 +3,24 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <!--
+        <Style BasedOn="{StaticResource NoBgBtnStyle}" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="#FFB1B1B1"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver"  Value="True">
+                    <Setter Property="Background" Value="#FFC1C1C1"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#FFDDDDDD"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Foreground" Value="#FF808080"/>
+                </Trigger>
+                <Trigger Property="IsMouseCaptured" Value="true">
+                    <Setter Property="Background" Value="#FFDDDDDD"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        -->
     </Application.Resources>
 </Application>

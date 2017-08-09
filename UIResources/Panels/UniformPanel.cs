@@ -34,7 +34,7 @@ namespace UIResources.Panels
         }
         static bool IsThicknessValid(object value)
         {
-            return Algorithm.IsThicknessValid((Thickness)value, false, false, false, false);
+            return ((Thickness)value).IsValid(false, false, false, false);
         }
 
         public static readonly DependencyProperty ItemSpaceProperty = DependencyProperty.Register("ItemSpace", typeof(Size), typeof(UniformPanel),

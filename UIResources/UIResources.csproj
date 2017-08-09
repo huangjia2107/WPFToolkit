@@ -47,26 +47,40 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Themes\ResourceKeys.cs" />
     <Page Include="Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Controls\UserWindow.cs" />
     <Compile Include="Datas\NumericBoxValueChangedEventArgs.cs" />
     <Compile Include="Extensions\AnchorPopup.cs" />
     <Compile Include="Controls\NumericBox.cs" />
     <Compile Include="Controls\RectangleProgressBar.cs" />
-    <Compile Include="Helps\Algorithm.cs" />
+    <Compile Include="Helps\Utils.cs" />
     <Compile Include="Helps\DoubleUtil.cs" />
     <Compile Include="Helps\Win32.cs" />
     <Compile Include="Panels\AlignWrapPanel.cs" />
     <Compile Include="Panels\AnchorBorder.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Themes\Styles\ButtonStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Themes\Styles\NumericBoxStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\Styles\ProgressBarStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Styles\RepeatButtonStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Styles\UserWindowStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
