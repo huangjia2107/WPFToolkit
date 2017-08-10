@@ -1,6 +1,32 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:themes="clr-namespace:UIResources.Themes">
-     
+                    xmlns:themes="clr-namespace:UIResources.Themes"
+                    xmlns:markup="clr-namespace:UIResources.Markup">
 
+    <ResourceDictionary.MergedDictionaries>
+        <markup:SharedResourceDictionary Source="/UIResources;component/Themes/Styles/BaseStyle.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    
+    <!--RepeatButton-->
+    <Style x:Key="{x:Static themes:ResourceKeys.NormalRepeatButtonStyleKey}"
+           BasedOn="{StaticResource {x:Static themes:ResourceKeys.NoBgButtonBaseStyleKey}}"
+           TargetType="{x:Type RepeatButton}">
+        <Setter Property="Background" Value="#FFB1B1B1"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver"  Value="True">
+                <Setter Property="Background" Value="#FFC1C1C1"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#FFDDDDDD"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="false">
+                <Setter Property="Foreground" Value="#FF808080"/>
+                <Setter Property="Background" Value="#FFDDDDDD"/>
+            </Trigger>
+            <Trigger Property="IsMouseCaptured" Value="true">
+                <Setter Property="Background" Value="#FFDDDDDD"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
 </ResourceDictionary>
