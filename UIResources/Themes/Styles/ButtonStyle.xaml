@@ -2,8 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:themes="clr-namespace:UIResources.Themes">
     
-    <Style x:Key="{x:Static themes:ResourceKeys.NoBgButtonStyleKey}" 
-           TargetType="{x:Type Button}">
+    <Style x:Key="{x:Static themes:ResourceKeys.NoBgButtonBaseStyleKey}" 
+           TargetType="{x:Type ButtonBase}">
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Foreground" Value="Black"/>
@@ -12,7 +12,7 @@
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Button}">
+                <ControlTemplate TargetType="{x:Type ButtonBase}">
                     <Border CornerRadius="0" 
                             Background="{TemplateBinding Background}" 
                             BorderBrush="{TemplateBinding BorderBrush}" 
@@ -25,7 +25,7 @@
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
                             </ContentPresenter>
                         </Grid>
-                    </Border>
+                    </Border> 
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -36,9 +36,31 @@
         </Style.Triggers>
     </Style>
 
+    <!--NormalButton-->
+    <Style x:Key="{x:Static themes:ResourceKeys.NormalButtonStyleKey}"
+           BasedOn="{StaticResource {x:Static themes:ResourceKeys.NoBgButtonBaseStyleKey}}"
+           TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="#FFB1B1B1"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver"  Value="True">
+                <Setter Property="Background" Value="#FFC1C1C1"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#FFDDDDDD"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="false">
+                <Setter Property="Foreground" Value="#FF808080"/>
+                <Setter Property="Background" Value="#FFDDDDDD"/>
+            </Trigger>
+            <Trigger Property="IsMouseCaptured" Value="true">
+                <Setter Property="Background" Value="#FFDDDDDD"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
     <!--Titlebar Button-->
     <Style x:Key="{x:Static themes:ResourceKeys.TitlebarButtonStyleKey}" 
-           BasedOn="{StaticResource {x:Static themes:ResourceKeys.NoBgButtonStyleKey}}" 
+           BasedOn="{StaticResource {x:Static themes:ResourceKeys.NoBgButtonBaseStyleKey}}" 
            TargetType="{x:Type Button}">
         <Setter Property="Foreground" Value="White"/>
         <Style.Triggers>
@@ -49,6 +71,62 @@
             <Trigger Property="IsPressed" Value="True">
                 <Setter Property="Background" Value="#FFDDDDDD"/>
                 <Setter Property="Foreground" Value="Black"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--Close Button [ Fg:White ]-->
+    <Style x:Key="{x:Static themes:ResourceKeys.FgWhiteCloseBtnStyleKey}" 
+           BasedOn="{StaticResource {x:Static themes:ResourceKeys.NoBgButtonBaseStyleKey}}"  
+           TargetType="{x:Type Button}">
+        <Setter Property="Foreground" Value="White"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver"  Value="True">
+                <Setter Property="Background" Value="#FFDC0505"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#FFC30404"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--Close Button [ Fg:Red ]-->
+    <Style x:Key="{x:Static themes:ResourceKeys.FgRedCloseBtnStyleKey}"
+           BasedOn="{StaticResource {x:Static themes:ResourceKeys.NoBgButtonBaseStyleKey}}"  
+           TargetType="{x:Type Button}">
+        <Setter Property="Foreground" Value="Red"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver"  Value="True">
+                <Setter Property="Background" Value="#FFDC0505"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#FFC30404"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--RepeatButton-->
+    <Style x:Key="{x:Static themes:ResourceKeys.NormalRepeatButtonStyleKey}"
+           BasedOn="{StaticResource {x:Static themes:ResourceKeys.NoBgButtonBaseStyleKey}}"
+           TargetType="{x:Type RepeatButton}">
+        <Setter Property="Background" Value="#FFB1B1B1"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver"  Value="True">
+                <Setter Property="Background" Value="#FFC1C1C1"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#FFDDDDDD"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="false">
+                <Setter Property="Foreground" Value="#FF808080"/>
+                <Setter Property="Background" Value="#FFDDDDDD"/>
+            </Trigger>
+            <Trigger Property="IsMouseCaptured" Value="true">
+                <Setter Property="Background" Value="#FFDDDDDD"/>
             </Trigger>
         </Style.Triggers>
     </Style>

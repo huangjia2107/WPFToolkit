@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:controls="clr-namespace:UIResources.Controls">
+                    xmlns:controls="clr-namespace:UIResources.Controls"
+                    xmlns:themes="clr-namespace:UIResources.Themes">
 
     <Style TargetType="{x:Type controls:NumericBox}">
         <Setter Property="Background" Value="Transparent" />
@@ -53,7 +54,8 @@
                                          VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}" />
                                 <Grid Grid.Column="1" Width="{TemplateBinding UpDownButtonsWidth}">
                                     <Grid.RowDefinitions>
-                                        <RowDefinition/>                   
+                                        <RowDefinition/>    
+                                        <RowDefinition Height="1"/>                   
                                         <RowDefinition/>
                                     </Grid.RowDefinitions>
                                     <RepeatButton x:Name="PART_NumericUp"
@@ -63,19 +65,21 @@
                                                   Foreground="{TemplateBinding Foreground}"
                                                   IsTabStop="False"
                                                   Command="{x:Static controls:NumericBox.IncreaseCommand}"
-                                                  Style="{DynamicResource ChromelessButtonStyle}">
-                                        <Path x:Name="PolygonUp" Width="11" Height="7" Fill="Black" Stretch="Fill" 
+                                                  Style="{DynamicResource {x:Static themes:ResourceKeys.NormalRepeatButtonStyleKey}}">
+                                        <Path Width="11" Height="7" Stretch="Fill"
+                                              Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RepeatButton}}"
                                               Data="M16,0L32,19.7 16,9.6 0,19.7z"/>
                                     </RepeatButton>
                                     <RepeatButton x:Name="PART_NumericDown"
-                                                  Grid.Row="1"    
+                                                  Grid.Row="2"    
                                                   Margin="0,0,1,1" 
                                                   Delay="{TemplateBinding Delay}"
                                                   Foreground="{TemplateBinding Foreground}"
                                                   IsTabStop="False"
                                                   Command="{x:Static controls:NumericBox.DecreaseCommand}"
-                                                  Style="{DynamicResource ChromelessButtonStyle}">
-                                        <Path x:Name="PolygonDown" Width="11" Height="7" Fill="Black" Stretch="Fill" 
+                                                  Style="{DynamicResource {x:Static themes:ResourceKeys.NormalRepeatButtonStyleKey}}">
+                                        <Path Width="11" Height="7" Stretch="Fill"
+                                              Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RepeatButton}}"
                                               Data="M0,0 L20.25,19.5 40.5,0 20.25,38 z"/>
                                     </RepeatButton>
                                 </Grid>
