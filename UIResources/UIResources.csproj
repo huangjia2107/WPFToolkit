@@ -47,6 +47,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Markup\SharedResourceDictionary.cs" />
     <Compile Include="Themes\ResourceKeys.cs" />
     <Page Include="Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -64,6 +65,10 @@
     <Compile Include="Panels\AnchorBorder.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Themes\Styles\BaseStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Themes\Styles\ButtonStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
