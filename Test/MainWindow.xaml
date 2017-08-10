@@ -6,7 +6,7 @@
         xmlns:themes="clr-namespace:UIResources.Themes;assembly=UIResources" 
         Title="MainWindow" Height="350" Width="525" WindowStartupLocation="CenterScreen">
     <Grid x:Name="rootGrid">
-        <!--Style="{DynamicResource {x:Static themes:ResourceKeys.NoBgButtonStyleKey}}"-->
+        <!--Style="{StaticResource/DynamicResource {x:Static themes:ResourceKeys.NoBgButtonStyleKey}}"-->
         <Button x:Name="testBtn" Content="545456" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="111" Height="49" Click="Button_Click_1"/>
 
         <controls:NumericBox Margin="43,164,208,0" VerticalAlignment="Top" Interval="1" UpDownButtonsWidth="20" Precision="{Binding Value,ElementName=Slider3}" Minimum="{Binding MiniValue}" Value="{Binding Value}" ValueChanged="NumericBox_ValueChanged_1" DisabledValueChangedWhileBusy="true"/>

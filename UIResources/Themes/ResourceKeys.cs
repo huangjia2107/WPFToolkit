@@ -12,12 +12,18 @@ namespace UIResources.Themes
     {
 
         /// <summary>
-        /// Style="{DynamicResource {x:Static themes:ResourceKeys.NoBgButtonStyleKey}}"
+        /// Style="{DynamicResource/StaticResource {x:Static themes:ResourceKeys.NoBgButtonStyleKey}}"
         /// </summary>
-        internal const string NoBgButtonStyle = "NoBgButtonStyle";
+        public const string NoBgButtonStyle = "NoBgButtonStyle";
         public static ComponentResourceKey NoBgButtonStyleKey
         {
             get { return new ComponentResourceKey(typeof(ResourceKeys), NoBgButtonStyle); }
+        }
+
+        public const string TitlebarButtonStyle = "TitlebarButtonStyle";
+        public static ComponentResourceKey TitlebarButtonStyleKey
+        {
+            get { return new ComponentResourceKey(typeof(ResourceKeys), TitlebarButtonStyle); }
         }
     }
 }

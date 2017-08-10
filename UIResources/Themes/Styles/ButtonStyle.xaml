@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:themes="clr-namespace:UIResources.Themes">
     
-    <Style x:Key="{ComponentResourceKey TypeInTargetAssembly={x:Type themes:ResourceKeys},ResourceId={x:Static themes:ResourceKeys.NoBgButtonStyle}}" 
+    <Style x:Key="{x:Static themes:ResourceKeys.NoBgButtonStyleKey}" 
            TargetType="{x:Type Button}">
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="BorderThickness" Value="0"/>
@@ -36,8 +36,10 @@
         </Style.Triggers>
     </Style>
 
-     <!--Title Button-->
-    <Style x:Key="TitleBarButtonStyle" BasedOn="{StaticResource {x:Static themes:ResourceKeys.NoBgButtonStyleKey}}" TargetType="{x:Type Button}">
+    <!--Titlebar Button-->
+    <Style x:Key="{x:Static themes:ResourceKeys.TitlebarButtonStyleKey}" 
+           BasedOn="{StaticResource {x:Static themes:ResourceKeys.NoBgButtonStyleKey}}" 
+           TargetType="{x:Type Button}">
         <Setter Property="Foreground" Value="White"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver"  Value="True">
