@@ -9,8 +9,8 @@
         <!--Style="{StaticResource/DynamicResource {x:Static themes:ResourceKeys.NoBgButtonStyleKey}}"-->
         <Button x:Name="testBtn" Content="545456" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="111" Height="49" Click="Button_Click_1"/>
 
-        <controls:MenuButton HorizontalAlignment="Left" Margin="141,10,0,0" VerticalAlignment="Top" Width="111" Height="49"
-                             Orientation="Vertical">
+        <controls:MenuButton x:Name="menuButton" HorizontalAlignment="Left" Margin="141,10,0,0" VerticalAlignment="Top" Width="111" Height="49"
+                             Orientation="Horizontal" Click="menuButton_Click" >
             <controls:MenuButton.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Text"/>

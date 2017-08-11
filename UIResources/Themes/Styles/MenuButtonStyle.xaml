@@ -39,13 +39,11 @@
                                     Style="{DynamicResource {x:Static themes:ResourceKeys.NoBgButtonBaseStyleKey}}">
                                 <Path x:Name="ExpandPath" Height="5" Width="7" Stretch="Fill" Data="M7,10L12,15L17,10H7Z" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                             </Button>
-                            <Path x:Name="SeparaterPath" DockPanel.Dock="Right" Data="M0,0 V10" StrokeThickness="0.8" Margin="0,2" Stretch="Fill" IsHitTestVisible="False"
-                                  Stroke="{StaticResource VerticalLinearGradientBrush}"/> 
-
+                            <Path x:Name="SeparaterPath" DockPanel.Dock="Right" Data="M0,0 V10" StrokeThickness="0.8" Stretch="Fill" Stroke="#886E6E6E" IsHitTestVisible="False" Visibility="Hidden"/>
                             <ContentPresenter RecognizesAccessKey="True" 
                                               SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/> 
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </DockPanel>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -55,43 +53,21 @@
                             <Setter TargetName="PART_ExpandButton" Property="Height" Value="15"/>
                             <Setter TargetName="SeparaterPath" Property="DockPanel.Dock" Value="Bottom"/>
                             <Setter TargetName="SeparaterPath" Property="Data" Value="M0,0 H10"/>
-                            <Setter TargetName="SeparaterPath" Property="Margin" Value="2,0"/>
-                            <Setter TargetName="SeparaterPath" Property="Stroke" Value="{StaticResource HorizontalLinearGradientBrush}"/> 
                         </Trigger>
+
                         <Trigger Property="IsSplit" Value="false">
                             <Setter TargetName="PART_ExpandButton" Property="IsHitTestVisible" Value="false"/>
-                            <Setter TargetName="SeparaterPath" Property="Visibility" Value="Hidden"/> 
+                            <Setter TargetName="SeparaterPath" Property="Visibility" Value="Hidden"/>
                         </Trigger>
+
                         <Trigger Property="IsExpanded" Value="true">
-                            <Setter TargetName="ExpandPath" Property="Data" Value="M7,15L12,10L17,15H7Z"/> 
+                            <Setter TargetName="ExpandPath" Property="Data" Value="M7,15L12,10L17,15H7Z"/>
                         </Trigger>
 
-                        <Trigger Property="IsMouseOver" SourceName="PART_ExpandButton" Value="true">
-                            <Setter TargetName="PART_ExpandButton" Property="Background" Value="#FFC1C1C1"/>
-                        </Trigger>
-                        <Trigger Property="IsPressed" SourceName="PART_ExpandButton" Value="true">
-                            <Setter TargetName="PART_ExpandButton" Property="Background" Value="#FFDDDDDD"/>
-                        </Trigger>
-                        
+                        <!--IsSpit == true-->
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsSplit" Value="true"/>
-                                <Condition Property="IsExpanded" Value="true"/>
-                            </MultiTrigger.Conditions> 
-                            <Setter TargetName="PART_ExpandButton" Property="Background" Value="#FFDDDDDD"/>
-                        </MultiTrigger>
-
-                        <!--
-                        <MultiTrigger>
-                            <MultiTrigger.Conditions>
-                                <Condition Property="IsMouseOver" Value="true"/>
-                                <Condition Property="IsSplit" Value="true"/>
-                            </MultiTrigger.Conditions>
-                            <Setter TargetName="SeparaterPath" Property="Visibility" Value="Visible"/> 
-                        </MultiTrigger>
-                        -->
-                        <MultiTrigger>
-                            <MultiTrigger.Conditions>
                                 <Condition Property="IsMouseOver" Value="true"/>
                                 <Condition Property="IsMouseOver" SourceName="PART_ExpandButton" Value="false"/>
                             </MultiTrigger.Conditions>
@@ -99,20 +75,102 @@
                             <Setter TargetName="PART_ExpandButton" Property="Background" Value="#FFB1B1B1"/>
                         </MultiTrigger>
 
-                        <Trigger Property="IsPressed" Value="True">
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSplit" Value="true"/>
+                                <Condition Property="IsMouseOver" SourceName="PART_ExpandButton" Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="PART_ExpandButton" Property="Background" Value="#FFC1C1C1"/>
+                        </MultiTrigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSplit" Value="true"/>
+                                <Condition Property="IsPressed" Value="true"/>
+                            </MultiTrigger.Conditions>
                             <Setter Property="Background" Value="#FFDDDDDD"/>
-                        </Trigger>
+                            <Setter TargetName="PART_ExpandButton" Property="Background" Value="#FFB1B1B1"/>
+                        </MultiTrigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSplit" Value="true"/>
+                                <Condition Property="IsPressed" SourceName="PART_ExpandButton" Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="PART_ExpandButton" Property="Background" Value="#FFDDDDDD"/>
+                        </MultiTrigger>
+
+                        <!--IsSpit != true-->
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSplit" Value="false"/>
+                                <Condition Property="IsMouseOver" Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" Value="#FFC1C1C1"/>
+                            <Setter TargetName="PART_ExpandButton" Property="Background" Value="#FFC1C1C1"/>
+                        </MultiTrigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSplit" Value="false"/>
+                                <Condition Property="IsMouseOver" SourceName="PART_ExpandButton" Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" Value="#FFC1C1C1"/>
+                            <Setter TargetName="PART_ExpandButton" Property="Background" Value="#FFC1C1C1"/>
+                        </MultiTrigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSplit" Value="false"/>
+                                <Condition Property="IsPressed" Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" Value="#FFDDDDDD"/>
+                            <Setter TargetName="PART_ExpandButton" Property="Background" Value="#FFDDDDDD"/>
+                        </MultiTrigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSplit" Value="false"/>
+                                <Condition Property="IsPressed" SourceName="PART_ExpandButton" Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" Value="#FFDDDDDD"/>
+                            <Setter TargetName="PART_ExpandButton" Property="Background" Value="#FFDDDDDD"/>
+                        </MultiTrigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSplit" Value="true"/>
+                                <Condition Property="IsExpanded" Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="PART_ExpandButton" Property="Background" Value="#FFDDDDDD"/>
+                        </MultiTrigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSplit" Value="false"/>
+                                <Condition Property="IsExpanded" Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" Value="#FFDDDDDD"/>
+                            <Setter TargetName="PART_ExpandButton" Property="Background" Value="#FFDDDDDD"/>
+                        </MultiTrigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="true"/>
+                                <Condition Property="IsSplit" Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="SeparaterPath" Property="Visibility" Value="Visible"/>
+                        </MultiTrigger>
+
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Foreground" Value="#FF808080"/>
-                        </Trigger>    
+                            <Setter TargetName="PART_ExpandButton" Property="Foreground" Value="#FF808080"/>
+                        </Trigger>
 
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-        <Style.Triggers> 
-           
-        </Style.Triggers>
     </Style>
-    
+
 </ResourceDictionary>

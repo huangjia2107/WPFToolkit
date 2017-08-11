@@ -98,6 +98,9 @@ namespace Test
             //             }; 
             AnchorPopup.Show(testBtn, "This is a test.sdcw dwdwdwd wdwdw dwdwdwdwj dwjwi jdwijdw0000");
 
+
+            menuButton.IsSplit = !menuButton.IsSplit;
+
             /*
             Action action1 = aa;
 
@@ -125,6 +128,11 @@ namespace Test
             var args = e as NumericBoxValueChangedEventArgs<double>;
             Trace.TraceInformation("ValueChanged,  OldValue = {0}, NewValue = {1}, IsManual = {2}, IsBusy = {3}",
                  args.OldValue, args.NewValue, args.IsManual, args.IsBusy);
+        }
+
+        private void menuButton_Click(object sender, RoutedEventArgs e)
+        {
+            menuButton.Orientation = menuButton.Orientation == Orientation.Vertical ? Orientation.Horizontal : Orientation.Vertical;
         }
     }
 }

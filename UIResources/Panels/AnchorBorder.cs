@@ -129,7 +129,7 @@ namespace UIResources.Panels
         }
 
         public static readonly DependencyProperty BorderThicknessProperty = DependencyProperty.Register("BorderThickness", typeof(double), typeof(AnchorBorder),
-            new FrameworkPropertyMetadata(0.5d, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceBorderThickness), IsThicknessValid);
+            new FrameworkPropertyMetadata(0.5d, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceBorderThickness));
         public double BorderThickness
         {
             get { return (double)GetValue(BorderThicknessProperty); }
@@ -138,12 +138,7 @@ namespace UIResources.Panels
         static object CoerceBorderThickness(DependencyObject d, object value)
         {
             return Math.Max(0, (double)value);
-        }
-        static bool IsThicknessValid(object value)
-        {
-            var t = (Thickness)value;
-            return t.IsValid(false, false, false, false);
-        }
+        }          
 
         public static readonly DependencyProperty PaddingProperty = DependencyProperty.Register("Padding", typeof(Thickness), typeof(AnchorBorder),
             new FrameworkPropertyMetadata(default(Thickness), FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
