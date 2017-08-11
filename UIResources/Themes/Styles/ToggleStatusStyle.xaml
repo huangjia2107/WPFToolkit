@@ -1,0 +1,66 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:UIResources.Controls"
+                    xmlns:themes="clr-namespace:UIResources.Themes">
+
+    <Style x:Key="{x:Static themes:ResourceKeys.NoBgToggleStatusStyle}" TargetType="{x:Type controls:ToggleStatus}">
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="Black"/>
+        <Setter Property="Background" Value="{x:Null}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="ToolTip" Value="{Binding UnCheckedToolTip,RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:ToggleStatus}">
+                    <Border Padding="{TemplateBinding Padding}" 
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid Background="#00000000">
+                            <ContentPresenter x:Name="UnCheckedContentPresenter"
+                                              ContentSource="UnCheckedContent"
+                                              RecognizesAccessKey="True" 
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            <ContentPresenter x:Name="CheckedContentPresenter"
+                                              ContentSource="CheckedContent"
+                                              RecognizesAccessKey="True" 
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Visibility="Hidden"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Visibility" TargetName="CheckedContentPresenter" Value="Visible"/>
+                            <Setter Property="Visibility" TargetName="UnCheckedContentPresenter" Value="Hidden"/>
+                            <Setter Property="ToolTip" Value="{Binding CheckedToolTip,RelativeSource={RelativeSource Self}}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#FFC1C1C1"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#FFDDDDDD"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="#FF808080"/>
+            </Trigger>    
+        </Style.Triggers>
+    </Style>
+    
+    <!--NormalToggleStatus-->
+    <Style BasedOn="{StaticResource {x:Static themes:ResourceKeys.NoBgToggleStatusStyle}}"
+           TargetType="{x:Type controls:ToggleStatus}">
+        <Setter Property="Background" Value="#FFB1B1B1"/> 
+    </Style>
+
+</ResourceDictionary>

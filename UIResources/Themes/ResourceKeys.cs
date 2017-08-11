@@ -59,5 +59,15 @@ namespace UIResources.Themes
         }
 
         #endregion
+
+        #region ToggleStatus
+
+        public const string NoBgToggleStatusStyle = "NoBgToggleStatusStyle";
+        public static ComponentResourceKey NoBgToggleStatusStyleKey
+        {
+            get { return new ComponentResourceKey(typeof(ResourceKeys), NoBgToggleStatusStyle); }
+        }
+
+        #endregion
     }
 }

@@ -9,6 +9,43 @@ namespace UIResources.Helps
 {
     public static class Utils
     {
+        public static bool IsValid(this CornerRadius cornerRadius, bool allowNegative, bool allowNaN, bool allowPositiveInfinity, bool allowNegativeInfinity)
+        {
+            if (!allowNegative)
+            {
+                if (cornerRadius.BottomLeft < 0d || cornerRadius.BottomRight < 0d || cornerRadius.TopLeft < 0d || cornerRadius.TopRight < 0d)
+                {
+                    return (false);
+                }
+            }
+
+            if (!allowNaN)
+            {
+                if (Double.IsNaN(cornerRadius.BottomLeft) || Double.IsNaN(cornerRadius.BottomRight) || Double.IsNaN(cornerRadius.TopLeft) || Double.IsNaN(cornerRadius.TopRight))
+                {
+                    return (false);
+                }
+            }
+
+            if (!allowPositiveInfinity)
+            {
+                if (Double.IsPositiveInfinity(cornerRadius.BottomLeft) || Double.IsPositiveInfinity(cornerRadius.BottomRight) || Double.IsPositiveInfinity(cornerRadius.TopLeft) || Double.IsPositiveInfinity(cornerRadius.TopRight))
+                {
+                    return (false);
+                }
+            }
+
+            if (!allowNegativeInfinity)
+            {
+                if (Double.IsNegativeInfinity(cornerRadius.BottomLeft) || Double.IsNegativeInfinity(cornerRadius.BottomRight) || Double.IsNegativeInfinity(cornerRadius.TopLeft) || Double.IsNegativeInfinity(cornerRadius.TopRight))
+                {
+                    return (false);
+                }
+            }
+
+            return (true);
+        }
+
         public static bool IsValid(this Thickness thickness, bool allowNegative, bool allowNaN, bool allowPositiveInfinity, bool allowNegativeInfinity)
         {
             if (!allowNegative)

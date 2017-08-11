@@ -64,7 +64,7 @@ namespace Test
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : UserWindow
+    public partial class MainWindow : Window
     {
         private Number number = null;
         public MainWindow()

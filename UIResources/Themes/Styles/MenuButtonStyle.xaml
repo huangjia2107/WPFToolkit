@@ -1,0 +1,118 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:UIResources.Controls"
+                    xmlns:themes="clr-namespace:UIResources.Themes"
+                    xmlns:markup="clr-namespace:UIResources.Markup">
+
+    <ResourceDictionary.MergedDictionaries>
+        <markup:SharedResourceDictionary Source="/UIResources;component/Themes/Styles/BaseStyle.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <LinearGradientBrush x:Key="HorizontalLinearGradientBrush" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="Transparent" Offset="0"/>
+        <GradientStop Color="#AA6E6E6E" Offset="0.05"/>
+        <GradientStop Color="#AA6E6E6E" Offset="0.95"/>
+        <GradientStop Color="Transparent" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="VerticalLinearGradientBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="Transparent" Offset="0"/>
+        <GradientStop Color="#AA6E6E6E" Offset="0.05"/>
+        <GradientStop Color="#AA6E6E6E" Offset="0.95"/>
+        <GradientStop Color="Transparent" Offset="1"/>
+    </LinearGradientBrush>
+
+    <Style TargetType="{x:Type controls:MenuButton}">
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="Black"/>
+        <Setter Property="Background" Value="#FFB1B1B1"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:MenuButton}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <DockPanel Background="#00000000">
+                            <Button x:Name="PART_ExpandButton" DockPanel.Dock="Right" Width="15"
+                                    Style="{DynamicResource {x:Static themes:ResourceKeys.NoBgButtonBaseStyleKey}}">
+                                <Path x:Name="ExpandPath" Height="5" Width="7" Stretch="Fill" Data="M7,10L12,15L17,10H7Z" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                            </Button>
+                            <Path x:Name="SeparaterPath" DockPanel.Dock="Right" Data="M0,0 V10" StrokeThickness="0.8" Margin="0,2" Stretch="Fill" IsHitTestVisible="False"
+                                  Stroke="{StaticResource VerticalLinearGradientBrush}"/> 
+
+                            <ContentPresenter RecognizesAccessKey="True" 
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/> 
+                        </DockPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Orientation" Value="Vertical">
+                            <Setter TargetName="PART_ExpandButton" Property="DockPanel.Dock" Value="Bottom"/>
+                            <Setter TargetName="PART_ExpandButton" Property="Width" Value="auto"/>
+                            <Setter TargetName="PART_ExpandButton" Property="Height" Value="15"/>
+                            <Setter TargetName="SeparaterPath" Property="DockPanel.Dock" Value="Bottom"/>
+                            <Setter TargetName="SeparaterPath" Property="Data" Value="M0,0 H10"/>
+                            <Setter TargetName="SeparaterPath" Property="Margin" Value="2,0"/>
+                            <Setter TargetName="SeparaterPath" Property="Stroke" Value="{StaticResource HorizontalLinearGradientBrush}"/> 
+                        </Trigger>
+                        <Trigger Property="IsSplit" Value="false">
+                            <Setter TargetName="PART_ExpandButton" Property="IsHitTestVisible" Value="false"/>
+                            <Setter TargetName="SeparaterPath" Property="Visibility" Value="Hidden"/> 
+                        </Trigger>
+                        <Trigger Property="IsExpanded" Value="true">
+                            <Setter TargetName="ExpandPath" Property="Data" Value="M7,15L12,10L17,15H7Z"/> 
+                        </Trigger>
+
+                        <Trigger Property="IsMouseOver" SourceName="PART_ExpandButton" Value="true">
+                            <Setter TargetName="PART_ExpandButton" Property="Background" Value="#FFC1C1C1"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" SourceName="PART_ExpandButton" Value="true">
+                            <Setter TargetName="PART_ExpandButton" Property="Background" Value="#FFDDDDDD"/>
+                        </Trigger>
+                        
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSplit" Value="true"/>
+                                <Condition Property="IsExpanded" Value="true"/>
+                            </MultiTrigger.Conditions> 
+                            <Setter TargetName="PART_ExpandButton" Property="Background" Value="#FFDDDDDD"/>
+                        </MultiTrigger>
+
+                        <!--
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="true"/>
+                                <Condition Property="IsSplit" Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="SeparaterPath" Property="Visibility" Value="Visible"/> 
+                        </MultiTrigger>
+                        -->
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="true"/>
+                                <Condition Property="IsMouseOver" SourceName="PART_ExpandButton" Value="false"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" Value="#FFC1C1C1"/>
+                            <Setter TargetName="PART_ExpandButton" Property="Background" Value="#FFB1B1B1"/>
+                        </MultiTrigger>
+
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="#FFDDDDDD"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="#FF808080"/>
+                        </Trigger>    
+
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers> 
+           
+        </Style.Triggers>
+    </Style>
+    
+</ResourceDictionary>

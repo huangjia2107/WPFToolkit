@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Navigation;
+using UIResources.Helps;
 
 namespace UIResources.Panels
 {
@@ -101,18 +102,22 @@ namespace UIResources.Panels
         }
 
         public static readonly DependencyProperty CornerRadiusProperty = DependencyProperty.Register("CornerRadius", typeof(CornerRadius), typeof(AnchorBorder),
-            new FrameworkPropertyMetadata(new CornerRadius(), FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, CornerRadiusPropertyChangedCallback));
+            new FrameworkPropertyMetadata(new CornerRadius(), FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, CornerRadiusPropertyChangedCallback), IsCornerRadiusValid);
         public CornerRadius CornerRadius
         {
             get { return (CornerRadius)GetValue(CornerRadiusProperty); }
             set { SetValue(CornerRadiusProperty, value); }
         }
-
         static void CornerRadiusPropertyChangedCallback(DependencyObject dp, DependencyPropertyChangedEventArgs e)
         {
             var anchorBorder = dp as AnchorBorder;
             if (anchorBorder != null)
                 anchorBorder._tempCornerRadius = (CornerRadius)e.NewValue;
+        }
+        static bool IsCornerRadiusValid(object value)
+        {
+            var t = (CornerRadius)value;
+            return t.IsValid(false, false, false, false);
         }
 
         public static readonly DependencyProperty BorderBrushProperty = DependencyProperty.Register("BorderBrush", typeof(Brush), typeof(AnchorBorder),
@@ -124,7 +129,7 @@ namespace UIResources.Panels
         }
 
         public static readonly DependencyProperty BorderThicknessProperty = DependencyProperty.Register("BorderThickness", typeof(double), typeof(AnchorBorder),
-            new FrameworkPropertyMetadata(0.5d, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceBorderThickness));
+            new FrameworkPropertyMetadata(0.5d, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceBorderThickness), IsThicknessValid);
         public double BorderThickness
         {
             get { return (double)GetValue(BorderThicknessProperty); }
@@ -133,6 +138,11 @@ namespace UIResources.Panels
         static object CoerceBorderThickness(DependencyObject d, object value)
         {
             return Math.Max(0, (double)value);
+        }
+        static bool IsThicknessValid(object value)
+        {
+            var t = (Thickness)value;
+            return t.IsValid(false, false, false, false);
         }
 
         public static readonly DependencyProperty PaddingProperty = DependencyProperty.Register("Padding", typeof(Thickness), typeof(AnchorBorder),
