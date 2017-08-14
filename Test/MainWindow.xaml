@@ -13,6 +13,7 @@
                              Orientation="Horizontal" Click="menuButton_Click" >
             <controls:MenuButton.ContextMenu>
                 <ContextMenu>
+                    <Border Height="100" BorderThickness="1" BorderBrush="Black"/>
                     <MenuItem Header="Text"/>
                 </ContextMenu>
             </controls:MenuButton.ContextMenu>

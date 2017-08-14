@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\MenuButton.cs" />
+    <Compile Include="Controls\MenuButtonEx.cs" />
     <Compile Include="Controls\ToggleStatus.cs" />
     <Compile Include="Markup\SharedResourceDictionary.cs" />
     <Compile Include="Themes\ResourceKeys.cs" />
@@ -72,6 +73,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\Styles\ButtonStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Styles\MenuButtonExStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
