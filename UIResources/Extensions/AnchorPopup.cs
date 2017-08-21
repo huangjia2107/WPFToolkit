@@ -111,9 +111,9 @@ namespace UIResources.Extensions
 
                 if (Win32.GetWindowRect(fromVisual.Handle, out rect))
                 {
-                    Point topLeftPoint = placementTarget.PointFromScreen(new Point(rect.Left, rect.Top));
-                    Point topLeftToTargetPoint = new Point(topLeftPoint.X + _anchorBorder.CornerRadius.TopLeft, topLeftPoint.Y);
-                    Point topRightToTargetPoint = new Point(topLeftPoint.X + _grid.ActualWidth - _anchorBorder.CornerRadius.TopRight, topLeftToTargetPoint.Y + _grid.ActualHeight);  //  testBtn.PointFromScreen(new Point(rect.Right, rect.Top));
+                    var topLeftPoint = placementTarget.PointFromScreen(new Point(rect.Left, rect.Top));
+                    var topLeftToTargetPoint = new Point(topLeftPoint.X + _anchorBorder.CornerRadius.TopLeft, topLeftPoint.Y);
+                    var topRightToTargetPoint = new Point(topLeftPoint.X + _grid.ActualWidth - _anchorBorder.CornerRadius.TopRight, topLeftToTargetPoint.Y + _grid.ActualHeight);  //  testBtn.PointFromScreen(new Point(rect.Right, rect.Top));
 
                     bool isAbove = (topLeftToTargetPoint.Y < 0);
 
@@ -157,7 +157,7 @@ namespace UIResources.Extensions
             if (anchorBorder == null || placementTarget == null)
                 throw new ArgumentNullException(anchorBorder == null ? "anchorBorder" : "placementTarget");
 
-            Point anchorPoint = new Point();
+            var anchorPoint = new Point();
             if (topRightToTargetPoint.X <= 0)
             {
                 anchorPoint.X = 0;

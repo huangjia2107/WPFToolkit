@@ -1,0 +1,85 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:UIResources.Controls"
+                    xmlns:helps="clr-namespace:UIResources.Helps">
+
+    <helps:MultipleValueConverter x:Key="MultipleValueConverter"/>
+
+    <Style TargetType="{x:Type controls:RadialGuage}">
+        <Setter Property="MinScale" Value="0"/>
+        <Setter Property="MaxScale" Value="60"/>
+        <Setter Property="CurrentScale" Value="0"/>
+        <Setter Property="IndicatorOptimalStartScale" Value="20"/>
+        <Setter Property="IndicatorOptimalEndScale" Value="50"/>
+        <Setter Property="Radius" Value="90"/>
+        <Setter Property="ScaleTextRadius" Value="70"/>
+        <Setter Property="ScaleRadius" Value="50"/>
+        <Setter Property="IndicatorRadius" Value="35"/>
+        <Setter Property="IndicatorThickness" Value="8"/>
+        <Setter Property="MajorScaleCount" Value="6"/>
+        <Setter Property="MinorScaleCount" Value="5"/>
+        <Setter Property="ScaleStartAngle" Value="120"/>
+        <Setter Property="ScaleSweepAngle" Value="300"/>
+        <Setter Property="PointerLength" Value="50"/>
+        <Setter Property="IsShowIndicator" Value="false"/>
+        <Setter Property="Foreground" Value="Black"/>
+        <Setter Property="Background" Value="#FFEFEFF2"/>
+        <Setter Property="BorderBrush" Value="Black"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:RadialGuage}">
+                    <Border Height="{TemplateBinding Radius,Converter={StaticResource MultipleValueConverter},ConverterParameter=2}" 
+                            Width="{TemplateBinding Radius,Converter={StaticResource MultipleValueConverter},ConverterParameter=2}">
+                        <Grid>
+                            <Ellipse  StrokeThickness="{TemplateBinding BorderThickness}"  
+                                      Fill="{TemplateBinding Background}" 
+                                      Stroke="{TemplateBinding BorderBrush}" />
+                            <Grid x:Name="PART_IndicatorRoot"/>
+                            <Grid x:Name="PART_LayoutRoot">
+                                <!-- Pointer -->
+                                <Path x:Name="PART_Pointer" 
+                                      Width="{TemplateBinding PointerLength}" 
+                                      Height="10" HorizontalAlignment="Center"
+                                      Data="M0,0 L0,5 L100,2.5 z" 
+                                      Stretch="Fill"  
+                                      RenderTransformOrigin="0,0.5" 
+                                      Fill="#CB561B">
+                                    <Path.RenderTransform>
+                                        <TransformGroup>
+                                            <RotateTransform x:Name="PART_PointerRT"/>
+                                            <TranslateTransform X="{Binding PointerLength,RelativeSource={RelativeSource TemplatedParent},Converter={StaticResource MultipleValueConverter},ConverterParameter=0.5}"/>
+                                        </TransformGroup>
+                                    </Path.RenderTransform>
+                                </Path>
+
+                                <!--Pointer Cap-->
+                                <Ellipse x:Name="PART_PointerCap"  
+                                         Height="{TemplateBinding PointeCapDiameter}" 
+                                         Width="{TemplateBinding PointeCapDiameter}">
+                                    <Ellipse.Fill>
+                                        <RadialGradientBrush>
+                                            <RadialGradientBrush.GradientStops>
+                                                <GradientStop Color="#FF2A2727" Offset="0"/>
+                                                <GradientStop Color="#FF2A2727" Offset="0.7"/>
+                                                <GradientStop Color="#FF6E6D6D" Offset="0.8"/>
+                                                <GradientStop Color="#FF6E6D6D" Offset="1"/>
+                                            </RadialGradientBrush.GradientStops>
+                                        </RadialGradientBrush>
+                                    </Ellipse.Fill>
+                                </Ellipse>
+                            </Grid>
+                            <TextBlock Text="{TemplateBinding Title}" 
+                                       VerticalAlignment="Bottom" 
+                                       HorizontalAlignment="Center"
+                                       Margin="{TemplateBinding TitleMargin}" 
+                                       FontWeight="Bold"/>
+                        </Grid>
+
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace UIResources.Helps
 {
-    public static class Win32
+    internal static class Win32
     {
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT
@@ -20,6 +20,9 @@ namespace UIResources.Helps
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+        internal static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+        [DllImport("user32")]
+        internal static extern int SetWindowPos(IntPtr hWnd, int hwndInsertAfter, int x, int y, int cx, int cy, int wFlags);
     }
 }

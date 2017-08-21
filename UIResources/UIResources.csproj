@@ -48,7 +48,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\MenuButton.cs" />
+    <Compile Include="Controls\RadialGuage.cs" />
     <Compile Include="Controls\ToggleStatus.cs" />
+    <Compile Include="Helps\Converters.cs" />
+    <Compile Include="Helps\LayoutUtil.cs" />
     <Compile Include="Markup\BubbleVisibility.cs" />
     <Compile Include="Markup\SharedResourceDictionary.cs" />
     <Compile Include="Themes\ResourceKeys.cs" />
@@ -85,6 +88,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\Styles\ProgressBarStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Styles\RadialGuageStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
