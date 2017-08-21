@@ -13,12 +13,16 @@
                              Orientation="Horizontal" Click="menuButton_Click" >
             <controls:MenuButton.ContextMenu>
                 <ContextMenu>
-                    <Border Height="100" BorderThickness="1" BorderBrush="Black"/>
                     <MenuItem Header="Text"/>
+                    <MenuItem Header="Text1">
+                        <MenuItem Header="Text1"/>
+                        <MenuItem Header="Text2"/>
+                    </MenuItem>
+                    <MenuItem Header="Text2"/>
                 </ContextMenu>
             </controls:MenuButton.ContextMenu>
-            <Path Stretch="Fill" Width="10" Height="13" Fill="{Binding Foreground,RelativeSource={RelativeSource AncestorType=controls:MenuButton}}" Data="M275.667,187 L281.667,187 281.667,221.333 275.667,221.333 275.667,187 z M293.333,187 L299.333,187 299.333,221.333 293.333,221.333 293.333,187 z"/>    
-        </controls:MenuButton>
+            <Path Stretch="Fill" Width="10" Height="13" Fill="{Binding Foreground,RelativeSource={RelativeSource AncestorType=controls:MenuButton}}" Data="M275.667,187 L281.667,187 281.667,221.333 275.667,221.333 275.667,187 z M293.333,187 L299.333,187 299.333,221.333 293.333,221.333 293.333,187 z"/>
+        </controls:MenuButton> 
 
         <controls:NumericBox Margin="43,164,208,0" VerticalAlignment="Top" Interval="1" UpDownButtonsWidth="20" Precision="{Binding Value,ElementName=Slider3}" Minimum="{Binding MiniValue}" Value="{Binding Value}" ValueChanged="NumericBox_ValueChanged_1" DisabledValueChangedWhileBusy="true"/>
         <Slider x:Name="Slider1" HorizontalAlignment="Left" Margin="43,79,0,0" VerticalAlignment="Top" Width="266" Minimum="0" Maximum="200" Value="{Binding MiniValue,Mode=TwoWay}" SmallChange="1" AutoToolTipPlacement="TopLeft"/>

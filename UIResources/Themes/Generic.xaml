@@ -5,8 +5,7 @@
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/UIResources;component/Themes/Styles/ButtonStyle.xaml"/>
         <ResourceDictionary Source="/UIResources;component/Themes/Styles/RepeatButtonStyle.xaml"/>
-        <ResourceDictionary Source="/UIResources;component/Themes/Styles/MenuButtonStyle.xaml"/>
-        <ResourceDictionary Source="/UIResources;component/Themes/Styles/MenuButtonExStyle.xaml"/>
+        <ResourceDictionary Source="/UIResources;component/Themes/Styles/MenuButtonStyle.xaml"/> 
 
         <ResourceDictionary Source="/UIResources;component/Themes/Styles/ToggleStatusStyle.xaml"/>
 
