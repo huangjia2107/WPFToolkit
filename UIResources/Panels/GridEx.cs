@@ -198,7 +198,12 @@ namespace UIResources.Panels
                         preInfo = curInfo;
                     }
                 }
+            }
 
+            if (preInfo.Value.ColumnIndex < ColumnDefinitions.Count - 1)
+            {
+                ctx.BeginFigure(new Point(preInfo.Value.Offset + preInfo.Value.Size, row.Offset + row.ActualHeight), false, true);
+                ctx.LineTo(new Point(ActualWidth, row.Offset + row.ActualHeight), true, false);
             }
         }
 
@@ -224,14 +229,19 @@ namespace UIResources.Panels
                     {
                         if (curInfo.RowIndex - preInfo.Value.RowIndex > 1)
                         {
-                            ctx.BeginFigure(new Point(preInfo.Value.Offset + preInfo.Value.Size, column.Offset + column.ActualWidth), false, true);
+                            ctx.BeginFigure(new Point(column.Offset + column.ActualWidth, preInfo.Value.Offset + preInfo.Value.Size), false, true);
                             ctx.LineTo(new Point(column.Offset + column.ActualWidth, curInfo.Offset), true, false);
                         }
 
                         preInfo = curInfo;
                     }
                 }
+            }
 
+            if (preInfo.Value.RowIndex < RowDefinitions.Count - 1)
+            {
+                ctx.BeginFigure(new Point(column.Offset + column.ActualWidth, preInfo.Value.Offset + preInfo.Value.Size), false, true);
+                ctx.LineTo(new Point(column.Offset + column.ActualWidth, ActualHeight), true, false);
             }
         }
 
