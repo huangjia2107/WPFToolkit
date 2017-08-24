@@ -9,6 +9,43 @@ namespace UIResources.Helps
 {
     public static class Utils
     {
+        public static bool IsValid(this double doubleValue, bool allowNegative, bool allowNaN, bool allowPositiveInfinity, bool allowNegativeInfinity)
+        {
+            if (!allowNegative)
+            {
+                if (doubleValue < 0d)
+                {
+                    return (false);
+                }
+            }
+
+            if (!allowNaN)
+            {
+                if (DoubleUtil.IsNaN(doubleValue))
+                {
+                    return (false);
+                }
+            }
+
+            if (!allowPositiveInfinity)
+            {
+                if (Double.IsPositiveInfinity(doubleValue))
+                {
+                    return (false);
+                }
+            }
+
+            if (!allowNegativeInfinity)
+            {
+                if (Double.IsNegativeInfinity(doubleValue))
+                {
+                    return (false);
+                }
+            }
+
+            return (true);
+        }
+
         public static bool IsValid(this CornerRadius cornerRadius, bool allowNegative, bool allowNaN, bool allowPositiveInfinity, bool allowNegativeInfinity)
         {
             if (!allowNegative)
