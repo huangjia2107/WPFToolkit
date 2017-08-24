@@ -9,27 +9,21 @@
         <!--Style="{StaticResource/DynamicResource {x:Static themes:ResourceKeys.NoBgButtonStyleKey}}"-->
         <Button x:Name="testBtn" Content="545456" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="111" Height="49" Click="Button_Click_1"/>
 
-        <controls:MenuButton x:Name="menuButton" HorizontalAlignment="Left" Margin="141,10,0,0" VerticalAlignment="Top" Width="111" Height="49"
-                             Orientation="Horizontal" Click="menuButton_Click" >
-            <controls:MenuButton.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="Text"/>
-                    <MenuItem Header="Text1">
-                        <MenuItem Header="Text1"/>
-                        <MenuItem Header="Text2"/>
-                    </MenuItem>
-                    <MenuItem Header="Text2"/>
-                </ContextMenu>
-            </controls:MenuButton.ContextMenu>
-            <Path Stretch="Fill" Width="10" Height="13" Fill="{Binding Foreground,RelativeSource={RelativeSource AncestorType=controls:MenuButton}}" Data="M275.667,187 L281.667,187 281.667,221.333 275.667,221.333 275.667,187 z M293.333,187 L299.333,187 299.333,221.333 293.333,221.333 293.333,187 z"/>
-        </controls:MenuButton> 
-
-        <controls:NumericBox Margin="43,164,208,0" VerticalAlignment="Top" Interval="1" UpDownButtonsWidth="20" Precision="{Binding Value,ElementName=Slider3}" Minimum="{Binding MiniValue}" Value="{Binding Value}" ValueChanged="NumericBox_ValueChanged_1" DisabledValueChangedWhileBusy="true"/>
-        <Slider x:Name="Slider1" HorizontalAlignment="Left" Margin="43,79,0,0" VerticalAlignment="Top" Width="266" Minimum="0" Maximum="200" Value="{Binding MiniValue,Mode=TwoWay}" SmallChange="1" AutoToolTipPlacement="TopLeft"/>
-        <Slider x:Name="Slider2" HorizontalAlignment="Left" Margin="43,107,0,0" VerticalAlignment="Top" Width="266" Minimum="0" Maximum="200" Value="{Binding MaxValue,Mode=TwoWay}" SmallChange="1"/>
-        <Slider x:Name="Slider3" HorizontalAlignment="Left" Margin="43,135,0,0" VerticalAlignment="Top" Width="266" Minimum="1" Maximum="10" SmallChange="1"/>
-        <TextBlock HorizontalAlignment="Left" Margin="332,82,0,0" TextWrapping="Wrap" Text="{Binding Value,ElementName=Slider1}" VerticalAlignment="Top"/>
-        <TextBlock HorizontalAlignment="Left" Margin="332,107,0,0" TextWrapping="Wrap" Text="{Binding Value,ElementName=Slider2}" VerticalAlignment="Top"/>
-        <TextBlock HorizontalAlignment="Left" Margin="332,136,0,0" TextWrapping="Wrap" Text="{Binding Value,ElementName=Slider3}" VerticalAlignment="Top"/>
+        <Border BorderThickness="1" BorderBrush="Red" Margin="132,127,141,63">
+            <panels:GridEx>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Row="1" Height="20" Margin="0,5" Grid.ColumnSpan="2"/>
+            </panels:GridEx>
+        </Border>
+        
     </Grid>
 </Window>
