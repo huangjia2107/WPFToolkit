@@ -9,7 +9,7 @@
         <!--Style="{StaticResource/DynamicResource {x:Static themes:ResourceKeys.NoBgButtonStyleKey}}"-->
         <Button x:Name="testBtn" Content="545456" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="111" Height="49" Click="Button_Click_1"/>
 
-        <Border BorderThickness="1" BorderBrush="Red" Margin="132,127,141,63">
+        <Border BorderThickness="2" BorderBrush="Red" Margin="132,127,141,63">
             <panels:GridEx LineThickness="1" LineBrush="Red">
                 <Grid.RowDefinitions>
                     <RowDefinition/>

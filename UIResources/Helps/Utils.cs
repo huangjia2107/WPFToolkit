@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 
 namespace UIResources.Helps
 {
@@ -146,6 +147,11 @@ namespace UIResources.Helps
                 newValue = Math.Round(value);
 
             return newValue;
+        }
+
+        public static double GetDpiFactor(Visual visual)
+        {
+            return 1 / (PresentationSource.FromVisual(visual).CompositionTarget.TransformToDevice.M11);
         }
     }
 }

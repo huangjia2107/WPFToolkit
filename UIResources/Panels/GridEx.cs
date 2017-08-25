@@ -16,6 +16,9 @@ namespace UIResources.Panels
         private List<SpanInfo> _rowSpanInfos = null;
         private List<SpanInfo> _columnSpanInfos = null;
 
+        private double? _dpiFactor;
+        private double? _halfOfPenThickness;
+
         struct SpanInfo
         {
             public int ColumnIndex { get; set; }
@@ -69,9 +72,25 @@ namespace UIResources.Panels
             DrawLine(dc);
         }
 
+        private double GetdHalfOfPenThickness()
+        {
+            if (!_halfOfPenThickness.HasValue)
+                _halfOfPenThickness = _pen.Thickness / 2 * GetDpiFactor();
+
+            return _halfOfPenThickness.Value;
+        }
+
+        private double GetDpiFactor()
+        {
+            if (!_dpiFactor.HasValue)
+                _dpiFactor = Utils.GetDpiFactor(this);
+
+            return _dpiFactor.Value;
+        }
+
         private Pen GetPen()
         {
-            var pen = new Pen(LineBrush, LineThickness);
+            var pen = new Pen(LineBrush, LineThickness * GetDpiFactor());
             pen.Freeze();
 
             return pen;
@@ -91,6 +110,21 @@ namespace UIResources.Panels
             DrawColumnInnerLine(dc);
         }
 
+        private void DrawRowLineWithGuidLine(Point point1, Point point2, DrawingContext dc)
+        {
+            dc.PushGuidelineSet(new GuidelineSet(null, new double[] { point1.Y - GetdHalfOfPenThickness(), point1.Y + GetdHalfOfPenThickness() }));
+            dc.DrawLine(_pen, point1, point2);
+            dc.Pop();
+        }
+
+        private void DrawColumnLineWithGuidLine(Point point1, Point point2, DrawingContext dc)
+        {
+            dc.PushGuidelineSet(new GuidelineSet(new double[] { point1.X + GetdHalfOfPenThickness(), point1.X - GetdHalfOfPenThickness() }, null));
+            dc.DrawLine(_pen, point1, point2);
+            dc.Pop();
+        }
+
+
         private void DrawRowInnerLine(DrawingContext dc)
         {
             for (int rowIndex = 0; rowIndex < RowDefinitions.Count - 1; rowIndex++)
@@ -104,9 +138,10 @@ namespace UIResources.Panels
                     if (DoubleUtil.IsZero(row.ActualHeight))
                         continue;
 
-                    dc.DrawLine(_pen,
+                    DrawRowLineWithGuidLine(
                         new Point(0, row.Offset + row.ActualHeight),
-                        new Point(ActualWidth, row.Offset + row.ActualHeight));
+                        new Point(ActualWidth, row.Offset + row.ActualHeight),
+                        dc);
                 }
             }
         }
@@ -124,9 +159,10 @@ namespace UIResources.Panels
                     if (DoubleUtil.IsZero(column.ActualWidth))
                         continue;
 
-                    dc.DrawLine(_pen,
+                    DrawColumnLineWithGuidLine(
                         new Point(column.Offset + column.ActualWidth, 0),
-                        new Point(column.Offset + column.ActualWidth, ActualHeight));
+                        new Point(column.Offset + column.ActualWidth, ActualHeight),
+                        dc);
                 }
             }
         }
@@ -196,17 +232,19 @@ namespace UIResources.Panels
                 {
                     if (preInfo == null)
                     {
-                        dc.DrawLine(_pen,
+                        DrawRowLineWithGuidLine(
                             new Point(0, row.Offset + row.ActualHeight),
-                            new Point(curInfo.Offset, row.Offset + row.ActualHeight));
+                            new Point(curInfo.Offset, row.Offset + row.ActualHeight),
+                            dc);
                     }
                     else
                     {
                         if (curInfo.ColumnIndex - preInfo.Value.ColumnIndex > 1)
                         {
-                            dc.DrawLine(_pen,
+                            DrawRowLineWithGuidLine(
                                 new Point(preInfo.Value.Offset + preInfo.Value.Size, row.Offset + row.ActualHeight),
-                                new Point(curInfo.Offset, row.Offset + row.ActualHeight));
+                                new Point(curInfo.Offset, row.Offset + row.ActualHeight),
+                                dc);
                         }
                     }
                 }
@@ -216,9 +254,10 @@ namespace UIResources.Panels
 
             if (preInfo.HasValue && preInfo.Value.ColumnIndex < ColumnDefinitions.Count - 1)
             {
-                dc.DrawLine(_pen,
+                DrawRowLineWithGuidLine(
                     new Point(preInfo.Value.Offset + preInfo.Value.Size, row.Offset + row.ActualHeight),
-                    new Point(ActualWidth, row.Offset + row.ActualHeight));
+                    new Point(ActualWidth, row.Offset + row.ActualHeight),
+                    dc);
             }
         }
 
@@ -233,17 +272,19 @@ namespace UIResources.Panels
                 {
                     if (preInfo == null)
                     {
-                        dc.DrawLine(_pen,
+                        DrawColumnLineWithGuidLine(
                             new Point(column.Offset + column.ActualWidth, 0),
-                            new Point(column.Offset + column.ActualWidth, curInfo.Offset));
+                            new Point(column.Offset + column.ActualWidth, curInfo.Offset),
+                            dc);
                     }
                     else
                     {
                         if (curInfo.RowIndex - preInfo.Value.RowIndex > 1)
                         {
-                            dc.DrawLine(_pen,
+                            DrawColumnLineWithGuidLine(
                                 new Point(column.Offset + column.ActualWidth, preInfo.Value.Offset + preInfo.Value.Size),
-                                new Point(column.Offset + column.ActualWidth, curInfo.Offset));
+                                new Point(column.Offset + column.ActualWidth, curInfo.Offset),
+                                dc);
                         }
                     }
                 }
@@ -253,9 +294,10 @@ namespace UIResources.Panels
 
             if (preInfo.HasValue && preInfo.Value.RowIndex < RowDefinitions.Count - 1)
             {
-                dc.DrawLine(_pen,
+                DrawColumnLineWithGuidLine(
                     new Point(column.Offset + column.ActualWidth, preInfo.Value.Offset + preInfo.Value.Size),
-                    new Point(column.Offset + column.ActualWidth, ActualHeight));
+                    new Point(column.Offset + column.ActualWidth, ActualHeight),
+                    dc);
             }
         }
 
