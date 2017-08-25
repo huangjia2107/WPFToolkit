@@ -12,7 +12,7 @@ namespace UIResources.Panels
 {
     public class GridEx : Grid
     {
-        private StreamGeometry _borderGeometryCache = null;
+        private Pen _pen = null;
         private List<SpanInfo> _rowSpanInfos = null;
         private List<SpanInfo> _columnSpanInfos = null;
 
@@ -25,32 +25,30 @@ namespace UIResources.Panels
             public double Size { get; set; }
         }
 
-        private double AdjustThickness { get { return 5 * BorderThickness; } }
-
         #region Properties
 
-        public static readonly DependencyProperty BorderThicknessProperty = DependencyProperty.Register("BorderThickness", typeof(double), typeof(GridEx), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceBorderThickness), ValidateBorderThickness);
-        public double BorderThickness
+        public static readonly DependencyProperty LineThicknessProperty = DependencyProperty.Register("LineThickness", typeof(double), typeof(GridEx), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceLineThickness), ValidateLineThickness);
+        public double LineThickness
         {
-            get { return (double)GetValue(BorderThicknessProperty); }
-            set { SetValue(BorderThicknessProperty, value); }
+            get { return (double)GetValue(LineThicknessProperty); }
+            set { SetValue(LineThicknessProperty, value); }
         }
 
-        static object CoerceBorderThickness(DependencyObject d, object baseValue)
+        static object CoerceLineThickness(DependencyObject d, object baseValue)
         {
             return Math.Max(0, (double)baseValue);
         }
 
-        static bool ValidateBorderThickness(object value)
+        static bool ValidateLineThickness(object value)
         {
             return ((double)value).IsValid(false, false, false, false);
         }
 
-        public static readonly DependencyProperty BorderBrushProperty = DependencyProperty.Register("BorderBrush", typeof(Brush), typeof(GridEx), new FrameworkPropertyMetadata(Brushes.Black, FrameworkPropertyMetadataOptions.AffectsRender));
-        public Brush BorderBrush
+        public static readonly DependencyProperty LineBrushProperty = DependencyProperty.Register("LineBrush", typeof(Brush), typeof(GridEx), new FrameworkPropertyMetadata(Brushes.Black, FrameworkPropertyMetadataOptions.AffectsRender));
+        public Brush LineBrush
         {
-            get { return (Brush)GetValue(BorderBrushProperty); }
-            set { SetValue(BorderBrushProperty, value); }
+            get { return (Brush)GetValue(LineBrushProperty); }
+            set { SetValue(LineBrushProperty, value); }
         }
 
         #endregion
@@ -59,79 +57,81 @@ namespace UIResources.Panels
         {
             base.OnRender(dc);
 
-            if (BorderThickness == 0 || BorderBrush == Brushes.Transparent || BorderBrush == null)
+            if (DoubleUtil.IsZero(LineThickness) || Equals(LineBrush, Brushes.Transparent) || LineBrush == null)
             {
-                _borderGeometryCache = null;
+                _pen = null;
                 ClearSpanInfos();
 
                 return;
             }
 
-            _borderGeometryCache = DrawLine();
-            dc.DrawGeometry(null, new Pen(BorderBrush, BorderThickness), _borderGeometryCache);
+            _pen = GetPen();
+            DrawLine(dc);
         }
 
-        private StreamGeometry DrawLine()
+        private Pen GetPen()
         {
-            StreamGeometry borderGeometry = new StreamGeometry();
-            using (StreamGeometryContext ctx = borderGeometry.Open())
-            {
-                DrawInnerLine(ctx);
-                DrawOuterLine(ctx);
-            }
+            var pen = new Pen(LineBrush, LineThickness);
+            pen.Freeze();
 
-            borderGeometry.Freeze();
-
-            return borderGeometry;
+            return pen;
         }
 
-        private void DrawInnerLine(StreamGeometryContext ctx)
+        private void DrawLine(DrawingContext dc)
+        {
+            DrawInnerLine(dc);
+            DrawOuterLine(dc);
+        }
+
+        private void DrawInnerLine(DrawingContext dc)
         {
             InitSpanInfos();
 
-            DrawRowInnerLine(ctx);
-            DrawColumnInnerLine(ctx);
+            DrawRowInnerLine(dc);
+            DrawColumnInnerLine(dc);
         }
 
-        private void DrawRowInnerLine(StreamGeometryContext ctx)
+        private void DrawRowInnerLine(DrawingContext dc)
         {
             for (int rowIndex = 0; rowIndex < RowDefinitions.Count - 1; rowIndex++)
             {
                 if (_columnSpanInfos.Count > 0 && _columnSpanInfos.Exists(i => i.RowIndex <= rowIndex && i.RowIndex + i.SpanCount - 1 > rowIndex))
-                    DrawRowLine(rowIndex, _columnSpanInfos, ctx);
+                    DrawRowLine(rowIndex, _columnSpanInfos, dc);
                 else
                 {
-                    RowDefinition row = RowDefinitions[rowIndex];
+                    var row = RowDefinitions[rowIndex];
 
-                    if (row.ActualHeight == 0)
+                    if (DoubleUtil.IsZero(row.ActualHeight))
                         continue;
 
-                    ctx.BeginFigure(new Point(AdjustThickness, row.Offset + row.ActualHeight), false, true);
-                    ctx.LineTo(new Point(ActualWidth - AdjustThickness, row.Offset + row.ActualHeight), true, false);
+                    dc.DrawLine(_pen,
+                        new Point(0, row.Offset + row.ActualHeight),
+                        new Point(ActualWidth, row.Offset + row.ActualHeight));
                 }
             }
         }
 
-        private void DrawColumnInnerLine(StreamGeometryContext ctx)
+        private void DrawColumnInnerLine(DrawingContext dc)
         {
             for (int columnIndex = 0; columnIndex < ColumnDefinitions.Count - 1; columnIndex++)
             {
                 if (_rowSpanInfos.Count > 0 && _rowSpanInfos.Exists(i => i.ColumnIndex <= columnIndex && i.ColumnIndex + i.SpanCount - 1 > columnIndex))
-                    DrawColumnLine(columnIndex, _rowSpanInfos, ctx);
+                    DrawColumnLine(columnIndex, _rowSpanInfos, dc);
                 else
                 {
-                    ColumnDefinition column = ColumnDefinitions[columnIndex];
+                    var column = ColumnDefinitions[columnIndex];
 
-                    if (column.ActualWidth == 0)
+                    if (DoubleUtil.IsZero(column.ActualWidth))
                         continue;
 
-                    ctx.BeginFigure(new Point(column.Offset + column.ActualWidth, AdjustThickness), false, true);
-                    ctx.LineTo(new Point(column.Offset + column.ActualWidth, ActualHeight - AdjustThickness), true, false);
+                    dc.DrawLine(_pen,
+                        new Point(column.Offset + column.ActualWidth, 0),
+                        new Point(column.Offset + column.ActualWidth, ActualHeight));
                 }
             }
         }
 
-        private void DrawOuterLine(StreamGeometryContext ctx)
+        private void DrawOuterLine(DrawingContext dc)
         {
 
         }
@@ -185,79 +185,77 @@ namespace UIResources.Panels
             }
         }
 
-        private void DrawRowLine(int rowIndex, IEnumerable<SpanInfo> columnSpanInfos, StreamGeometryContext ctx)
+        private void DrawRowLine(int rowIndex, IEnumerable<SpanInfo> columnSpanInfos, DrawingContext dc)
         {
             var row = RowDefinitions[rowIndex];
 
             SpanInfo? preInfo = null;
             foreach (var curInfo in columnSpanInfos.Where(i => rowIndex >= i.RowIndex && rowIndex < i.SpanCount + i.RowIndex - 1).OrderBy(i => i.ColumnIndex))
             {
-                if (curInfo.ColumnIndex == 0)
-                    preInfo = curInfo;
-                else
+                if (curInfo.ColumnIndex != 0)
                 {
                     if (preInfo == null)
                     {
-                        ctx.BeginFigure(new Point(AdjustThickness, row.Offset + row.ActualHeight), false, true);
-                        ctx.LineTo(new Point(curInfo.Offset - AdjustThickness, row.Offset + row.ActualHeight), true, false);
-
-                        preInfo = curInfo;
+                        dc.DrawLine(_pen,
+                            new Point(0, row.Offset + row.ActualHeight),
+                            new Point(curInfo.Offset, row.Offset + row.ActualHeight));
                     }
                     else
                     {
                         if (curInfo.ColumnIndex - preInfo.Value.ColumnIndex > 1)
                         {
-                            ctx.BeginFigure(new Point(preInfo.Value.Offset + preInfo.Value.Size + AdjustThickness, row.Offset + row.ActualHeight), false, true);
-                            ctx.LineTo(new Point(curInfo.Offset - AdjustThickness, row.Offset + row.ActualHeight), true, false);
+                            dc.DrawLine(_pen,
+                                new Point(preInfo.Value.Offset + preInfo.Value.Size, row.Offset + row.ActualHeight),
+                                new Point(curInfo.Offset, row.Offset + row.ActualHeight));
                         }
-
-                        preInfo = curInfo;
                     }
                 }
+
+                preInfo = curInfo;
             }
 
-            if (preInfo.Value.ColumnIndex < ColumnDefinitions.Count - 1)
+            if (preInfo.HasValue && preInfo.Value.ColumnIndex < ColumnDefinitions.Count - 1)
             {
-                ctx.BeginFigure(new Point(preInfo.Value.Offset + preInfo.Value.Size + AdjustThickness, row.Offset + row.ActualHeight), false, true);
-                ctx.LineTo(new Point(ActualWidth - AdjustThickness, row.Offset + row.ActualHeight), true, false);
+                dc.DrawLine(_pen,
+                    new Point(preInfo.Value.Offset + preInfo.Value.Size, row.Offset + row.ActualHeight),
+                    new Point(ActualWidth, row.Offset + row.ActualHeight));
             }
         }
 
-        private void DrawColumnLine(int columnIndex, IEnumerable<SpanInfo> rowSpanInfos, StreamGeometryContext ctx)
+        private void DrawColumnLine(int columnIndex, IEnumerable<SpanInfo> rowSpanInfos, DrawingContext dc)
         {
             var column = ColumnDefinitions[columnIndex];
 
             SpanInfo? preInfo = null;
             foreach (var curInfo in rowSpanInfos.Where(i => columnIndex >= i.ColumnIndex && columnIndex < i.SpanCount + i.ColumnIndex - 1).OrderBy(i => i.RowIndex))
             {
-                if (curInfo.RowIndex == 0)
-                    preInfo = curInfo;
-                else
+                if (curInfo.RowIndex != 0)
                 {
                     if (preInfo == null)
                     {
-                        ctx.BeginFigure(new Point(column.Offset + column.ActualWidth, AdjustThickness), false, true);
-                        ctx.LineTo(new Point(column.Offset + column.ActualWidth, curInfo.Offset - AdjustThickness), true, false);
-
-                        preInfo = curInfo;
+                        dc.DrawLine(_pen,
+                            new Point(column.Offset + column.ActualWidth, 0),
+                            new Point(column.Offset + column.ActualWidth, curInfo.Offset));
                     }
                     else
                     {
                         if (curInfo.RowIndex - preInfo.Value.RowIndex > 1)
                         {
-                            ctx.BeginFigure(new Point(column.Offset + column.ActualWidth, preInfo.Value.Offset + preInfo.Value.Size + AdjustThickness), false, true);
-                            ctx.LineTo(new Point(column.Offset + column.ActualWidth, curInfo.Offset - AdjustThickness), true, false);
+                            dc.DrawLine(_pen,
+                                new Point(column.Offset + column.ActualWidth, preInfo.Value.Offset + preInfo.Value.Size),
+                                new Point(column.Offset + column.ActualWidth, curInfo.Offset));
                         }
-
-                        preInfo = curInfo;
                     }
                 }
+
+                preInfo = curInfo;
             }
 
-            if (preInfo.Value.RowIndex < RowDefinitions.Count - 1)
+            if (preInfo.HasValue && preInfo.Value.RowIndex < RowDefinitions.Count - 1)
             {
-                ctx.BeginFigure(new Point(column.Offset + column.ActualWidth, preInfo.Value.Offset + preInfo.Value.Size + AdjustThickness), false, true);
-                ctx.LineTo(new Point(column.Offset + column.ActualWidth, ActualHeight - AdjustThickness), true, false);
+                dc.DrawLine(_pen,
+                    new Point(column.Offset + column.ActualWidth, preInfo.Value.Offset + preInfo.Value.Size),
+                    new Point(column.Offset + column.ActualWidth, ActualHeight));
             }
         }
 
