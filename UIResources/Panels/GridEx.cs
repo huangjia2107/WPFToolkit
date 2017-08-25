@@ -28,6 +28,11 @@ namespace UIResources.Panels
             public double Size { get; set; }
         }
 
+        public GridEx()
+        {
+            RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
+        }
+
         #region Properties
 
         public static readonly DependencyProperty LineThicknessProperty = DependencyProperty.Register("LineThickness", typeof(double), typeof(GridEx), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceLineThickness), ValidateLineThickness);
@@ -112,20 +117,16 @@ namespace UIResources.Panels
 
         private void DrawRowLineWithGuidLine(Point point1, Point point2, DrawingContext dc)
         {
-            dc.PushGuidelineSet(new GuidelineSet(null, new double[] { point1.Y - GetdHalfOfPenThickness(), point1.Y + GetdHalfOfPenThickness() }));
-            //point1.Y += GetdHalfOfPenThickness();
-            //point2.Y += GetdHalfOfPenThickness();
+            //dc.PushGuidelineSet(new GuidelineSet(null, new double[] { point1.Y - GetdHalfOfPenThickness(), point1.Y + GetdHalfOfPenThickness() }));
             dc.DrawLine(_pen, point1, point2);
-            dc.Pop();
+            //dc.Pop();
         }
 
         private void DrawColumnLineWithGuidLine(Point point1, Point point2, DrawingContext dc)
         {
-            dc.PushGuidelineSet(new GuidelineSet(new double[] { point1.X + GetdHalfOfPenThickness(), point1.X - GetdHalfOfPenThickness() }, null));
-            //point1.X -= GetdHalfOfPenThickness();
-            //point2.X -= GetdHalfOfPenThickness();
+            //dc.PushGuidelineSet(new GuidelineSet(new double[] { point1.X + GetdHalfOfPenThickness(), point1.X - GetdHalfOfPenThickness() }, null));
             dc.DrawLine(_pen, point1, point2);
-            dc.Pop();
+            //dc.Pop();
         }
 
 
@@ -173,6 +174,8 @@ namespace UIResources.Panels
 
         private void DrawOuterLine(DrawingContext dc)
         {
+            dc.DrawRectangle(null, _pen, new Rect(0, 0, ActualWidth, ActualHeight));
+            /*
             var halfPenWidth = GetdHalfOfPenThickness();
             var rect = new Rect(0, 0, ActualWidth, ActualHeight);
 
@@ -186,6 +189,7 @@ namespace UIResources.Panels
             dc.PushGuidelineSet(guidelines);
             dc.DrawRectangle(null, _pen, rect);
             dc.Pop();
+             * */
         }
 
         private void ClearSpanInfos()
