@@ -95,7 +95,7 @@ namespace UIResources.Panels
         {
             for (int rowIndex = 0; rowIndex < RowDefinitions.Count - 1; rowIndex++)
             {
-                if (_columnSpanInfos.Count > 0 && _columnSpanInfos.Exists(i => i.RowIndex <= rowIndex && i.RowIndex + i.SpanCount - 1 > rowIndex))
+                if (_columnSpanInfos != null && _columnSpanInfos.Count > 0 && _columnSpanInfos.Exists(i => i.RowIndex <= rowIndex && i.RowIndex + i.SpanCount - 1 > rowIndex))
                     DrawRowLine(rowIndex, _columnSpanInfos, dc);
                 else
                 {
@@ -115,7 +115,7 @@ namespace UIResources.Panels
         {
             for (int columnIndex = 0; columnIndex < ColumnDefinitions.Count - 1; columnIndex++)
             {
-                if (_rowSpanInfos.Count > 0 && _rowSpanInfos.Exists(i => i.ColumnIndex <= columnIndex && i.ColumnIndex + i.SpanCount - 1 > columnIndex))
+                if (_rowSpanInfos != null && _rowSpanInfos.Count > 0 && _rowSpanInfos.Exists(i => i.ColumnIndex <= columnIndex && i.ColumnIndex + i.SpanCount - 1 > columnIndex))
                     DrawColumnLine(columnIndex, _rowSpanInfos, dc);
                 else
                 {
