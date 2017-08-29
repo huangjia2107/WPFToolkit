@@ -49,14 +49,14 @@ namespace UIResources.Panels
         {
             var itemSpace = (Size)value;
 
-            if(itemSpace.Width < 0)
+            if (itemSpace.Width < 0)
                 itemSpace.Width = 0;
 
-            if(itemSpace.Height < 0)
+            if (itemSpace.Height < 0)
                 itemSpace.Height = 0;
 
             return itemSpace;
-        } 
+        }
 
         public static readonly DependencyProperty DivideModeProperty = DependencyProperty.Register("DivideMode", typeof(DivideMode), typeof(UniformPanel),
             new FrameworkPropertyMetadata(DivideMode.Auto, DivideModePropertyChanged));
@@ -176,13 +176,13 @@ namespace UIResources.Panels
         private Size GetSpaceSize(uint realChildCount)
         {
             if (realChildCount == 0 || realChildCount == 1)
-                return new Size();
+                return new Size(Padding.Left + Padding.Right, Padding.Top + Padding.Bottom);
 
             return new Size
-             {
-                 Width = (_realColumns - 1) * ItemSpace.Width + Padding.Left + Padding.Right,
-                 Height = (_realRows - 1) * ItemSpace.Height + Padding.Top + Padding.Bottom
-             };
+            {
+                Width = (_realColumns - 1) * ItemSpace.Width + Padding.Left + Padding.Right,
+                Height = (_realRows - 1) * ItemSpace.Height + Padding.Top + Padding.Bottom
+            };
         }
 
         //当_RealChildCount ==0 则_Columns与_Rows无意义
