@@ -13,8 +13,28 @@ namespace UIResources.Panels
     {
         private static readonly Type _typeofSelf = typeof(FlowPanel);
 
-        int _realChildCount = 0;
-        Size _spaceSize;
+        private Dictionary<int, ColumnInfo> _columnIndexMap = new Dictionary<int, ColumnInfo>();
+        private Dictionary<int, double> _columnIndexToPositionMap = new Dictionary<int, double>();
+
+        class ColumnInfo
+        {
+            public int ChildCount { get; set; }
+            public double ColumnHeight { get; set; }
+
+
+            public double DesiredHeight(double spaceHeight, double paddingHeight)
+            {
+                return spaceHeight * (ChildCount - 1) + paddingHeight;
+            }
+
+            public void Reset()
+            {
+                ChildCount = 0;
+                ColumnHeight = 0;
+            }
+        }
+
+        #region Properties
 
         public static readonly DependencyProperty ColumnsProperty = DependencyProperty.Register("Columns", typeof(int), _typeofSelf,
            new FrameworkPropertyMetadata(1, FrameworkPropertyMetadataOptions.AffectsMeasure, null, CoerceColumnValue));
@@ -62,27 +82,7 @@ namespace UIResources.Panels
             return itemSpace;
         }
 
-
-        Dictionary<int, ColumnInfo> _columnIndexMap = new Dictionary<int, ColumnInfo>();
-        Dictionary<int, double> _columnIndexToPositionMap = new Dictionary<int, double>();
-
-        class ColumnInfo
-        {
-            public int ChildCount { get; set; }
-            public double ColumnHeight { get; set; }
-
-
-            public double DesiredHeight(double spaceHeight, double paddingHeight)
-            {
-                return spaceHeight * (ChildCount - 1) + paddingHeight;
-            }
-
-            public void Reset()
-            {
-                ChildCount = 0;
-                ColumnHeight = 0;
-            }
-        }
+        #endregion
 
         #region Override
 
@@ -111,12 +111,12 @@ namespace UIResources.Panels
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            ConstructColumnIndexToPositionMap();
+            ConstructColumnIndexToHeightMap();
 
             double horizontalSpace = Padding.Left + Padding.Right + (Columns - 1) * ItemSpace.Width;
 
-            Rect childBounds = new Rect(0, 0, (finalSize.Width - horizontalSpace) / Columns, 0);
-            int realIndex = 0;
+            Rect childBounds = new Rect(0, 0, Math.Max(finalSize.Width - horizontalSpace, 0) / Columns, 0);
+            int columnIndex = 0;
 
             for (int index = 0; index < InternalChildren.Count; index++)
             {
@@ -124,17 +124,15 @@ namespace UIResources.Panels
                 if (child.Visibility == Visibility.Collapsed)
                     continue;
 
-                int columnIndex = realIndex % Columns;
+                columnIndex = GetColumnIndexWithFirstMinHeight();
 
                 childBounds.X = columnIndex * (childBounds.Width + ItemSpace.Width) + Padding.Left;
                 childBounds.Y = _columnIndexToPositionMap[columnIndex];
-
-                childBounds.Height = finalSize.Height - _columnIndexToPositionMap[columnIndex] - Padding.Bottom;
+                childBounds.Height = child.DesiredSize.Height;
 
                 child.Arrange(childBounds);
 
-                _columnIndexToPositionMap[columnIndex] += child.RenderSize.Height + ItemSpace.Height;
-                realIndex++;
+                _columnIndexToPositionMap[columnIndex] += child.DesiredSize.Height + ItemSpace.Height;
             }
 
             return finalSize;
@@ -143,6 +141,29 @@ namespace UIResources.Panels
         #endregion
 
         #region Func
+
+        private int GetColumnIndexWithFirstMinHeight()
+        {
+            int columnIndex = -1;
+            double minHeight = 0;
+            foreach (var map in _columnIndexToPositionMap)
+            {
+                if (columnIndex < 0)
+                {
+                    columnIndex = map.Key;
+                    minHeight = map.Value;
+                    continue;
+                }
+
+                if (DoubleUtil.LessThan(map.Value, minHeight))
+                {
+                    columnIndex = map.Key;
+                    minHeight = map.Value;
+                }
+            }
+
+            return columnIndex;
+        }
 
         private void ConstructColumnIndexMap()
         {
@@ -157,7 +178,7 @@ namespace UIResources.Panels
             }
         }
 
-        private void ConstructColumnIndexToPositionMap()
+        private void ConstructColumnIndexToHeightMap()
         {
             _columnIndexToPositionMap.Clear();
 
@@ -168,7 +189,7 @@ namespace UIResources.Panels
                 else
                     _columnIndexToPositionMap[columnIndex] = Padding.Top;
             }
-        }     
+        }
 
         #endregion
     }
