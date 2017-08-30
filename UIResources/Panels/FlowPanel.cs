@@ -13,25 +13,18 @@ namespace UIResources.Panels
     {
         private static readonly Type _typeofSelf = typeof(FlowPanel);
 
-        private Dictionary<int, ColumnInfo> _columnIndexMap = new Dictionary<int, ColumnInfo>();
-        private Dictionary<int, double> _columnIndexToPositionMap = new Dictionary<int, double>();
+        private Dictionary<int, double> _columnIndexToHeightMap = new Dictionary<int, double>();
+        private Dictionary<int, ChildRect> _childIndexToRectMap = new Dictionary<int, ChildRect>();
 
-        class ColumnInfo
+        struct ChildRect
         {
-            public int ChildCount { get; set; }
-            public double ColumnHeight { get; set; }
+            public int ColumnIndex { get; set; }
 
+            public double X { get; set; }
+            public double Y { get; set; }
 
-            public double DesiredHeight(double spaceHeight, double paddingHeight)
-            {
-                return spaceHeight * (ChildCount - 1) + paddingHeight;
-            }
-
-            public void Reset()
-            {
-                ChildCount = 0;
-                ColumnHeight = 0;
-            }
+            public double Width { get; set; }
+            public double Height { get; set; }
         }
 
         #region Properties
@@ -88,9 +81,15 @@ namespace UIResources.Panels
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            ConstructColumnIndexMap();
+            ConstructColumnIndexToHeightMap();
+            _childIndexToRectMap.Clear();
 
+            double horizontalSpace = Padding.Left + Padding.Right + (Columns - 1) * ItemSpace.Width;
+            double childBoundsWidth = Math.Max(availableSize.Width - horizontalSpace, 0) / Columns;
+
+            int columnIndex = 0;
             int realIndex = 0;
+
             for (int index = 0; index < InternalChildren.Count; index++)
             {
                 var child = InternalChildren[index];
@@ -100,23 +99,31 @@ namespace UIResources.Panels
                 // Measure the child.
                 child.Measure(availableSize);
 
-                _columnIndexMap[realIndex % Columns].ChildCount++;
-                _columnIndexMap[realIndex % Columns].ColumnHeight += child.DesiredSize.Height;
+                columnIndex = GetColumnIndexWithFirstMinHeight();
+                _childIndexToRectMap.Add(realIndex,
+                    new ChildRect
+                    {
+                        ColumnIndex = columnIndex,
+                        X = columnIndex * (childBoundsWidth + ItemSpace.Width) + Padding.Left,
+                        Y = _columnIndexToHeightMap[columnIndex],
+                        Width = childBoundsWidth,
+                        Height = child.DesiredSize.Height
+                    });
 
+                _columnIndexToHeightMap[columnIndex] += (child.DesiredSize.Height + ItemSpace.Height);
                 realIndex++;
             }
 
-            return new Size(availableSize.Width, _columnIndexMap.Values.Max(c => c.DesiredHeight(ItemSpace.Height, Padding.Top + Padding.Bottom)));
+            return new Size(
+                availableSize.Width,
+                _childIndexToRectMap.Values.GroupBy(childRect => childRect.ColumnIndex).Max(columnIndexToRect => columnIndexToRect.Sum(rect => rect.Height) + ItemSpace.Height * (columnIndexToRect.Count() - 1) + Padding.Top + Padding.Bottom)
+                );
         }
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            ConstructColumnIndexToHeightMap();
-
-            double horizontalSpace = Padding.Left + Padding.Right + (Columns - 1) * ItemSpace.Width;
-
-            Rect childBounds = new Rect(0, 0, Math.Max(finalSize.Width - horizontalSpace, 0) / Columns, 0);
-            int columnIndex = 0;
+            Rect childBounds = new Rect();
+            int realIndex = 0;
 
             for (int index = 0; index < InternalChildren.Count; index++)
             {
@@ -124,16 +131,14 @@ namespace UIResources.Panels
                 if (child.Visibility == Visibility.Collapsed)
                     continue;
 
-                columnIndex = GetColumnIndexWithFirstMinHeight();
-
-                childBounds.X = columnIndex * (childBounds.Width + ItemSpace.Width) + Padding.Left;
-                childBounds.Y = _columnIndexToPositionMap[columnIndex];
-                childBounds.Height = child.DesiredSize.Height;
+                childBounds.X = _childIndexToRectMap[realIndex].X;
+                childBounds.Y = _childIndexToRectMap[realIndex].Y;
+                childBounds.Width = _childIndexToRectMap[realIndex].Width;
+                childBounds.Height = _childIndexToRectMap[realIndex].Height;
 
                 child.Arrange(childBounds);
-
-                _columnIndexToPositionMap[columnIndex] += child.DesiredSize.Height + ItemSpace.Height;
-            }
+                realIndex++;
+            }                              
 
             return finalSize;
         }
@@ -146,7 +151,7 @@ namespace UIResources.Panels
         {
             int columnIndex = -1;
             double minHeight = 0;
-            foreach (var map in _columnIndexToPositionMap)
+            foreach (var map in _columnIndexToHeightMap)
             {
                 if (columnIndex < 0)
                 {
@@ -162,32 +167,19 @@ namespace UIResources.Panels
                 }
             }
 
-            return columnIndex;
-        }
-
-        private void ConstructColumnIndexMap()
-        {
-            _columnIndexMap.Clear();
-
-            for (int columnIndex = 0; columnIndex < Columns; columnIndex++)
-            {
-                if (!_columnIndexMap.ContainsKey(columnIndex))
-                    _columnIndexMap.Add(columnIndex, new ColumnInfo());
-                else
-                    _columnIndexMap[columnIndex].Reset();
-            }
+            return Math.Max(0, columnIndex);
         }
 
         private void ConstructColumnIndexToHeightMap()
         {
-            _columnIndexToPositionMap.Clear();
+            _columnIndexToHeightMap.Clear();
 
             for (int columnIndex = 0; columnIndex < Columns; columnIndex++)
             {
-                if (!_columnIndexToPositionMap.ContainsKey(columnIndex))
-                    _columnIndexToPositionMap.Add(columnIndex, Padding.Top);
+                if (!_columnIndexToHeightMap.ContainsKey(columnIndex))
+                    _columnIndexToHeightMap.Add(columnIndex, Padding.Top);
                 else
-                    _columnIndexToPositionMap[columnIndex] = Padding.Top;
+                    _columnIndexToHeightMap[columnIndex] = Padding.Top;
             }
         }
 
