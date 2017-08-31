@@ -128,7 +128,7 @@ namespace UIResources.Panels
 
             double maxChildDesiredWidth = 0.0;
             double maxChildDesiredHeight = 0.0;
-            Size childConstraint = new Size((availableSize.Width - _spaceSize.Width) / _realColumns, (availableSize.Height - _spaceSize.Height) / _realRows);
+            Size childConstraint = new Size(Math.Max(availableSize.Width - _spaceSize.Width, 0) / _realColumns, Math.Max(availableSize.Height - _spaceSize.Height, 0) / _realRows);
 
             foreach (UIElement child in InternalChildren)
             {
@@ -151,7 +151,7 @@ namespace UIResources.Panels
             if (_realChildCount == 0)
                 return base.ArrangeOverride(finalSize);
 
-            Rect childBounds = new Rect(0, 0, (finalSize.Width - _spaceSize.Width) / _realColumns, (finalSize.Height - _spaceSize.Height) / _realRows);
+            Rect childBounds = new Rect(0, 0, Math.Max(finalSize.Width - _spaceSize.Width, 0) / _realColumns, Math.Max(finalSize.Height - _spaceSize.Height, 0) / _realRows);
             uint realIndex = 0;
 
             for (int index = 0; index < InternalChildren.Count; index++)
