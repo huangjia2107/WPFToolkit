@@ -9,7 +9,7 @@
         <!--Style="{StaticResource/DynamicResource {x:Static themes:ResourceKeys.NoBgButtonStyleKey}}"-->
         <Button x:Name="testBtn" Content="545456" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="111" Height="49" Click="Button_Click_1"/>
 
-        <controls:Ruler Margin="72,208,100,93"/>
+        <controls:Ruler Margin="72,208,76,93"/>
         
         
     </Grid>
