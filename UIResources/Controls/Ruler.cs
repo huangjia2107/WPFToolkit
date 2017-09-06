@@ -33,6 +33,8 @@ namespace UIResources.Controls
         // 
         private double _step = 60;
 
+        private double _tempStep = 50;
+
         private readonly Pen _pen = new Pen(Brushes.Black, 1.0);
 
         public Ruler()
@@ -50,13 +52,18 @@ namespace UIResources.Controls
         }
 
         public static readonly DependencyProperty ScaleProperty =
-            DependencyProperty.Register("Scale", typeof(double), _typeofSelf, new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender));
+            DependencyProperty.Register("Scale", typeof(double), _typeofSelf, new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender, OnScalePropertyChanged));
         public double Scale
         {
             get { return (double)GetValue(ScaleProperty); }
             set { SetValue(ScaleProperty, value); }
         }
 
+        static void OnScalePropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            var ruler = (Ruler)sender;
+            // ruler._tempStep = Math.Floor();
+        }
 
         protected override void OnRender(DrawingContext drawingContext)
         {
@@ -65,34 +72,35 @@ namespace UIResources.Controls
             Draw(drawingContext);
         }
 
-        private void GetMinStepDivide(ref double miniStep, ref double divideCount)
+        private void GetMinStepDivide(ref double miniStep, ref double divideCount,ref double tempStep)
         {
-            if (DoubleUtil.GreaterThanOrClose(_step / 20, 3))
+            tempStep = Math.Floor(_step / Scale) * Scale;
+            if (DoubleUtil.GreaterThanOrClose(tempStep / 20, 3))
             {
-                miniStep = _step / 20;
+                miniStep = tempStep / 20;
                 divideCount = 20;
 
                 return;
             }
 
 
-            if (DoubleUtil.GreaterThanOrClose(_step / 10, 3))
+            if (DoubleUtil.GreaterThanOrClose(tempStep / 10, 3))
             {
-                miniStep = _step / 10;
+                miniStep = tempStep / 10;
                 divideCount = 10;
 
                 return;
             }
 
-            if (DoubleUtil.GreaterThanOrClose(_step / 5, 3))
+            if (DoubleUtil.GreaterThanOrClose(tempStep / 5, 3))
             {
-                miniStep = _step / 5;
+                miniStep = tempStep / 5;
                 divideCount = 5;
 
                 return;
             }
 
-            miniStep = _step / 5;
+            miniStep = tempStep / 5;
             divideCount = 5;
         }
 
@@ -103,19 +111,20 @@ namespace UIResources.Controls
 
         private void Draw(DrawingContext dc)
         {
+            double tempStep = 0;
             double miniStep = 0;
             double divideCount = 0;
-            GetMinStepDivide(ref miniStep, ref divideCount);
+            GetMinStepDivide(ref miniStep, ref divideCount, ref tempStep);
 
             dc.DrawLine(_pen, new Point(-0.5, ActualHeight), new Point(ActualWidth - 0.5, ActualHeight));
             for (double markIndex = 0; markIndex < ActualWidth; markIndex += miniStep)
             {
-                if (DoubleUtil.AreClose(markIndex % _step, 0))
+                if (DoubleUtil.AreClose(markIndex % tempStep, 0))
                 {
                     dc.DrawLine(_pen, new Point(markIndex, ActualHeight), new Point(markIndex, 0));
 
-                    FormattedText ft = new FormattedText(
-                            markIndex.ToString(CultureInfo.CurrentCulture),
+                    var ft = new FormattedText(
+                            Math.Floor(markIndex / Scale).ToString(CultureInfo.CurrentCulture),
                             CultureInfo.CurrentCulture,
                             FlowDirection.LeftToRight,
                             new Typeface("Arial"),
@@ -124,13 +133,13 @@ namespace UIResources.Controls
                     ft.SetFontWeight(FontWeights.Regular);
                     ft.TextAlignment = TextAlignment.Left;
 
-                    dc.DrawText(ft, new Point(markIndex+1,0));
+                    dc.DrawText(ft, new Point(markIndex + 1, 0));
                 }
-                else if (DoubleUtil.AreClose(markIndex % (_step / 2), 0))
+                else if (DoubleUtil.AreClose(markIndex % (tempStep / 2), 0))
                     dc.DrawLine(_pen, new Point(markIndex, ActualHeight * 1 / 5), new Point(markIndex, ActualHeight));
-                else if (DoubleUtil.AreClose(markIndex % (_step / (divideCount == 20 ? 4 : 5)), 0))
+                else if (DoubleUtil.AreClose(markIndex % (tempStep / (DoubleUtil.AreClose(divideCount, 20) ? 4 : 5)), 0))
                     dc.DrawLine(_pen, new Point(markIndex, ActualHeight * 1 / 2), new Point(markIndex, ActualHeight));
-                else if (DoubleUtil.AreClose(markIndex % (_step / 10), 0))
+                else if (DoubleUtil.AreClose(markIndex % (tempStep / 10), 0))
                     dc.DrawLine(_pen, new Point(markIndex, ActualHeight * 5 / 8), new Point(markIndex, ActualHeight));
                 else
                     dc.DrawLine(_pen, new Point(markIndex, ActualHeight * 23 / 32), new Point(markIndex, ActualHeight));
