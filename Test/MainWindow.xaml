@@ -17,7 +17,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Slider x:Name="slider" Minimum="1" Maximum="48" Value="1" SmallChange="0.5" TickFrequency="0.5" IsSnapToTickEnabled="True"/>
+                <Slider x:Name="slider" Minimum="1" Maximum="100" Value="1" SmallChange="0.5" TickFrequency="0.5" IsSnapToTickEnabled="True"/>
                 <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
             </Grid>
         </StackPanel>
