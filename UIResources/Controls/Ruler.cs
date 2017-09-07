@@ -121,12 +121,12 @@ namespace UIResources.Controls
             int divideCount = 0;
             InitStepDivide(ref tempStep, ref miniStep, ref divideCount);
 
-            dc.DrawLine(_pen, new Point(-0.5, ActualHeight), new Point(ActualWidth - 0.5, ActualHeight));
+            dc.DrawLine(_pen, new Point(0, ActualHeight), new Point(ActualWidth, ActualHeight));
             for (decimal markIndex = 0; markIndex < (decimal)ActualWidth; markIndex += miniStep)
             {
                 if (markIndex % tempStep == 0)
                 {
-                    dc.DrawLine(_pen, new Point((double)markIndex, ActualHeight), new Point((double)markIndex, 0));
+                    dc.DrawLine(_pen, new Point((double)markIndex + 0.5, ActualHeight), new Point((double)markIndex + 0.5, 0));
 
                     var ft = new FormattedText(
                             Math.Round(markIndex / Scale, 0).ToString(CultureInfo.CurrentCulture),
@@ -145,29 +145,29 @@ namespace UIResources.Controls
                     if (divideCount == 5)
                     {
                         if (markIndex % (tempStep / 5) == 0)
-                            dc.DrawLine(_pen, new Point((double)markIndex, ActualHeight * 1 / 2), new Point((double)markIndex, ActualHeight));
+                            dc.DrawLine(_pen, new Point((double)markIndex + 0.5, ActualHeight * 1 / 2), new Point((double)markIndex + 0.5, ActualHeight));
                     }
 
                     if (divideCount == 10)
                     {
                         if (markIndex % (tempStep / 2) == 0)
-                            dc.DrawLine(_pen, new Point((double)markIndex, ActualHeight * 1 / 5), new Point((double)markIndex, ActualHeight));
+                            dc.DrawLine(_pen, new Point((double)markIndex + 0.5, ActualHeight * 1 / 5), new Point((double)markIndex + 0.5, ActualHeight));
                         else if (markIndex % (tempStep / 5) == 0)
-                            dc.DrawLine(_pen, new Point((double)markIndex, ActualHeight * 1 / 2), new Point((double)markIndex, ActualHeight));
+                            dc.DrawLine(_pen, new Point((double)markIndex + 0.5, ActualHeight * 1 / 2), new Point((double)markIndex + 0.5, ActualHeight));
                         else
-                            dc.DrawLine(_pen, new Point((double)markIndex, ActualHeight * 5 / 8), new Point((double)markIndex, ActualHeight));
+                            dc.DrawLine(_pen, new Point((double)markIndex + 0.5, ActualHeight * 5 / 8), new Point((double)markIndex + 0.5, ActualHeight));
                     }
 
                     if (divideCount == 20)
                     {
                         if (markIndex % (tempStep / 2) == 0)
-                            dc.DrawLine(_pen, new Point((double)markIndex, ActualHeight * 1 / 5), new Point((double)markIndex, ActualHeight));
+                            dc.DrawLine(_pen, new Point((double)markIndex + 0.5, ActualHeight * 1 / 5), new Point((double)markIndex + 0.5, ActualHeight));
                         else if (markIndex % (tempStep / 4) == 0)
-                            dc.DrawLine(_pen, new Point((double)markIndex, ActualHeight * 1 / 2), new Point((double)markIndex, ActualHeight));
+                            dc.DrawLine(_pen, new Point((double)markIndex + 0.5, ActualHeight * 1 / 2), new Point((double)markIndex + 0.5, ActualHeight));
                         else if (markIndex % (tempStep / 10) == 0)
-                            dc.DrawLine(_pen, new Point((double)markIndex, ActualHeight * 5 / 8), new Point((double)markIndex, ActualHeight));
+                            dc.DrawLine(_pen, new Point((double)markIndex + 0.5, ActualHeight * 5 / 8), new Point((double)markIndex + 0.5, ActualHeight));
                         else
-                            dc.DrawLine(_pen, new Point((double)markIndex, ActualHeight * 23 / 32), new Point((double)markIndex, ActualHeight));
+                            dc.DrawLine(_pen, new Point((double)markIndex + 0.5, ActualHeight * 23 / 32), new Point((double)markIndex + 0.5, ActualHeight));
                     }
 
                 }

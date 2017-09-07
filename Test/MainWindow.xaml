@@ -4,10 +4,10 @@
         xmlns:panels="clr-namespace:UIResources.Panels;assembly=UIResources"
         xmlns:controls="clr-namespace:UIResources.Controls;assembly=UIResources" 
         xmlns:themes="clr-namespace:UIResources.Themes;assembly=UIResources" 
-        Title="MainWindow" Height="350" Width="525" WindowStartupLocation="CenterScreen">
+        Title="MainWindow" Height="350" Width="485" WindowStartupLocation="CenterScreen">
     <Grid x:Name="rootGrid">
         <!--Style="{StaticResource/DynamicResource {x:Static themes:ResourceKeys.NoBgButtonStyleKey}}"-->
-        <Button x:Name="testBtn" Content="545456" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" Width="100" Height="49" Click="Button_Click_1"/>
+        <Button x:Name="testBtn" Content="545456" HorizontalAlignment="Left" Width="50" Margin="10,83,0,0" VerticalAlignment="Top" Height="49" Click="Button_Click_1" BorderThickness="0"/>
 
         <StackPanel Margin="10,125,10,0" VerticalAlignment="Top">
             <controls:Ruler Scale="{Binding Value,ElementName=slider}" Height="20"/>
