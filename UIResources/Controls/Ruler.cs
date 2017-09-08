@@ -104,8 +104,36 @@ namespace UIResources.Controls
 
                     break;
                 }
-
-                tempStep *= 2;
+				
+				if(Scale < (decimal)0.1)
+				{
+					if(tempStep == Scale)
+                        tempStep = Scale * 500;
+					else
+						tempStep += Scale * 500;
+				}
+				else if(Scale < 1)
+				{
+					if(tempStep == Scale)
+                        tempStep = Scale * 50;
+					else
+						tempStep += Scale * 50;
+				}
+				else if(Scale <= 10)
+				{
+					if(tempStep == Scale)
+                        tempStep = Scale * 5;
+					else
+						tempStep += Scale * 5;
+				}
+				else
+				{
+					if(tempStep == Scale)
+					    tempStep = Scale * 2;	  
+				    else
+					    tempStep += Scale * 2;
+				}
+				
             }
         }
 
