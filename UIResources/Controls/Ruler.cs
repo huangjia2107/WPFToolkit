@@ -18,10 +18,14 @@ namespace UIResources.Controls
     {
         private static readonly Type _typeofSelf = typeof(Ruler);
 
+        private readonly Pen _pen = new Pen(Brushes.Black, 1.0);
+        private readonly DrawingGroup _drawingGroup = new DrawingGroup();
         // 
         private decimal _baseStep = 50;
 
-        private readonly Pen _pen = new Pen(Brushes.Black, 1.0);
+
+        //DefferRefresh
+        int _deferLevel = 0; 
 
         public Ruler()
         {
@@ -29,26 +33,97 @@ namespace UIResources.Controls
         }
 
         public static readonly DependencyProperty OffsetProperty =
-            DependencyProperty.Register("Offset", typeof(decimal), _typeofSelf, new FrameworkPropertyMetadata(12m, FrameworkPropertyMetadataOptions.AffectsRender));
+            DependencyProperty.Register("Offset", typeof(decimal), _typeofSelf, new FrameworkPropertyMetadata(12m, OnOffsetPropertyChanged));
         public decimal Offset
         {
             get { return (decimal)GetValue(OffsetProperty); }
             set { SetValue(OffsetProperty, value); }
         }
 
+        static void OnOffsetPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            var ruler = sender as Ruler;
+            if (ruler._deferLevel == 0)
+                ruler.Render();
+        }
+
         public static readonly DependencyProperty ScaleProperty =
-            DependencyProperty.Register("Scale", typeof(decimal), _typeofSelf, new FrameworkPropertyMetadata(1m, FrameworkPropertyMetadataOptions.AffectsRender));
+            DependencyProperty.Register("Scale", typeof(decimal), _typeofSelf, new FrameworkPropertyMetadata(1m, OnScalePropertyChanged));
         public decimal Scale
         {
             get { return (decimal)GetValue(ScaleProperty); }
             set { SetValue(ScaleProperty, value); }
+        }
+        static void OnScalePropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            var ruler = sender as Ruler;
+            if (ruler._deferLevel == 0)
+                ruler.Render();
         }
 
         protected override void OnRender(DrawingContext drawingContext)
         {
             base.OnRender(drawingContext);
 
-            Draw(drawingContext);
+            Render();
+            drawingContext.DrawDrawing(_drawingGroup);
+        }
+
+        #region DeferRefresh
+
+        private class DeferHelper : IDisposable
+        {
+            public DeferHelper(Ruler ruler)
+            {
+                _ruler = ruler;
+            }
+
+            public void Dispose()
+            {
+                if (_ruler != null)
+                {
+                    _ruler.EndDefer();
+                    _ruler = null;
+                }
+
+                GC.SuppressFinalize(this);
+            }
+
+            private Ruler _ruler;
+        }
+
+        public virtual IDisposable DeferRefresh()
+        {
+            ++_deferLevel;
+            return new DeferHelper(this);
+        }
+
+        private void EndDefer()
+        {
+            --_deferLevel;
+
+            if (_deferLevel == 0)
+                Render();
+        }
+
+        #endregion
+
+        #region Private Func
+
+        private void Render()
+        {
+            using (var dc = _drawingGroup.Open())
+            {
+                decimal currentStep = 0;
+                decimal miniStep = 0;
+                int miniStepCount = 0;
+                InitStepInfo(ref currentStep, ref miniStep, ref miniStepCount);
+
+                dc.DrawLine(_pen, new Point(0, ActualHeight), new Point(ActualWidth, ActualHeight));
+
+                DrawOffsetRight(dc, currentStep, miniStep, miniStepCount);
+                DrawOffsetLeft(dc, currentStep, miniStep, miniStepCount);
+            }
         }
 
         private void InitStepInfo(ref decimal currentStep, ref decimal miniStep, ref int miniStepCount)
@@ -211,17 +286,6 @@ namespace UIResources.Controls
             }
         }
 
-        private void Draw(DrawingContext dc)
-        {
-            decimal currentStep = 0;
-            decimal miniStep = 0;
-            int miniStepCount = 0;
-            InitStepInfo(ref currentStep, ref miniStep, ref miniStepCount);
-
-            dc.DrawLine(_pen, new Point(0, ActualHeight), new Point(ActualWidth, ActualHeight));
-
-            DrawOffsetRight(dc, currentStep, miniStep, miniStepCount);
-            DrawOffsetLeft(dc, currentStep, miniStep, miniStepCount);
-        }
+        #endregion
     }
 }
