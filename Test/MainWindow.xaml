@@ -4,13 +4,28 @@
         xmlns:panels="clr-namespace:UIResources.Panels;assembly=UIResources"
         xmlns:controls="clr-namespace:UIResources.Controls;assembly=UIResources" 
         xmlns:themes="clr-namespace:UIResources.Themes;assembly=UIResources" 
+        xmlns:local="clr-namespace:Test"
         Title="MainWindow" Height="382" Width="654" WindowStartupLocation="CenterScreen">
     <Grid x:Name="rootGrid">
         <!--Style="{StaticResource/DynamicResource {x:Static themes:ResourceKeys.NoBgButtonStyleKey}}"-->
 
         <StackPanel Margin="5" VerticalAlignment="Top" Grid.IsSharedSizeScope="true">
-            <controls:Ruler Scale="{Binding Value,ElementName=ScaleSlider}" Offset="{Binding Value,ElementName=OffsetSlider}" Height="20"/>
+            <controls:Ruler Scale="{Binding Value,ElementName=UnitScaleSlider}" Unit="{Binding SelectedValue,ElementName=UnitComboBox}" Height="20" />
+            <Grid Margin="0,10,0,0" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <ComboBox x:Name="UnitComboBox"  VerticalAlignment="Center" Margin="0,0,5,0" Height="25"
+                          ItemsSource="{x:Static local:Map.RulerUnitDictionary}"
+                          SelectedValuePath="Key"
+                          DisplayMemberPath="Value" SelectedIndex="0"/>
+                <Slider x:Name="UnitScaleSlider" Grid.Column="1" Minimum="1" Maximum="100" Value="1" SmallChange="0.5" TickFrequency="0.5" IsSnapToTickEnabled="True"/>
+                <TextBox Grid.Column="2" Text="{Binding Value,ElementName=UnitScaleSlider,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
+            </Grid>
 
+            <controls:Ruler Scale="{Binding Value,ElementName=ScaleSlider}" Offset="{Binding Value,ElementName=OffsetSlider}" Height="20" Margin="0,30,0,0"/>
             <Grid Margin="0,10,0,0" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" SharedSizeGroup="FirstColumn"/>
@@ -30,20 +45,8 @@
                 <TextBlock Text="Offset" VerticalAlignment="Center" Margin="0,0,5,0"/>
                 <Slider x:Name="OffsetSlider" Grid.Column="1" Minimum="0" Maximum="100" Value="0" SmallChange="1" TickFrequency="1" IsSnapToTickEnabled="True"/>
                 <TextBox Grid.Column="2" Text="{Binding Value,ElementName=OffsetSlider,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
-            </Grid>
-			
-			<!--
-			<controls:Ruler Scale="{Binding Value,ElementName=slider1}" Height="20" Margin="0,30,0,0"/>
-			<Grid Margin="0,10,0,0" >
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Slider x:Name="slider1" Minimum="0.01" Maximum="1" Value="0.01" SmallChange="0.005" TickFrequency="0.005" IsSnapToTickEnabled="True"/>
-                <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider1,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
-            </Grid>
-            -->
-
+            </Grid> 
+            
             <controls:InchRuler Scale="{Binding Value,ElementName=slider2}" Height="20" Margin="0,30,0,0" Offset="{Binding Value,ElementName=OffsetSlider2}" />
             <Grid Margin="0,10,0,0" >
                 <Grid.ColumnDefinitions>
@@ -86,6 +89,50 @@
                 <TextBlock Text="Offset" VerticalAlignment="Center" Margin="0,0,5,0"/>
                 <Slider x:Name="OffsetSlider3" Grid.Column="1" Minimum="0" Maximum="1" Value="0" SmallChange="0.01" TickFrequency="0.01" IsSnapToTickEnabled="True"/>
                 <TextBox Grid.Column="2" Text="{Binding Value,ElementName=OffsetSlider3,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
+            </Grid>
+
+            <controls:CMRuler Scale="{Binding Value,ElementName=slider4}" Height="20" Margin="0,30,0,0" Offset="{Binding Value,ElementName=OffsetSlider4}" />
+            <Grid Margin="0,10,0,0" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="FirstColumn"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Scale" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <Slider x:Name="slider4" Grid.Column="1" Minimum="1" Maximum="100" Value="1" SmallChange="0.5" TickFrequency="0.5" IsSnapToTickEnabled="True"/>
+                <TextBox Grid.Column="2" Text="{Binding Value,ElementName=slider4,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
+            </Grid>
+            <Grid Margin="0,10,0,0" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="FirstColumn"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Offset" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <Slider x:Name="OffsetSlider4" Grid.Column="1" Minimum="0" Maximum="15" Value="0" SmallChange="0.1" TickFrequency="0.1" IsSnapToTickEnabled="True"/>
+                <TextBox Grid.Column="2" Text="{Binding Value,ElementName=OffsetSlider4,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
+            </Grid>
+
+            <controls:MMRuler Scale="{Binding Value,ElementName=slider5}" Height="20" Margin="0,30,0,0" Offset="{Binding Value,ElementName=OffsetSlider5}" />
+            <Grid Margin="0,10,0,0" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="FirstColumn"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Scale" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <Slider x:Name="slider5" Grid.Column="1" Minimum="1" Maximum="100" Value="1" SmallChange="0.5" TickFrequency="0.5" IsSnapToTickEnabled="True"/>
+                <TextBox Grid.Column="2" Text="{Binding Value,ElementName=slider5,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
+            </Grid>
+            <Grid Margin="0,10,0,0" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="FirstColumn"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Offset" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <Slider x:Name="OffsetSlider5" Grid.Column="1" Minimum="0" Maximum="150" Value="0" SmallChange="1" TickFrequency="1" IsSnapToTickEnabled="True"/>
+                <TextBox Grid.Column="2" Text="{Binding Value,ElementName=OffsetSlider5,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
             </Grid>
         </StackPanel>
         

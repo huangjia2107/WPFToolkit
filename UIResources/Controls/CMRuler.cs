@@ -5,47 +5,26 @@ using System.Windows.Media;
 
 namespace UIResources.Controls
 {
-    public enum RulerUnit
+    public class CMRuler : FrameworkElement
     {
-        Pixel,
-        Millimeter,
-        Centimeter,
-        Inch,
-        Foot
-    }
-
-    public class Ruler : FrameworkElement
-    {
-        private static readonly Type _typeofSelf = typeof(Ruler);
+        private static readonly Type _typeofSelf = typeof(CMRuler);
 
         private readonly Pen _pen = new Pen(Brushes.Black, 1.0);
-        private readonly DrawingGroup _drawingGroup = new DrawingGroup();  
+        private readonly DrawingGroup _drawingGroup = new DrawingGroup();
+        // 
+        private decimal _baseStep = 37.795m;
+
 
         //DefferRefresh
         int _deferLevel = 0;
 
-        public Ruler()
+        public CMRuler()
         {
-            RenderOptions.SetEdgeMode(this, EdgeMode.Aliased); 
-        }
-
-        public static readonly DependencyProperty UnitProperty =
-           DependencyProperty.Register("Unit", typeof(RulerUnit), _typeofSelf, new PropertyMetadata(RulerUnit.Pixel, OnUnitPropertyChanged));
-        public RulerUnit Unit
-        {
-            get { return (RulerUnit)GetValue(UnitProperty); }
-            set { SetValue(UnitProperty, value); }
-        }
-
-        static void OnUnitPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
-        {
-            var ruler = sender as Ruler;
-            if (ruler._deferLevel == 0)
-                ruler.Render();
+            RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
         }
 
         public static readonly DependencyProperty OffsetProperty =
-            DependencyProperty.Register("Offset", typeof(decimal), _typeofSelf, new PropertyMetadata(0m, OnOffsetPropertyChanged));
+            DependencyProperty.Register("Offset", typeof(decimal), _typeofSelf, new FrameworkPropertyMetadata(0m, OnOffsetPropertyChanged));
         public decimal Offset
         {
             get { return (decimal)GetValue(OffsetProperty); }
@@ -54,7 +33,7 @@ namespace UIResources.Controls
 
         static void OnOffsetPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
-            var ruler = sender as Ruler;
+            var ruler = sender as CMRuler;
             if (ruler._deferLevel == 0)
                 ruler.Render();
         }
@@ -68,7 +47,7 @@ namespace UIResources.Controls
         }
         static void OnScalePropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
-            var ruler = sender as Ruler;
+            var ruler = sender as CMRuler;
             if (ruler._deferLevel == 0)
                 ruler.Render();
         }
@@ -85,7 +64,7 @@ namespace UIResources.Controls
 
         private class DeferHelper : IDisposable
         {
-            public DeferHelper(Ruler ruler)
+            public DeferHelper(CMRuler ruler)
             {
                 _ruler = ruler;
             }
@@ -101,7 +80,7 @@ namespace UIResources.Controls
                 GC.SuppressFinalize(this);
             }
 
-            private Ruler _ruler;
+            private CMRuler _ruler;
         }
 
         public virtual IDisposable DeferRefresh()
@@ -136,95 +115,20 @@ namespace UIResources.Controls
                 DrawOffsetRight(dc, currentStep, miniStep, miniStepCount);
                 DrawOffsetLeft(dc, currentStep, miniStep, miniStepCount);
             }
-        } 
-
-        private int GetBBB()
-        {
-            int result = 0;
-            switch (Unit)
-            {
-                case RulerUnit.Pixel:
-                    result = 0;
-                    break;
-                case RulerUnit.Inch:
-                    result = 2;
-                    break;
-                case RulerUnit.Foot:
-                    result = 3;
-                    break;
-                case RulerUnit.Millimeter:
-                    result = 0;
-                    break;
-                case RulerUnit.Centimeter:
-                    result = 1;
-                    break;
-            }
-
-            return result;
-        }
-
-        private decimal GetAAA()
-        {
-            decimal result = 0;
-            switch (Unit)
-            {
-                case RulerUnit.Pixel:
-                    result = 1;
-                    break;
-                case RulerUnit.Inch:
-                    result = 96;
-                    break;
-                case RulerUnit.Foot:
-                    result = 1152;
-                    break;
-                case RulerUnit.Millimeter:
-                    result = 3.7795m;
-                    break;
-                case RulerUnit.Centimeter:
-                    result = 37.795m;
-                    break;
-            }
-
-            return result;
-        }
-
-        private decimal GetShift()
-        {
-            decimal result = 0;
-            switch (Unit)
-            {
-                case RulerUnit.Pixel:
-                    result = 1;
-                    break;
-                case RulerUnit.Inch:
-                    result = 0.96m;
-                    break;
-                case RulerUnit.Foot:
-                    result = 1.152m;
-                    break;
-                case RulerUnit.Millimeter:
-                    result = 3.7795m;
-                    break;
-                case RulerUnit.Centimeter:
-                    result = 3.7795m;
-                    break;
-            }
-
-            return result;
         }
 
         private void InitStepInfo(ref decimal currentStep, ref decimal miniStep, ref int miniStepCount)
         {
-            //             if (Scale == 1)
-            //             {
-            //                 currentStep = _baseStep;
-            //                 miniStep = _baseStep / 10;
-            //                 miniStepCount = 10;
-            // 
-            //                 return;
-            //             }
+//             if (Scale == 1)
+//             {
+//                 currentStep = _baseStep;
+//                 miniStep = _baseStep / 20;
+//                 miniStepCount = 20;
+// 
+//                 return;
+//             }
 
-            decimal tempScale = Scale * GetShift();
+            decimal tempScale = Scale * 3.7795m;
             decimal tempStep = tempScale;
 
             while (true)
@@ -294,17 +198,17 @@ namespace UIResources.Controls
 
         private void DrawStep(DrawingContext dc, decimal stepIndex, decimal currentStep, int miniStepCount, bool ignoreFirstMark = false)
         {
-            var currentStepIndex = (stepIndex - Offset * Scale * GetAAA());
+            var currentStepIndex = (stepIndex - Offset * Scale * 37.795m);
             if (currentStepIndex % currentStep == 0)
             {
-                var mark = Math.Round(currentStepIndex / (Scale * GetAAA()), GetBBB());
+                var mark = Math.Round(currentStepIndex / Scale, 0);
                 if (ignoreFirstMark && mark == 0)
                     return;
 
                 dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight), new Point((double)stepIndex + 0.5, 0));
 
                 var ft = new FormattedText(
-                        mark.ToString("#0.###"),
+                        Math.Round(currentStepIndex / (Scale * 37.795m), 1).ToString("#0.###"),
                         CultureInfo.CurrentCulture,
                         FlowDirection.LeftToRight,
                         new Typeface("Arial"),
@@ -352,7 +256,7 @@ namespace UIResources.Controls
             if (Offset >= (decimal)ActualWidth)
                 return;
 
-            for (var stepIndex = Offset * Scale * GetAAA(); stepIndex < (decimal)ActualWidth; stepIndex += miniStep)
+            for (var stepIndex = Offset * Scale * 37.795m; stepIndex < (decimal)ActualWidth; stepIndex += miniStep)
             {
                 if (stepIndex < 0)
                     continue;
@@ -366,7 +270,7 @@ namespace UIResources.Controls
             if (Offset <= 0)
                 return;
 
-            for (var stepIndex = Offset * Scale * GetAAA(); stepIndex >= 0; stepIndex -= miniStep)
+            for (var stepIndex = Offset * Scale * 37.795m; stepIndex >= 0; stepIndex -= miniStep)
             {
                 if (stepIndex > (decimal)ActualWidth)
                     continue;

@@ -47,6 +47,8 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\CMRuler.cs" />
+    <Compile Include="Controls\MMRuler.cs" />
     <Compile Include="Controls\FootRuler.cs" />
     <Compile Include="Controls\InchRuler.cs" />
     <Compile Include="Controls\MenuButton.cs" />
