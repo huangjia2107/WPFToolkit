@@ -7,9 +7,8 @@
         Title="MainWindow" Height="350" Width="485" WindowStartupLocation="CenterScreen">
     <Grid x:Name="rootGrid">
         <!--Style="{StaticResource/DynamicResource {x:Static themes:ResourceKeys.NoBgButtonStyleKey}}"-->
-        <Button x:Name="testBtn" Content="545456" HorizontalAlignment="Left" Width="50" Margin="10,10,0,0" VerticalAlignment="Top" Height="49" Click="Button_Click_1" BorderThickness="0"/>
 
-        <StackPanel Margin="10,125,10,0" VerticalAlignment="Top" Grid.IsSharedSizeScope="true">
+        <StackPanel Margin="5" VerticalAlignment="Top" Grid.IsSharedSizeScope="true">
             <controls:Ruler Scale="{Binding Value,ElementName=ScaleSlider}" Offset="{Binding Value,ElementName=OffsetSlider}" Height="20"/>
 
             <Grid Margin="0,10,0,0" >
@@ -33,7 +32,7 @@
                 <TextBox Grid.Column="2" Text="{Binding Value,ElementName=OffsetSlider,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
             </Grid>
 			
-			
+			<!--
 			<controls:Ruler Scale="{Binding Value,ElementName=slider1}" Height="20" Margin="0,30,0,0"/>
 			<Grid Margin="0,10,0,0" >
                 <Grid.ColumnDefinitions>
@@ -42,6 +41,27 @@
                 </Grid.ColumnDefinitions>
                 <Slider x:Name="slider1" Minimum="0.01" Maximum="1" Value="0.01" SmallChange="0.005" TickFrequency="0.005" IsSnapToTickEnabled="True"/>
                 <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider1,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
+            </Grid>
+            -->
+            
+            <controls:InchRuler Scale="{Binding Value,ElementName=slider2}" Height="20" Margin="0,30,0,0"/>
+            <Grid Margin="0,10,0,0" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Slider x:Name="slider2" Minimum="1" Maximum="100" Value="1" SmallChange="0.5" TickFrequency="0.5" IsSnapToTickEnabled="True"/>
+                <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider2,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
+            </Grid>
+
+            <controls:FootRuler Scale="{Binding Value,ElementName=slider3}" Height="20" Margin="0,30,0,0"/>
+            <Grid Margin="0,10,0,0" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Slider x:Name="slider3" Minimum="1" Maximum="100" Value="1" SmallChange="0.5" TickFrequency="0.5" IsSnapToTickEnabled="True"/>
+                <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider3,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
             </Grid>
         </StackPanel>
         

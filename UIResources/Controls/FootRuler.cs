@@ -5,35 +5,26 @@ using System.Windows.Media;
 
 namespace UIResources.Controls
 {
-    public enum Unit
+    public class FootRuler : FrameworkElement
     {
-        Pixel,
-        Millimeter,
-        Centimeter,
-        Inch,
-        Foot
-    }
-
-    public class Ruler : FrameworkElement
-    {
-        private static readonly Type _typeofSelf = typeof(Ruler);
+        private static readonly Type _typeofSelf = typeof(FootRuler);
 
         private readonly Pen _pen = new Pen(Brushes.Black, 1.0);
         private readonly DrawingGroup _drawingGroup = new DrawingGroup();
         // 
-        private decimal _baseStep = 50;
+        private decimal _baseStep = 1152;
 
 
         //DefferRefresh
-        int _deferLevel = 0; 
+        int _deferLevel = 0;
 
-        public Ruler()
+        public FootRuler()
         {
-            RenderOptions.SetEdgeMode(this, EdgeMode.Aliased); 
+            RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
         }
 
         public static readonly DependencyProperty OffsetProperty =
-            DependencyProperty.Register("Offset", typeof(decimal), _typeofSelf, new FrameworkPropertyMetadata(12m, OnOffsetPropertyChanged));
+            DependencyProperty.Register("Offset", typeof(decimal), _typeofSelf, new FrameworkPropertyMetadata(0m, OnOffsetPropertyChanged));
         public decimal Offset
         {
             get { return (decimal)GetValue(OffsetProperty); }
@@ -42,7 +33,7 @@ namespace UIResources.Controls
 
         static void OnOffsetPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
-            var ruler = sender as Ruler;
+            var ruler = sender as FootRuler;
             if (ruler._deferLevel == 0)
                 ruler.Render();
         }
@@ -56,7 +47,7 @@ namespace UIResources.Controls
         }
         static void OnScalePropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
-            var ruler = sender as Ruler;
+            var ruler = sender as FootRuler;
             if (ruler._deferLevel == 0)
                 ruler.Render();
         }
@@ -73,7 +64,7 @@ namespace UIResources.Controls
 
         private class DeferHelper : IDisposable
         {
-            public DeferHelper(Ruler ruler)
+            public DeferHelper(FootRuler ruler)
             {
                 _ruler = ruler;
             }
@@ -89,7 +80,7 @@ namespace UIResources.Controls
                 GC.SuppressFinalize(this);
             }
 
-            private Ruler _ruler;
+            private FootRuler _ruler;
         }
 
         public virtual IDisposable DeferRefresh()
@@ -131,13 +122,15 @@ namespace UIResources.Controls
 //             if (Scale == 1)
 //             {
 //                 currentStep = _baseStep;
-//                 miniStep = _baseStep / 10;
-//                 miniStepCount = 10;
+//                 miniStep = _baseStep / 20;
+//                 miniStepCount = 20;
 // 
 //                 return;
 //             }
 
-            decimal tempStep = Scale;
+            decimal tempScale = Scale * 1.152m;
+            decimal tempStep = tempScale;
+
             while (true)
             {
                 if (tempStep / 4 >= 20)
@@ -169,31 +162,31 @@ namespace UIResources.Controls
 
                 if (Scale < (decimal)0.1)
                 {
-                    if (tempStep == Scale)
-                        tempStep = Scale * 500;
+                    if (tempStep == tempScale)
+                        tempStep = tempScale * 500;
                     else
-                        tempStep += Scale * 500;
+                        tempStep += tempScale * 500;
                 }
                 else if (Scale < 1)
                 {
-                    if (tempStep == Scale)
-                        tempStep = Scale * 50;
+                    if (tempStep == tempScale)
+                        tempStep = tempScale * 50;
                     else
-                        tempStep += Scale * 50;
+                        tempStep += tempScale * 50;
                 }
                 else if (Scale <= 10)
                 {
-                    if (tempStep == Scale)
-                        tempStep = Scale * 5;
+                    if (tempStep == tempScale)
+                        tempStep = tempScale * 5;
                     else
-                        tempStep += Scale * 5;
+                        tempStep += tempScale * 5;
                 }
                 else
                 {
-                    if (tempStep == Scale)
-                        tempStep = Scale * 2;
+                    if (tempStep == tempScale)
+                        tempStep = tempScale * 2;
                     else
-                        tempStep += Scale * 2;
+                        tempStep += tempScale * 2;
                 }
             }
         }
@@ -205,7 +198,7 @@ namespace UIResources.Controls
 
         private void DrawStep(DrawingContext dc, decimal stepIndex, decimal currentStep, int miniStepCount, bool ignoreFirstMark = false)
         {
-            var currentStepIndex = (stepIndex - Offset * Scale);
+            var currentStepIndex = (stepIndex - Offset * Scale * 1152m);
             if (currentStepIndex % currentStep == 0)
             {
                 var mark = Math.Round(currentStepIndex / Scale, 0);
@@ -215,7 +208,7 @@ namespace UIResources.Controls
                 dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight), new Point((double)stepIndex + 0.5, 0));
 
                 var ft = new FormattedText(
-                        Math.Round(currentStepIndex / Scale, 0).ToString(CultureInfo.CurrentCulture),
+                        Math.Round(currentStepIndex / (Scale * 1152m), 3).ToString("#0.###"),
                         CultureInfo.CurrentCulture,
                         FlowDirection.LeftToRight,
                         new Typeface("Arial"),
@@ -263,7 +256,7 @@ namespace UIResources.Controls
             if (Offset >= (decimal)ActualWidth)
                 return;
 
-            for (var stepIndex = Offset * Scale; stepIndex < (decimal)ActualWidth; stepIndex += miniStep)
+            for (var stepIndex = Offset * Scale * 1152m; stepIndex < (decimal)ActualWidth; stepIndex += miniStep)
             {
                 if (stepIndex < 0)
                     continue;
@@ -277,7 +270,7 @@ namespace UIResources.Controls
             if (Offset <= 0)
                 return;
 
-            for (var stepIndex = Offset * Scale; stepIndex >= 0; stepIndex -= miniStep)
+            for (var stepIndex = Offset * Scale * 1152m; stepIndex >= 0; stepIndex -= miniStep)
             {
                 if (stepIndex > (decimal)ActualWidth)
                     continue;

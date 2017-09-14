@@ -96,7 +96,7 @@ namespace Test
             //                 Value = 30,
             //                 MaxValue = 80
             //             }; 
-            AnchorPopup.Show(testBtn, "This is a test.sdcw dwdwdwd wdwdw dwdwdwdwj dwjwi jdwijdw0000");
+            //AnchorPopup.Show(testBtn, "This is a test.sdcw dwdwdwd wdwdw dwdwdwdwj dwjwi jdwijdw0000");
 
             /*
             Action action1 = aa;
