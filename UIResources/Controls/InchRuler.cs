@@ -128,7 +128,7 @@ namespace UIResources.Controls
 //                 return;
 //             }
 
-            decimal tempScale = Scale * 9.6m;
+            decimal tempScale = Scale * 0.96m;
             decimal tempStep = tempScale;
 
             while (true)
@@ -208,7 +208,7 @@ namespace UIResources.Controls
                 dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight), new Point((double)stepIndex + 0.5, 0));
 
                 var ft = new FormattedText(
-                        Math.Round(currentStepIndex / (Scale * 96m), 1).ToString("#0.#"),
+                        Math.Round(currentStepIndex / (Scale * 96m), 2).ToString("#0.##"),
                         CultureInfo.CurrentCulture,
                         FlowDirection.LeftToRight,
                         new Typeface("Arial"),
