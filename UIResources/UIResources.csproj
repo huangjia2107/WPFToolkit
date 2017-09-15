@@ -52,7 +52,7 @@
     <Compile Include="Controls\Ruler.cs" />
     <Compile Include="Controls\ToggleStatus.cs" />
     <Compile Include="Helps\Converters.cs" />
-    <Compile Include="Helps\DipUtil.cs" />
+    <Compile Include="Helps\DpiUtil.cs" />
     <Compile Include="Helps\LayoutUtil.cs" />
     <Compile Include="Markup\BubbleVisibility.cs" />
     <Compile Include="Markup\SharedResourceDictionary.cs" />

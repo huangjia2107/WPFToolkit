@@ -18,15 +18,16 @@ namespace UIResources.Controls
     public class Ruler : FrameworkElement
     {
         private static readonly Type _typeofSelf = typeof(Ruler);
-
-        private readonly Pen _pen = new Pen(Brushes.Black, 1.0);
         private readonly DrawingGroup _drawingGroup = new DrawingGroup();  
 
+        private double _devicePixelUnit = 1;
+        private Pen _pen = null;
+        
         private int _deferLevel = 0; 
 
         public Ruler()
         {
-            RenderOptions.SetEdgeMode(this, EdgeMode.Aliased); 
+            RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);  
         }
 
         public static readonly DependencyProperty UnitProperty =
@@ -76,6 +77,13 @@ namespace UIResources.Controls
         protected override void OnRender(DrawingContext drawingContext)
         {
             base.OnRender(drawingContext);
+
+            if(_pen == null)
+            {
+                _devicePixelUnit = DpiUtil.GetDevicePixelUnit(this);
+                _pen = new Pen(Brushes.Black, 1.0 / _devicePixelUnit);
+                _pen.Freeze();
+            }
 
             Render();
             drawingContext.DrawDrawing(_drawingGroup);
@@ -285,7 +293,7 @@ namespace UIResources.Controls
                         CultureInfo.CurrentCulture,
                         FlowDirection.LeftToRight,
                         new Typeface("Arial"),
-                        DipUtil.PtToDip(6),
+                        DpiUtil.PtToPixel(6),
                         Brushes.DimGray);
             ft.SetFontWeight(FontWeights.Regular);
             ft.TextAlignment = TextAlignment.Left;

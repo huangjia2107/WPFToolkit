@@ -9,11 +9,13 @@ using System.Windows.Media;
 namespace UIResources.Helps
 {
     /// <summary>
-    /// DIP (Device Independent Pixels)
+    /// DIP (Device Independent Pixel)
+    /// DIU (Device Independent Unit)
     /// </summary>
-    public static class DipUtil
+    public static class DpiUtil
     {
-        private const double DpiBase = 96.0; 
+        private const double DIP = 96.0; 
+        private const double DIU = 1 / 96.0;
 
         public static Point GetDpiFactor(Visual visual)
         {
@@ -25,9 +27,9 @@ namespace UIResources.Helps
             return new Point(matrix.M11, matrix.M22);
         }
 
-        public static double PtToDip(double pt)
+        public static double PtToPixel(double pt)
         {
-            return (pt * 1 / 72.0 * 96.0);
+            return (pt * 1 / 72.0 * DIP);
         }
 
         public static Point GetDpi(Visual visual)
@@ -37,8 +39,16 @@ namespace UIResources.Helps
 
             Point sysDpiFactor = GetDpiFactor(visual);
             return new Point(
-                 sysDpiFactor.X * DpiBase,
-                 sysDpiFactor.Y * DpiBase);
+                 sysDpiFactor.X * DIP,
+                 sysDpiFactor.Y * DIP);
+        }
+
+        public static double GetDevicePixelUnit(Visual visual)
+        {
+            if (visual == null)
+                throw new ArgumentNullException("visual");
+                
+            return DIU * GetDpi(visual).X;
         }
     }
 }
