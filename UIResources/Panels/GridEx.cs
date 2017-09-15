@@ -88,7 +88,7 @@ namespace UIResources.Panels
         private double GetDpiFactor()
         {
             if (!_dpiFactor.HasValue)
-                _dpiFactor = Utils.GetDpiFactor(this);
+                _dpiFactor = 1 / (DipUtil.GetDpiFactor(this).X);
 
             return _dpiFactor.Value;
         }

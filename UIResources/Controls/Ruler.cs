@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
+using UIResources.Helps;
 
 namespace UIResources.Controls
 {
@@ -21,8 +22,7 @@ namespace UIResources.Controls
         private readonly Pen _pen = new Pen(Brushes.Black, 1.0);
         private readonly DrawingGroup _drawingGroup = new DrawingGroup();  
 
-        //DefferRefresh
-        int _deferLevel = 0;
+        private int _deferLevel = 0; 
 
         public Ruler()
         {
@@ -278,10 +278,20 @@ namespace UIResources.Controls
             }
         }
 
-        public double PtToDip(double pt)
+        private FormattedText GetFormattedText(string textToFormat)
         {
-            return (pt * 96.0 / 72.0);
-        }
+             var ft = new FormattedText(
+                        textToFormat,
+                        CultureInfo.CurrentCulture,
+                        FlowDirection.LeftToRight,
+                        new Typeface("Arial"),
+                        DipUtil.PtToDip(6),
+                        Brushes.DimGray);
+            ft.SetFontWeight(FontWeights.Regular);
+            ft.TextAlignment = TextAlignment.Left;
+
+            return ft;
+        } 
 
         private void DrawStep(DrawingContext dc, decimal stepIndex, decimal currentStep, int miniStepCount, bool ignoreFirstMark = false)
         {
@@ -292,19 +302,8 @@ namespace UIResources.Controls
                 if (ignoreFirstMark && mark == 0)
                     return;
 
-                dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight), new Point((double)stepIndex + 0.5, 0));
-
-                var ft = new FormattedText(
-                        mark.ToString("#0.###"),
-                        CultureInfo.CurrentCulture,
-                        FlowDirection.LeftToRight,
-                        new Typeface("Arial"),
-                        PtToDip(6),
-                        Brushes.DimGray);
-                ft.SetFontWeight(FontWeights.Regular);
-                ft.TextAlignment = TextAlignment.Left;
-
-                dc.DrawText(ft, new Point((double)stepIndex + 1.5, 0));
+                dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight), new Point((double)stepIndex + 0.5, 0)); 
+                dc.DrawText(GetFormattedText(mark.ToString("#0.###")), new Point((double)stepIndex + 1.5, 0));
             }
             else
             {
