@@ -15,19 +15,40 @@ namespace UIResources.Controls
         Foot
     }
 
+    public enum MarkDock
+    {
+        Up,
+        Down
+    }
+
     public class Ruler : FrameworkElement
     {
         private static readonly Type _typeofSelf = typeof(Ruler);
-        private readonly DrawingGroup _drawingGroup = new DrawingGroup();  
+        private readonly DrawingGroup _drawingGroup = new DrawingGroup();
 
         private double _devicePixelUnit = 1;
         private Pen _pen = null;
-        
-        private int _deferLevel = 0; 
+
+        private int _deferLevel = 0;
 
         public Ruler()
         {
-            RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);  
+            RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
+        }
+
+        public static readonly DependencyProperty MarkDockProperty =
+            DependencyProperty.Register("MarkDock", typeof(MarkDock), _typeofSelf, new PropertyMetadata(MarkDock.Up, OnMarkDockPropertyChanged));
+        public MarkDock MarkDock
+        {
+            get { return (MarkDock)GetValue(MarkDockProperty); }
+            set { SetValue(MarkDockProperty, value); }
+        }
+
+        static void OnMarkDockPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            var ruler = sender as Ruler;
+            if (ruler._deferLevel == 0)
+                ruler.Render();
         }
 
         public static readonly DependencyProperty UnitProperty =
@@ -78,7 +99,7 @@ namespace UIResources.Controls
         {
             base.OnRender(drawingContext);
 
-            if(_pen == null)
+            if (_pen == null)
             {
                 _devicePixelUnit = DpiUtil.GetDevicePixelUnit(this);
                 _pen = new Pen(Brushes.Black, 1.0 / _devicePixelUnit);
@@ -130,6 +151,11 @@ namespace UIResources.Controls
 
         #region Private Func
 
+        private double BaseLineOffset
+        {
+            get { return this.MarkDock == MarkDock.Up ? ActualHeight : 0d; }
+        }
+
         private void Render()
         {
             using (var dc = _drawingGroup.Open())
@@ -139,12 +165,12 @@ namespace UIResources.Controls
                 var miniStepCount = 0;
                 InitStepInfo(ref currentStep, ref miniStep, ref miniStepCount);
 
-                dc.DrawLine(_pen, new Point(0, ActualHeight), new Point(ActualWidth, ActualHeight));
+                dc.DrawLine(_pen, new Point(0, BaseLineOffset), new Point(ActualWidth, BaseLineOffset));
 
                 DrawOffsetRight(dc, currentStep, miniStep, miniStepCount);
                 DrawOffsetLeft(dc, currentStep, miniStep, miniStepCount);
             }
-        } 
+        }
 
         private int GetPrecision()
         {
@@ -222,7 +248,7 @@ namespace UIResources.Controls
         }
 
         private void InitStepInfo(ref decimal currentStep, ref decimal miniStep, ref int miniStepCount)
-        {  
+        {
             var tempScale = Scale * GetBaseStep();
             var tempStep = tempScale;
 
@@ -288,18 +314,18 @@ namespace UIResources.Controls
 
         private FormattedText GetFormattedText(string textToFormat)
         {
-             var ft = new FormattedText(
-                        textToFormat,
-                        CultureInfo.CurrentCulture,
-                        FlowDirection.LeftToRight,
-                        new Typeface("Arial"),
-                        DpiUtil.PtToPixel(6),
-                        Brushes.DimGray);
+            var ft = new FormattedText(
+                       textToFormat,
+                       CultureInfo.CurrentCulture,
+                       FlowDirection.LeftToRight,
+                       new Typeface("Arial"),
+                       DpiUtil.PtToPixel(6),
+                       Brushes.Black);
             ft.SetFontWeight(FontWeights.Regular);
             ft.TextAlignment = TextAlignment.Left;
 
             return ft;
-        } 
+        }
 
         private void DrawStep(DrawingContext dc, decimal stepIndex, decimal currentStep, int miniStepCount, bool ignoreFirstMark = false)
         {
@@ -310,37 +336,39 @@ namespace UIResources.Controls
                 if (ignoreFirstMark && mark == 0)
                     return;
 
-                dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight), new Point((double)stepIndex + 0.5, 0)); 
-                dc.DrawText(GetFormattedText(mark.ToString("#0.###")), new Point((double)stepIndex + 1.5, 0));
+                var ft = GetFormattedText(mark.ToString("#0.###"));
+
+                dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight), new Point((double)stepIndex + 0.5, 0));
+                dc.DrawText(ft, new Point((double)stepIndex + 1.5, MarkDock == MarkDock.Up ? 0 : ActualHeight - ft.Height));
             }
             else
             {
                 if (miniStepCount == 5)
                 {
                     if (currentStepIndex % (currentStep / 5) == 0)
-                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 2), new Point((double)stepIndex + 0.5, ActualHeight));
+                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 2), new Point((double)stepIndex + 0.5, BaseLineOffset));
                 }
 
                 if (miniStepCount == 10)
                 {
                     if (currentStepIndex % (currentStep / 2) == 0)
-                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 5), new Point((double)stepIndex + 0.5, ActualHeight));
+                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
                     else if (currentStepIndex % (currentStep / 5) == 0)
-                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 2), new Point((double)stepIndex + 0.5, ActualHeight));
+                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 2), new Point((double)stepIndex + 0.5, BaseLineOffset));
                     else
-                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * 5 / 8), new Point((double)stepIndex + 0.5, ActualHeight));
+                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
                 }
 
                 if (miniStepCount == 20)
                 {
                     if (currentStepIndex % (currentStep / 2) == 0)
-                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 5), new Point((double)stepIndex + 0.5, ActualHeight));
+                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
                     else if (currentStepIndex % (currentStep / 4) == 0)
-                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 2), new Point((double)stepIndex + 0.5, ActualHeight));
+                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 2), new Point((double)stepIndex + 0.5, BaseLineOffset));
                     else if (currentStepIndex % (currentStep / 10) == 0)
-                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * 5 / 8), new Point((double)stepIndex + 0.5, ActualHeight));
+                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
                     else
-                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * 23 / 32), new Point((double)stepIndex + 0.5, ActualHeight));
+                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 23 / 32d : 9 / 32d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
                 }
             }
         }

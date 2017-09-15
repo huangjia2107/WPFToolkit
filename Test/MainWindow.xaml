@@ -7,6 +7,10 @@
         xmlns:local="clr-namespace:Test"
         Title="MainWindow" Height="382" Width="654" WindowStartupLocation="CenterScreen">
     <Grid x:Name="rootGrid">  
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
         <StackPanel Margin="5" VerticalAlignment="Top" Grid.IsSharedSizeScope="true">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -45,5 +49,8 @@
                 <TextBox Grid.Column="2" Text="{Binding Value,ElementName=UnitScaleSlider,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
             </Grid>
         </StackPanel>
+        <controls:ZoomBox Grid.Row="1" Margin="0,20,0,0">
+            sdjhwdhwidhwid
+        </controls:ZoomBox>
     </Grid>
 </Window>
