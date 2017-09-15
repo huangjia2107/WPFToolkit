@@ -23,62 +23,15 @@ using UIResources.Panels;
 using MvvmUtils.ViewModel;
 
 namespace Test
-{
-    public class Number : ViewModelBase
-    {
-        private double _MiniValue = 0;
-        public double MiniValue
-        {
-            get { return _MiniValue; }
-            set
-            {
-                _MiniValue = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private double _MaxValue = 100;
-        public double MaxValue
-        {
-            get { return _MaxValue; }
-            set
-            {
-                _MaxValue = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private double _Value;
-        public double Value
-        {
-            get { return _Value; }
-            set
-            {
-                _Value = value;
-                RaisePropertyChanged();
-            }
-        }
-    }
-
-
+{ 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    {
-        private Number number = null;
+    { 
         public MainWindow()
         {
-            InitializeComponent();
-
-            number = new Number
-            {
-                MiniValue = 0,
-                Value = 0,
-                MaxValue = 100
-            };
-
-            this.DataContext = number;
+            InitializeComponent(); 
         }
 
         private void aa()
@@ -90,12 +43,6 @@ namespace Test
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            //             this.DataContext = new Number
-            //             {
-            //                 MiniValue = 0,
-            //                 Value = 30,
-            //                 MaxValue = 80
-            //             }; 
             //AnchorPopup.Show(testBtn, "This is a test.sdcw dwdwdwd wdwdw dwdwdwdwj dwjwi jdwijdw0000");
 
             /*

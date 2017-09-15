@@ -44,15 +44,15 @@ namespace UIResources.Controls
                 ruler.Render();
         }
 
-        public static readonly DependencyProperty OffsetProperty =
-            DependencyProperty.Register("Offset", typeof(decimal), _typeofSelf, new PropertyMetadata(0m, OnOffsetPropertyChanged));
-        public decimal Offset
+        public static readonly DependencyProperty ShiftProperty =
+            DependencyProperty.Register("Shift", typeof(decimal), _typeofSelf, new PropertyMetadata(0m, OnShiftPropertyChanged));
+        public decimal Shift
         {
-            get { return (decimal)GetValue(OffsetProperty); }
-            set { SetValue(OffsetProperty, value); }
+            get { return (decimal)GetValue(ShiftProperty); }
+            set { SetValue(ShiftProperty, value); }
         }
 
-        static void OnOffsetPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        static void OnShiftPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
             var ruler = sender as Ruler;
             if (ruler._deferLevel == 0)
@@ -138,7 +138,7 @@ namespace UIResources.Controls
             }
         } 
 
-        private int GetBBB()
+        private int GetPrecision()
         {
             int result = 0;
             switch (Unit)
@@ -163,7 +163,7 @@ namespace UIResources.Controls
             return result;
         }
 
-        private decimal GetAAA()
+        private decimal GetPixelPerUnit()
         {
             decimal result = 0;
             switch (Unit)
@@ -188,7 +188,7 @@ namespace UIResources.Controls
             return result;
         }
 
-        private decimal GetShift()
+        private decimal GetBaseStep()
         {
             decimal result = 0;
             switch (Unit)
@@ -224,7 +224,7 @@ namespace UIResources.Controls
             //                 return;
             //             }
 
-            decimal tempScale = Scale * GetShift();
+            decimal tempScale = Scale * GetBaseStep();
             decimal tempStep = tempScale;
 
             while (true)
@@ -294,10 +294,10 @@ namespace UIResources.Controls
 
         private void DrawStep(DrawingContext dc, decimal stepIndex, decimal currentStep, int miniStepCount, bool ignoreFirstMark = false)
         {
-            var currentStepIndex = (stepIndex - Offset * Scale * GetAAA());
+            var currentStepIndex = (stepIndex - Shift * Scale * GetPixelPerUnit());
             if (currentStepIndex % currentStep == 0)
             {
-                var mark = Math.Round(currentStepIndex / (Scale * GetAAA()), GetBBB());
+                var mark = Math.Round(currentStepIndex / (Scale * GetPixelPerUnit()), GetPrecision());
                 if (ignoreFirstMark && mark == 0)
                     return;
 
@@ -349,10 +349,10 @@ namespace UIResources.Controls
 
         private void DrawOffsetRight(DrawingContext dc, decimal currentStep, decimal miniStep, int miniStepCount)
         {
-            if (Offset >= (decimal)ActualWidth)
+            if (Shift >= (decimal)ActualWidth)
                 return;
 
-            for (var stepIndex = Offset * Scale * GetAAA(); stepIndex < (decimal)ActualWidth; stepIndex += miniStep)
+            for (var stepIndex = Shift * Scale * GetPixelPerUnit(); stepIndex < (decimal)ActualWidth; stepIndex += miniStep)
             {
                 if (stepIndex < 0)
                     continue;
@@ -363,10 +363,10 @@ namespace UIResources.Controls
 
         private void DrawOffsetLeft(DrawingContext dc, decimal currentStep, decimal miniStep, int miniStepCount)
         {
-            if (Offset <= 0)
+            if (Shift <= 0)
                 return;
 
-            for (var stepIndex = Offset * Scale * GetAAA(); stepIndex >= 0; stepIndex -= miniStep)
+            for (var stepIndex = Shift * Scale * GetPixelPerUnit(); stepIndex >= 0; stepIndex -= miniStep)
             {
                 if (stepIndex > (decimal)ActualWidth)
                     continue;
