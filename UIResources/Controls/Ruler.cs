@@ -128,7 +128,7 @@ namespace UIResources.Controls
             {
                 decimal currentStep = 0;
                 decimal miniStep = 0;
-                int miniStepCount = 0;
+                var miniStepCount = 0;
                 InitStepInfo(ref currentStep, ref miniStep, ref miniStepCount);
 
                 dc.DrawLine(_pen, new Point(0, ActualHeight), new Point(ActualWidth, ActualHeight));
@@ -140,7 +140,7 @@ namespace UIResources.Controls
 
         private int GetPrecision()
         {
-            int result = 0;
+            var result = 0;
             switch (Unit)
             {
                 case RulerUnit.Pixel:
@@ -214,18 +214,9 @@ namespace UIResources.Controls
         }
 
         private void InitStepInfo(ref decimal currentStep, ref decimal miniStep, ref int miniStepCount)
-        {
-            //             if (Scale == 1)
-            //             {
-            //                 currentStep = _baseStep;
-            //                 miniStep = _baseStep / 10;
-            //                 miniStepCount = 10;
-            // 
-            //                 return;
-            //             }
-
-            decimal tempScale = Scale * GetBaseStep();
-            decimal tempStep = tempScale;
+        {  
+            var tempScale = Scale * GetBaseStep();
+            var tempStep = tempScale;
 
             while (true)
             {
