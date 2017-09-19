@@ -80,52 +80,5 @@
 			</Setter.Value>
 		</Setter>
 	</Style>
-
-<!--
-    <Style TargetType="{x:Type controls:ZoomBox}">
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type controls:ZoomBox}">
-                    <ScrollViewer x:Name="PART_ScrollViewer" 
-                                  Background="{TemplateBinding Background}"
-                                  BorderBrush="{TemplateBinding BorderBrush}"
-                                  BorderThickness="{TemplateBinding BorderThickness}"
-                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                  HorizontalScrollBarVisibility="Auto"
-                                  VerticalScrollBarVisibility="Auto">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="20"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="20"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Text="{Binding Scale,ElementName=PART_HorizontalRuler}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                            <controls:Ruler x:Name="PART_HorizontalRuler" Grid.Row="0" Grid.Column="1" Scale="{Binding ScaleX,ElementName=PART_ScaleTransform}"/>
-                            <controls:Ruler x:Name="PART_VerticalRuler" Grid.Row="1" Grid.Column="0" MarkDock="Down" Scale="{Binding ScaleY,ElementName=PART_ScaleTransform}">
-                                <controls:Ruler.LayoutTransform>
-                                    <RotateTransform Angle="90"/>
-                                </controls:Ruler.LayoutTransform>
-                            </controls:Ruler>
-                            <Grid x:Name="PART_ContentGrid" Grid.Column="1" Grid.Row="1" RenderTransformOrigin="0.5,0.5" 
-                                  Background="{TemplateBinding Background}">
-                                <Grid.LayoutTransform>
-                                    <ScaleTransform x:Name="PART_ScaleTransform"/>
-                                </Grid.LayoutTransform>
-                                <ContentPresenter x:Name="PART_ContentPresenter" 
-                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
-                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                            </Grid>
-                        </Grid>
-                    </ScrollViewer>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
--->
+ 
 </ResourceDictionary>
