@@ -14,29 +14,25 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace UIResources.Controls
-{
-    [TemplatePart(Name = ScrollViewerTemplateName, Type = typeof(ScrollViewer))]
+{ 
     [TemplatePart(Name = ScaleTransformTemplateName, Type = typeof(ScaleTransform))]
     [TemplatePart(Name = HorizontalRulerTemplateName, Type = typeof(Ruler))]
-    [TemplatePart(Name = VerticalRulerTemplateName, Type = typeof(Ruler))]
-    [TemplatePart(Name = ContentPresenterTemplateName, Type = typeof(ContentPresenter))]
-    public class ZoomBox : ContentControl
+    [TemplatePart(Name = VerticalRulerTemplateName, Type = typeof(Ruler))] 
+    [TemplatePart(Name = ScrollContentPresenterTemplateName, Type = typeof(ScrollContentPresenter))]
+    public class ZoomBox : ScrollViewer
     {
         private static readonly Type _typeofSelf = typeof(ZoomBox);
 
-        private const string ScrollViewerTemplateName = "PART_ScrollViewer";
-        private const string ScaleTransformTemplateName = "PART_ScaleTransform";
-
         private const string HorizontalRulerTemplateName = "PART_HorizontalRuler";
         private const string VerticalRulerTemplateName = "PART_VerticalRuler";
-
-        private const string ContentPresenterTemplateName = "PART_ContentPresenter";
-
-        private ScrollViewer _partScrollViewer;
+ 
+        private const string ScrollContentPresenterTemplateName = "PART_ScrollContentPresenter";
+        private const string ScaleTransformTemplateName = "PART_ScaleTransform";
+ 
         private ScaleTransform _partScaleTransform;
         private Ruler _partHorizontalRuler;
-        private Ruler _partVerticalRuler;
-        private ContentPresenter _partContentPresenter;
+        private Ruler _partVerticalRuler; 
+        private ScrollContentPresenter _partScrollContentPresenter;
 
         static ZoomBox()
         {
@@ -47,24 +43,24 @@ namespace UIResources.Controls
         {
             base.OnApplyTemplate();
 
-            _partScrollViewer = GetTemplateChild(ScrollViewerTemplateName) as ScrollViewer;
-            _partScaleTransform = GetTemplateChild(ScaleTransformTemplateName) as ScaleTransform;
-
             _partHorizontalRuler = GetTemplateChild(HorizontalRulerTemplateName) as Ruler;
             _partVerticalRuler = GetTemplateChild(VerticalRulerTemplateName) as Ruler;
+ 
+            _partScrollContentPresenter = GetTemplateChild(ScrollContentPresenterTemplateName) as ScrollContentPresenter;
+            _partScaleTransform = GetTemplateChild(ScaleTransformTemplateName) as ScaleTransform;
+            
 
-            _partContentPresenter = GetTemplateChild(ContentPresenterTemplateName) as ContentPresenter;
-
-            if (_partScrollViewer == null || _partScaleTransform == null || _partHorizontalRuler == null || _partVerticalRuler == null || _partContentPresenter == null)
+            if (_partScaleTransform == null || _partHorizontalRuler == null 
+            || _partVerticalRuler == null || _partScrollContentPresenter == null)
             {
-                throw new NullReferenceException(string.Format("You have missed to specify {0}, {1}, {2}, {3} or {4} in your template",
-                    ScrollViewerTemplateName, ScaleTransformTemplateName, HorizontalRulerTemplateName, VerticalRulerTemplateName, ContentPresenterTemplateName));
+                throw new NullReferenceException(string.Format("You have missed to specify {0}, {1}, {2} or {3} in your template",
+                    HorizontalRulerTemplateName, VerticalRulerTemplateName, ScrollContentPresenterTemplateName, ScaleTransformTemplateName));
             }
 
-            _partContentPresenter.PreviewMouseWheel += _partContentPresenter_PreviewMouseWheel;
+            _partScrollContentPresenter.PreviewMouseWheel += _partContentGrid_PreviewMouseWheel;
         }
 
-        private void _partContentPresenter_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        private void _partContentGrid_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (e.Delta > 0)
             {

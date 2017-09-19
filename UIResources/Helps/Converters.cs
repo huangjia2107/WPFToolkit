@@ -27,5 +27,26 @@ namespace UIResources.Helps
         }
     } 
 
+    public class Positive_NegativeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value.GetType() == typeof(double))
+                return -(double)value;
+            else if (value.GetType() == typeof(float))
+                return -(float)value;
+            else if (value.GetType() == typeof(int))
+                return -(int)value;
+
+            return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
     #endregion
 }
