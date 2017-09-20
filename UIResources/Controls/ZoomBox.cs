@@ -33,6 +33,7 @@ namespace UIResources.Controls
         private Ruler _partHorizontalRuler;
         private Ruler _partVerticalRuler;
         private ScrollContentPresenter _partScrollContentPresenter;
+        private FrameworkElement _content;
 
         static ZoomBox()
         {
@@ -47,7 +48,7 @@ namespace UIResources.Controls
         #region readonly Properties
 
         private static readonly DependencyPropertyKey ScalePropertyKey =
-           DependencyProperty.RegisterReadOnly("Scale", typeof(double), _typeofSelf, new PropertyMetadata(5d, OnScalePropertyChanged));
+           DependencyProperty.RegisterReadOnly("Scale", typeof(double), _typeofSelf, new PropertyMetadata(1d, OnScalePropertyChanged));
         public static readonly DependencyProperty ScaleProperty = ScalePropertyKey.DependencyProperty;
         public double Scale
         {
@@ -56,7 +57,15 @@ namespace UIResources.Controls
 
         static void OnScalePropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
+            /*
+            var zoomBox = sender as ZoomBox;
 
+            if (zoomBox._partHorizontalRuler != null)
+                zoomBox._partHorizontalRuler.Scale = (decimal)zoomBox.Scale;
+
+            if (zoomBox._partVerticalRuler != null)
+                zoomBox._partVerticalRuler.Scale = (decimal)zoomBox.Scale;
+             */
         }
 
         private static readonly DependencyPropertyKey HorizontalOriginShiftPropertyKey =
@@ -94,24 +103,33 @@ namespace UIResources.Controls
                 throw new NullReferenceException(string.Format("You have missed to specify {0}, {1}, {2} or {3} in your template",
                     HorizontalRulerTemplateName, VerticalRulerTemplateName, ScrollContentPresenterTemplateName, ScaleTransformTemplateName));
             }
+
+            _content = _partScrollContentPresenter.Content as FrameworkElement;
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            UpdateRulerScaleShift();
+            UpdateRulerOriginShift();
         }
 
-        private void UpdateRulerScaleShift()
+        private void UpdateRulerOriginShift()
         {
-            var content = _partScrollContentPresenter.Content as FrameworkElement;
-            if (content != null)
+            if (_partScrollContentPresenter == null || _content == null || _partHorizontalRuler == null || _partVerticalRuler == null || _partScaleTransform == null)
+                return;
+
+            _partScaleTransform.ScaleX = _partScaleTransform.ScaleY = Scale;
+
+            var offset = _content.TranslatePoint(new Point(), _partScrollContentPresenter);
+
+            using (_partHorizontalRuler.DeferRefresh())
             {
-                var offset = content.TranslatePoint(new Point(), _partScrollContentPresenter);
-
-
-
-
+                _partHorizontalRuler.Scale = (decimal)Scale;
                 SetValue(HorizontalOriginShiftPropertyKey, offset.X);
+            }
+
+            using (_partVerticalRuler.DeferRefresh())
+            {
+                _partVerticalRuler.Scale = (decimal)Scale;
                 SetValue(VerticalOriginShiftPropertyKey, offset.Y);
             }
         }
@@ -141,6 +159,8 @@ namespace UIResources.Controls
                 return;
 
             SetValue(ScalePropertyKey, Math.Max(0, _partScaleTransform.ScaleX + 0.5));
+
+            UpdateRulerOriginShift();
         }
 
         private void ZoomOut()
@@ -149,6 +169,8 @@ namespace UIResources.Controls
                 return;
 
             SetValue(ScalePropertyKey, Scale * 0.5);
+
+            UpdateRulerOriginShift();
         }
 
 
