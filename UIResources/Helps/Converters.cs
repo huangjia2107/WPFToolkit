@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -42,6 +43,25 @@ namespace UIResources.Helps
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    
+    public class ZoomBoxRulerShiftMultiConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Contains(null) || values.Contains(DependencyProperty.UnsetValue))
+                return 0d;
+
+            double scrollbarOffset = (double)values[0];
+            double scaleShift = (double)values[1];
+            
+            return (decimal)(scaleShift - scrollbarOffset);
+        }
+        
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
