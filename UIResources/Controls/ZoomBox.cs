@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using UIResources.Helps;
 
 namespace UIResources.Controls
 {
@@ -33,7 +35,7 @@ namespace UIResources.Controls
         private Ruler _partHorizontalRuler;
         private Ruler _partVerticalRuler;
         private ScrollContentPresenter _partScrollContentPresenter;
-        private FrameworkElement _content;
+        private FrameworkElement _elementContent;
 
         static ZoomBox()
         {
@@ -43,6 +45,21 @@ namespace UIResources.Controls
         public ZoomBox()
         {
             this.Loaded += OnLoaded;
+            this.SizeChanged += OnSizeChanged;
+        } 
+
+        [Bindable(true)]
+        public new object Content
+        {
+            get
+            {
+                var textBlock = _elementContent as TextBlock;
+                if (textBlock != null)
+                    return textBlock.Text;
+
+                return GetValue(ContentProperty);
+            }
+            set { SetValue(ContentProperty, value); }
         }
 
         #region readonly Properties
@@ -94,44 +111,88 @@ namespace UIResources.Controls
             _partVerticalRuler = GetTemplateChild(VerticalRulerTemplateName) as Ruler;
 
             _partScrollContentPresenter = GetTemplateChild(ScrollContentPresenterTemplateName) as ScrollContentPresenter;
-            _partScaleTransform = GetTemplateChild(ScaleTransformTemplateName) as ScaleTransform;
 
-
-            if (_partScaleTransform == null || _partHorizontalRuler == null
-            || _partVerticalRuler == null || _partScrollContentPresenter == null)
+            if (_partHorizontalRuler == null || _partVerticalRuler == null || _partScrollContentPresenter == null)
             {
-                throw new NullReferenceException(string.Format("You have missed to specify {0}, {1}, {2} or {3} in your template",
-                    HorizontalRulerTemplateName, VerticalRulerTemplateName, ScrollContentPresenterTemplateName, ScaleTransformTemplateName));
+                throw new NullReferenceException(string.Format("You have missed to specify {0}, {1} or {2} in your template",
+                    HorizontalRulerTemplateName, VerticalRulerTemplateName, ScrollContentPresenterTemplateName));
             }
 
-            _content = _partScrollContentPresenter.Content as FrameworkElement;
+            InitContent();
+        }
+
+        private void InitContent()
+        {
+            if (_partScrollContentPresenter.Content != null && _partScrollContentPresenter.Content is string)
+                _partScrollContentPresenter.Content = new TextBlock { Text = (string)_partScrollContentPresenter.Content };
+
+            var content = _partScrollContentPresenter.Content as FrameworkElement;
+            if (content != null)
+            {
+                _partScaleTransform = new ScaleTransform(1, 1);
+
+                _elementContent = content;
+                _elementContent.RenderTransformOrigin = new Point(0.5, 0.5);
+                _elementContent.LayoutTransform = _partScaleTransform;
+
+                _elementContent.LayoutUpdated += _elementContent_LayoutUpdated;
+
+            }
+        }
+
+        private void _elementContent_LayoutUpdated(object sender, EventArgs e)
+        {
+            UpdateRulerParams();
+        }
+
+        private void OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            UpdateScaleTransform(false);
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            UpdateRulerOriginShift();
+            UpdateScaleTransform(false);
         }
 
-        private void UpdateRulerOriginShift()
+        private void UpdateRulerParams(bool isForce = false)
         {
-            if (_partScrollContentPresenter == null || _content == null || _partHorizontalRuler == null || _partVerticalRuler == null || _partScaleTransform == null)
+            if (_partScrollContentPresenter == null || _elementContent == null || _partHorizontalRuler == null || _partVerticalRuler == null || _partScaleTransform == null)
                 return;
 
-            _partScaleTransform.ScaleX = _partScaleTransform.ScaleY = Scale;
-
-            var offset = _content.TranslatePoint(new Point(), _partScrollContentPresenter);
-
-            using (_partHorizontalRuler.DeferRefresh())
+            if (isForce || _partHorizontalRuler.Scale != (decimal)Scale)
             {
-                _partHorizontalRuler.Scale = (decimal)Scale;
-                SetValue(HorizontalOriginShiftPropertyKey, offset.X);
+                var offset = _elementContent.TranslatePoint(new Point(), _partScrollContentPresenter);
+
+                using (_partHorizontalRuler.DeferRefresh())
+                {
+                    _partHorizontalRuler.Scale = (decimal)Scale;
+                    SetValue(HorizontalOriginShiftPropertyKey, offset.X);
+                }
             }
 
-            using (_partVerticalRuler.DeferRefresh())
+            if (isForce || _partVerticalRuler.Scale != (decimal)Scale)
             {
-                _partVerticalRuler.Scale = (decimal)Scale;
-                SetValue(VerticalOriginShiftPropertyKey, offset.Y);
+                var offset = _elementContent.TranslatePoint(new Point(), _partScrollContentPresenter);
+
+                using (_partVerticalRuler.DeferRefresh())
+                {
+                    _partVerticalRuler.Scale = (decimal)Scale;
+                    SetValue(VerticalOriginShiftPropertyKey, offset.Y);
+                }
             }
+        }
+
+        private void UpdateScaleTransform(bool isManual = true)
+        {
+            if (_partScaleTransform == null)
+                return;
+
+            _partScaleTransform.ScaleX = Scale;
+            _partScaleTransform.ScaleY = Scale;
+
+            if (!isManual)
+                UpdateRulerParams(true);
         }
 
         protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
@@ -155,22 +216,16 @@ namespace UIResources.Controls
 
         private void ZoomIn()
         {
-            if (_partScaleTransform == null)
-                return;
+            SetValue(ScalePropertyKey, Math.Max(1, Scale + 0.5));
 
-            SetValue(ScalePropertyKey, Math.Max(0, _partScaleTransform.ScaleX + 0.5));
-
-            UpdateRulerOriginShift();
+            UpdateScaleTransform();
         }
 
         private void ZoomOut()
         {
-            if (_partScaleTransform == null)
-                return;
+            SetValue(ScalePropertyKey, Math.Max(1, Scale - 0.5));
 
-            SetValue(ScalePropertyKey, Scale * 0.5);
-
-            UpdateRulerOriginShift();
+            UpdateScaleTransform();
         }
 
 

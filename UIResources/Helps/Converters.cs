@@ -26,7 +26,7 @@ namespace UIResources.Helps
         {
             throw new NotImplementedException();
         }
-    } 
+    }
 
     public class Positive_NegativeConverter : IValueConverter
     {
@@ -47,7 +47,7 @@ namespace UIResources.Helps
             throw new NotImplementedException();
         }
     }
-    
+
     public class ZoomBoxRulerShiftMultiConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
@@ -55,12 +55,13 @@ namespace UIResources.Helps
             if (values.Contains(null) || values.Contains(DependencyProperty.UnsetValue))
                 return 0d;
 
-            double scrollbarOffset = (double)values[0];
-            double scaleShift = (double)values[1];
-            
-            return (decimal)(scaleShift - scrollbarOffset);
+            var scrollbarOffset = (double)values[0];
+            var originShift = (double)values[1];
+            var scale = (double)values[2];
+
+            return (decimal)((originShift - scrollbarOffset) / scale);
         }
-        
+
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
