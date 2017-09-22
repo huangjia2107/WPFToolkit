@@ -40,6 +40,7 @@
                                     <Binding Path="HorizontalOffset" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
                                     <Binding Path="HorizontalOriginShift" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
                                     <Binding Path="Scale" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                    <Binding Path="Unit" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
                                 </MultiBinding>
                             </controls:Ruler.Shift>
                         </controls:Ruler>
@@ -53,6 +54,7 @@
                                     <Binding Path="VerticalOffset" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
                                     <Binding Path="VerticalOriginShift" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
                                     <Binding Path="Scale" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                    <Binding Path="Unit" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
                                 </MultiBinding>
                             </controls:Ruler.Shift>
                             <controls:Ruler.LayoutTransform>

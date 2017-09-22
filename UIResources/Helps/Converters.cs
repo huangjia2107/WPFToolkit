@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Media;
+using UIResources.Controls;
 
 namespace UIResources.Helps
 {
@@ -61,8 +62,9 @@ namespace UIResources.Helps
             var scrollbarOffset = (double)values[0];
             var originShift = (double)values[1];
             var scale = (double)values[2];
+            var unit = (RulerUnit)values[3];
 
-            return (decimal)((originShift - scrollbarOffset) / scale);
+            return (decimal)((originShift - scrollbarOffset) / (double)DpiUtil.GetPixelPerUnit(unit) / scale);
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

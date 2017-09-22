@@ -89,11 +89,17 @@ namespace UIResources.Controls
         }
 
         public static readonly DependencyProperty UnitProperty =
-            DependencyProperty.Register("Unit", typeof(RulerUnit), _typeofSelf, new PropertyMetadata(RulerUnit.Pixel));
+            DependencyProperty.Register("Unit", typeof(RulerUnit), _typeofSelf, new PropertyMetadata(RulerUnit.Pixel, OnUnitPropertyChanged));
         public RulerUnit Unit
         {
             get { return (RulerUnit)GetValue(UnitProperty); }
             set { SetValue(UnitProperty, value); }
+        }
+
+        private static void OnUnitPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            var zoomBox = sender as ZoomBox;
+            zoomBox.UpdateRulerParams(true);
         }
 
         public static readonly DependencyProperty RibbonProperty =
