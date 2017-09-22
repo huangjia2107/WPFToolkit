@@ -96,6 +96,28 @@ namespace UIResources.Controls
             set { SetValue(UnitProperty, value); }
         }
 
+        public static readonly DependencyProperty RibbonProperty =
+            DependencyProperty.Register("Ribbon", typeof(object), _typeofSelf, new PropertyMetadata(null, OnRibbonChanged));
+        public object Ribbon
+        {
+            get { return (object)GetValue(RibbonProperty); }
+            set { SetValue(RibbonProperty, value); }
+        }
+
+        private static void OnRibbonChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var zoomBox = (ZoomBox)d;
+            zoomBox.OnContentChanged(e.OldValue, e.NewValue);
+        }
+
+        public static readonly DependencyProperty IsShowRibbonProperty =
+            DependencyProperty.Register("IsShowRibbon", typeof(bool), _typeofSelf, new PropertyMetadata(true));
+        public bool IsShowRibbon
+        {
+            get { return (bool)GetValue(IsShowRibbonProperty); }
+            set { SetValue(IsShowRibbonProperty, value); }
+        }
+
         #endregion
 
         #region Override

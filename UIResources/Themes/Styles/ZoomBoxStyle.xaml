@@ -4,6 +4,7 @@
                     xmlns:helps="clr-namespace:UIResources.Helps">
 
     <helps:ZoomBoxRulerShiftMultiConverter x:Key="zoomBoxRulerShiftMultiConverter"/>
+    <helps:BoolToVisibilityConverter x:Key="boolToVisibilityConverter"/>
 
     <Style TargetType="{x:Type controls:ZoomBox}">
         <Setter Property="HorizontalScrollBarVisibility" Value="Visible"/>
@@ -62,13 +63,20 @@
                         <!-- Horizontal ScrollBar -->
                         <Grid Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="50"/>
+                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="{Binding Scale,RelativeSource={RelativeSource TemplatedParent}, StringFormat={}{0:P1}}" VerticalAlignment="Center" FontSize="12"/>
-                            <GridSplitter Grid.Column="1" Width="3" Background="#FF65778B" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
-
+                            <ContentPresenter ContentSource="Ribbon"
+                                              Margin="{TemplateBinding Padding}"
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Visibility="{TemplateBinding IsShowRibbon,Converter={StaticResource boolToVisibilityConverter}}"/>
+                            
+                            <GridSplitter Grid.Column="1" Width="3" Background="#FF65778B" HorizontalAlignment="Center" VerticalAlignment="Stretch"
+                                          Visibility="{TemplateBinding IsShowRibbon,Converter={StaticResource boolToVisibilityConverter}}"/>
+                            
                             <ScrollBar Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" 
                                    Grid.Column="2"
                                    x:Name="PART_HorizontalScrollBar"  

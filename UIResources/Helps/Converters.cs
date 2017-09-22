@@ -28,18 +28,21 @@ namespace UIResources.Helps
         }
     }
 
-    public class Positive_NegativeConverter : IValueConverter
+    public class BoolToVisibilityConverter : IValueConverter
     {
+        public BoolToVisibilityConverter()
+        {
+            TrueVisibility = Visibility.Visible;
+            FalseVisibility = Visibility.Collapsed;
+        }
+
+        public Visibility TrueVisibility { get; set; }
+        public Visibility FalseVisibility { get; set; }
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value.GetType() == typeof(double))
-                return -(double)value;
-            else if (value.GetType() == typeof(float))
-                return -(float)value;
-            else if (value.GetType() == typeof(int))
-                return -(int)value;
-
-            return value;
+            bool isTrue = (bool)value;
+            return isTrue ? TrueVisibility : FalseVisibility;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

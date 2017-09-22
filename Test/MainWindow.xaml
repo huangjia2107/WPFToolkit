@@ -51,6 +51,9 @@
             </Grid>
         </StackPanel>
         <controls:ZoomBox x:Name="zoomBox" Grid.Row="1" Margin="0,20,0,0" FontSize="30">
+            <controls:ZoomBox.Ribbon>
+                <TextBlock Text="{Binding Scale,ElementName=zoomBox, StringFormat={}{0:P1}}" VerticalAlignment="Center" FontSize="12"/>
+            </controls:ZoomBox.Ribbon>
             <TextBlock Text="sdjhwdhwidhwid" Background="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
         </controls:ZoomBox>
