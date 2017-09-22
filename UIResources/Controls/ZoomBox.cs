@@ -1,13 +1,12 @@
-﻿using System; 
-using System.ComponentModel; 
+﻿using System;
+using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls; 
+using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media; 
+using System.Windows.Media;
 
 namespace UIResources.Controls
 {
-    [TemplatePart(Name = ScaleTransformTemplateName, Type = typeof(ScaleTransform))]
     [TemplatePart(Name = HorizontalRulerTemplateName, Type = typeof(Ruler))]
     [TemplatePart(Name = VerticalRulerTemplateName, Type = typeof(Ruler))]
     [TemplatePart(Name = ScrollContentPresenterTemplateName, Type = typeof(ScrollContentPresenter))]
@@ -17,9 +16,7 @@ namespace UIResources.Controls
 
         private const string HorizontalRulerTemplateName = "PART_HorizontalRuler";
         private const string VerticalRulerTemplateName = "PART_VerticalRuler";
-
         private const string ScrollContentPresenterTemplateName = "PART_ScrollContentPresenter";
-        private const string ScaleTransformTemplateName = "PART_ScaleTransform";
 
         private ScaleTransform _partScaleTransform;
         private Ruler _partHorizontalRuler;
@@ -43,8 +40,8 @@ namespace UIResources.Controls
 
         public ZoomBox()
         {
-            this.Loaded += OnLoaded;
-            this.SizeChanged += OnSizeChanged;
+            WeakEventManager<FrameworkElement, RoutedEventArgs>.AddHandler(this, "Loaded", OnLoaded);
+            WeakEventManager<FrameworkElement, SizeChangedEventArgs>.AddHandler(this, "SizeChanged", OnSizeChanged);
         }
 
         #region readonly Properties
@@ -144,12 +141,12 @@ namespace UIResources.Controls
             UpdateRulerParams();
         }
 
-        private void OnSizeChanged(object sender, SizeChangedEventArgs e)
+        private void OnSizeChanged(object sender, EventArgs e)
         {
             UpdateScaleTransform(false);
         }
 
-        private void OnLoaded(object sender, RoutedEventArgs e)
+        private void OnLoaded(object sender, EventArgs e)
         {
             UpdateScaleTransform(false);
         }
@@ -175,6 +172,7 @@ namespace UIResources.Controls
                 _elementContent.RenderTransformOrigin = new Point(0.5, 0.5);
                 _elementContent.LayoutTransform = _partScaleTransform;
 
+                _elementContent.LayoutUpdated -= _elementContent_LayoutUpdated;
                 _elementContent.LayoutUpdated += _elementContent_LayoutUpdated;
             }
         }
