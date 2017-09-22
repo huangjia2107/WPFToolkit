@@ -12,20 +12,20 @@ namespace UIResources.Controls
     /// <summary>
     ///  http://www.codeproject.com/Articles/38361/Circular-gauge-custom-control-for-Silverlight-an
     /// </summary>
-    [TemplatePart(Name = PART_LayoutRoot, Type = typeof(Grid))]
-    [TemplatePart(Name = PART_IndicatorRoot, Type = typeof(Grid))]
-    [TemplatePart(Name = PART_PointerCap, Type = typeof(Ellipse))]
-    [TemplatePart(Name = PART_Pointer, Type = typeof(Path))]
-    [TemplatePart(Name = PART_PointerRT, Type = typeof(RotateTransform))]
+    [TemplatePart(Name = LayoutRootTemplateName, Type = typeof(Grid))]
+    [TemplatePart(Name = IndicatorRootTemplateName, Type = typeof(Grid))]
+    [TemplatePart(Name = PointerCapTemplateName, Type = typeof(Ellipse))]
+    [TemplatePart(Name = PointerTemplateName, Type = typeof(Path))]
+    [TemplatePart(Name = PointerRtTemplateName, Type = typeof(RotateTransform))]
     public class RadialGuage : Control
     {
         private static readonly Type _typeofSelf = typeof(RadialGuage);
 
-        private const string PART_LayoutRoot = "PART_LayoutRoot";
-        private const string PART_IndicatorRoot = "PART_IndicatorRoot";
-        private const string PART_Pointer = "PART_Pointer";
-        private const string PART_PointerCap = "PART_PointerCap";
-        private const string PART_PointerRT = "PART_PointerRT";
+        private const string LayoutRootTemplateName = "PART_LayoutRoot";
+        private const string IndicatorRootTemplateName = "PART_IndicatorRoot";
+        private const string PointerTemplateName = "PART_Pointer";
+        private const string PointerCapTemplateName = "PART_PointerCap";
+        private const string PointerRtTemplateName = "PART_PointerRT";
 
         private Grid _layoutRoot = null;
         private Grid _indicatorRoot = null;
@@ -227,11 +227,11 @@ namespace UIResources.Controls
         {
             base.OnApplyTemplate();
 
-            _layoutRoot = GetTemplateChild(PART_LayoutRoot) as Grid;
-            _indicatorRoot = GetTemplateChild(PART_IndicatorRoot) as Grid;
-            _pointerCap = GetTemplateChild(PART_PointerCap) as Ellipse;
-            _pointer = GetTemplateChild(PART_Pointer) as Path;
-            _pointerRt = GetTemplateChild(PART_PointerRT) as RotateTransform;
+            _layoutRoot = GetTemplateChild(LayoutRootTemplateName) as Grid;
+            _indicatorRoot = GetTemplateChild(IndicatorRootTemplateName) as Grid;
+            _pointerCap = GetTemplateChild(PointerCapTemplateName) as Ellipse;
+            _pointer = GetTemplateChild(PointerTemplateName) as Path;
+            _pointerRt = GetTemplateChild(PointerRtTemplateName) as RotateTransform;
 
             DrawUiElements();
 
