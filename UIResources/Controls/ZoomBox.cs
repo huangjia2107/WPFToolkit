@@ -1,19 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System; 
+using System.ComponentModel; 
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+using System.Windows.Controls; 
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using UIResources.Helps;
+using System.Windows.Media; 
 
 namespace UIResources.Controls
 {
@@ -36,6 +26,15 @@ namespace UIResources.Controls
         private Ruler _partVerticalRuler;
         private ScrollContentPresenter _partScrollContentPresenter;
         private FrameworkElement _elementContent;
+        private bool _isStringContent = false;
+
+        private struct ViewPoint
+        {
+            public Point PointToScrollContent { get; set; }
+            public Point PointToViewport { get; set; }
+        }
+
+        private ViewPoint? _viewPoint = null;
 
         static ZoomBox()
         {
@@ -46,44 +45,9 @@ namespace UIResources.Controls
         {
             this.Loaded += OnLoaded;
             this.SizeChanged += OnSizeChanged;
-        } 
-
-        [Bindable(true)]
-        public new object Content
-        {
-            get
-            {
-                var textBlock = _elementContent as TextBlock;
-                if (textBlock != null)
-                    return textBlock.Text;
-
-                return GetValue(ContentProperty);
-            }
-            set { SetValue(ContentProperty, value); }
         }
 
         #region readonly Properties
-
-        private static readonly DependencyPropertyKey ScalePropertyKey =
-           DependencyProperty.RegisterReadOnly("Scale", typeof(double), _typeofSelf, new PropertyMetadata(1d, OnScalePropertyChanged));
-        public static readonly DependencyProperty ScaleProperty = ScalePropertyKey.DependencyProperty;
-        public double Scale
-        {
-            get { return (double)GetValue(ScaleProperty); }
-        }
-
-        static void OnScalePropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
-        {
-            /*
-            var zoomBox = sender as ZoomBox;
-
-            if (zoomBox._partHorizontalRuler != null)
-                zoomBox._partHorizontalRuler.Scale = (decimal)zoomBox.Scale;
-
-            if (zoomBox._partVerticalRuler != null)
-                zoomBox._partVerticalRuler.Scale = (decimal)zoomBox.Scale;
-             */
-        }
 
         private static readonly DependencyPropertyKey HorizontalOriginShiftPropertyKey =
            DependencyProperty.RegisterReadOnly("HorizontalOriginShift", typeof(double), _typeofSelf, new PropertyMetadata(0d));
@@ -103,6 +67,34 @@ namespace UIResources.Controls
 
         #endregion
 
+        #region Properties
+
+        [Bindable(true)]
+        public new object Content
+        {
+            get
+            {
+                var textBlock = _elementContent as TextBlock;
+                if (textBlock != null && _isStringContent)
+                    return textBlock.Text;
+
+                return GetValue(ContentProperty);
+            }
+            set { SetValue(ContentProperty, value); }
+        }
+
+        public static readonly DependencyProperty ScaleProperty =
+            DependencyProperty.Register("Scale", typeof(double), _typeofSelf, new PropertyMetadata(1d));
+        public double Scale
+        {
+            get { return (double)GetValue(ScaleProperty); }
+            set { SetValue(ScaleProperty, value); }
+        }
+
+        #endregion
+
+        #region Override
+
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
@@ -121,22 +113,29 @@ namespace UIResources.Controls
             InitContent();
         }
 
-        private void InitContent()
+        #endregion
+
+        #region Event
+
+        protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
         {
-            if (_partScrollContentPresenter.Content != null && _partScrollContentPresenter.Content is string)
-                _partScrollContentPresenter.Content = new TextBlock { Text = (string)_partScrollContentPresenter.Content };
+            base.OnPreviewMouseWheel(e);
 
-            var content = _partScrollContentPresenter.Content as FrameworkElement;
-            if (content != null)
+            if (Keyboard.Modifiers == ModifierKeys.Control)
             {
-                _partScaleTransform = new ScaleTransform(1, 1);
+                if (_partScrollContentPresenter.CanHorizontallyScroll || _partScrollContentPresenter.CanVerticallyScroll)
+                    _viewPoint = ResetViewPoint();
 
-                _elementContent = content;
-                _elementContent.RenderTransformOrigin = new Point(0.5, 0.5);
-                _elementContent.LayoutTransform = _partScaleTransform;
+                if (e.Delta > 0)
+                {
+                    ZoomIn();
+                }
+                if (e.Delta < 0)
+                {
+                    ZoomOut();
+                }
 
-                _elementContent.LayoutUpdated += _elementContent_LayoutUpdated;
-
+                e.Handled = true;
             }
         }
 
@@ -155,6 +154,31 @@ namespace UIResources.Controls
             UpdateScaleTransform(false);
         }
 
+        #endregion
+
+        #region Func
+
+        private void InitContent()
+        {
+            if (_partScrollContentPresenter.Content != null && _partScrollContentPresenter.Content is string)
+            {
+                _partScrollContentPresenter.Content = new TextBlock { Text = (string)_partScrollContentPresenter.Content };
+                _isStringContent = true;
+            }
+
+            var content = _partScrollContentPresenter.Content as FrameworkElement;
+            if (content != null)
+            {
+                _partScaleTransform = new ScaleTransform(1, 1);
+
+                _elementContent = content;
+                _elementContent.RenderTransformOrigin = new Point(0.5, 0.5);
+                _elementContent.LayoutTransform = _partScaleTransform;
+
+                _elementContent.LayoutUpdated += _elementContent_LayoutUpdated;
+            }
+        }
+
         private void UpdateRulerParams(bool isForce = false)
         {
             if (_partScrollContentPresenter == null || _elementContent == null || _partHorizontalRuler == null || _partVerticalRuler == null || _partScaleTransform == null)
@@ -162,25 +186,32 @@ namespace UIResources.Controls
 
             if (isForce || _partHorizontalRuler.Scale != (decimal)Scale)
             {
-                var offset = _elementContent.TranslatePoint(new Point(), _partScrollContentPresenter);
-
                 using (_partHorizontalRuler.DeferRefresh())
                 {
+                    KeepingHorizontalViewPoint((double)_partHorizontalRuler.Scale);
+
+                    var offset = _elementContent.TranslatePoint(new Point(), _partScrollContentPresenter);
+
                     _partHorizontalRuler.Scale = (decimal)Scale;
-                    SetValue(HorizontalOriginShiftPropertyKey, offset.X);
+                    SetValue(HorizontalOriginShiftPropertyKey, offset.X + HorizontalOffset);
                 }
             }
 
             if (isForce || _partVerticalRuler.Scale != (decimal)Scale)
             {
-                var offset = _elementContent.TranslatePoint(new Point(), _partScrollContentPresenter);
-
                 using (_partVerticalRuler.DeferRefresh())
                 {
+                    KeepingVerticalViewPoint((double)_partVerticalRuler.Scale);
+
+                    var offset = _elementContent.TranslatePoint(new Point(), _partScrollContentPresenter);
+
                     _partVerticalRuler.Scale = (decimal)Scale;
-                    SetValue(VerticalOriginShiftPropertyKey, offset.Y);
+                    SetValue(VerticalOriginShiftPropertyKey, offset.Y + VerticalOffset);
                 }
             }
+
+            if (_partHorizontalRuler.Scale == (decimal)Scale && _partVerticalRuler.Scale == (decimal)Scale)
+                _viewPoint = null;
         }
 
         private void UpdateScaleTransform(bool isManual = true)
@@ -195,39 +226,41 @@ namespace UIResources.Controls
                 UpdateRulerParams(true);
         }
 
-        protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
+        private void KeepingHorizontalViewPoint(double lastScale)
         {
-            base.OnPreviewMouseWheel(e);
+            if (_viewPoint.HasValue)
+                ScrollToHorizontalOffset(_viewPoint.Value.PointToScrollContent.X * Scale / lastScale - _viewPoint.Value.PointToViewport.X);
+        }
 
-            if (Keyboard.Modifiers == ModifierKeys.Control)
+        private void KeepingVerticalViewPoint(double lastScale)
+        {
+            if (_viewPoint.HasValue)
+                ScrollToVerticalOffset(_viewPoint.Value.PointToScrollContent.Y * Scale / lastScale - _viewPoint.Value.PointToViewport.Y);
+        }
+
+        private ViewPoint ResetViewPoint()
+        {
+            var viewPoint = new ViewPoint
             {
-                if (e.Delta > 0)
-                {
-                    ZoomIn();
-                }
-                if (e.Delta < 0)
-                {
-                    ZoomOut();
-                }
+                PointToViewport = Mouse.GetPosition(_partScrollContentPresenter)
+            };
+            viewPoint.PointToScrollContent = new Point(viewPoint.PointToViewport.X + HorizontalOffset, viewPoint.PointToViewport.Y + VerticalOffset);
 
-                e.Handled = true;
-            }
+            return viewPoint;
         }
 
         private void ZoomIn()
         {
-            SetValue(ScalePropertyKey, Math.Max(1, Scale + 0.5));
-
+            Scale = Math.Max(1, Scale + 0.5);
             UpdateScaleTransform();
         }
 
         private void ZoomOut()
         {
-            SetValue(ScalePropertyKey, Math.Max(1, Scale - 0.5));
-
+            Scale = Math.Max(1, Scale - 0.5);
             UpdateScaleTransform();
         }
 
-
+        #endregion
     }
 }
