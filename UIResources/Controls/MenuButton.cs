@@ -17,12 +17,12 @@ using System.ComponentModel;
 
 namespace UIResources.Controls
 { 
-    [TemplatePart(Name = PART_ExpandButton, Type = typeof(Button))]
+    [TemplatePart(Name = ExpandButtonTemplateName, Type = typeof(Button))]
     public class MenuButton :  ButtonBase
     {
         private static readonly Type _typeofSelf = typeof(MenuButton);
 
-        private const string PART_ExpandButton = "PART_ExpandButton";
+        private const string ExpandButtonTemplateName = "PART_ExpandButton";
         private Button _expandButton = null;
 
         static MenuButton()
@@ -71,8 +71,12 @@ namespace UIResources.Controls
         {
             base.OnApplyTemplate();
 
-            _expandButton = base.GetTemplateChild(PART_ExpandButton) as Button;
-            _expandButton.Click += ExpandButton_Click;
+            _expandButton = base.GetTemplateChild(ExpandButtonTemplateName) as Button;
+            if (_expandButton != null)
+            {
+                _expandButton.Click -= ExpandButton_Click;
+                _expandButton.Click += ExpandButton_Click;
+            }
         }
 
         protected override void OnClick()

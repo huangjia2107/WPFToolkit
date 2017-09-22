@@ -12,9 +12,9 @@ using UIResources.Helps;
 namespace UIResources.Controls
 {
     [DefaultEvent("ValueChanged"), DefaultProperty("Value")]
-    [TemplatePart(Name = ElementTextBox, Type = typeof(TextBox))]
-    [TemplatePart(Name = ElementNumericUp, Type = typeof(RepeatButton))]
-    [TemplatePart(Name = ElementNumericDown, Type = typeof(RepeatButton))]
+    [TemplatePart(Name = TextBoxTemplateName, Type = typeof(TextBox))]
+    [TemplatePart(Name = NumericUpTemplateName, Type = typeof(RepeatButton))]
+    [TemplatePart(Name = NumericDownTemplateName, Type = typeof(RepeatButton))]
     public class NumericBox : Control
     {
         private static readonly Type _typeofSelf = typeof(NumericBox);
@@ -22,9 +22,9 @@ namespace UIResources.Controls
         private const double DefaultInterval = 1d;
         private const int DefaultDelay = 500;
 
-        private const string ElementTextBox = "PART_TextBox";
-        private const string ElementNumericUp = "PART_NumericUp";
-        private const string ElementNumericDown = "PART_NumericDown";
+        private const string TextBoxTemplateName = "PART_TextBox";
+        private const string NumericUpTemplateName = "PART_NumericUp";
+        private const string NumericDownTemplateName = "PART_NumericDown";
 
         private static RoutedCommand _increaseCommand = null;
         private static RoutedCommand _decreaseCommand = null;
@@ -323,14 +323,17 @@ namespace UIResources.Controls
         {
             base.OnApplyTemplate();
 
-            _valueTextBox = GetTemplateChild(ElementTextBox) as TextBox;
-            _repeatUp = GetTemplateChild(ElementNumericUp) as RepeatButton;
-            _repeatDown = GetTemplateChild(ElementNumericDown) as RepeatButton;
+            _valueTextBox = GetTemplateChild(TextBoxTemplateName) as TextBox;
+            _repeatUp = GetTemplateChild(NumericUpTemplateName) as RepeatButton;
+            _repeatDown = GetTemplateChild(NumericDownTemplateName) as RepeatButton;
 
             if (_valueTextBox == null || _repeatUp == null || _repeatDown == null)
             {
-                throw new NullReferenceException(string.Format("You have missed to specify {0}, {1} or {2} in your template", ElementNumericUp, ElementNumericDown, ElementTextBox));
+                throw new NullReferenceException(string.Format("You have missed to specify {0}, {1} or {2} in your template", NumericUpTemplateName, NumericDownTemplateName, TextBoxTemplateName));
             }
+
+            _repeatUp.PreviewMouseUp -= OnRepeatButtonPreviewMouseUp;
+            _repeatDown.PreviewMouseUp -= OnRepeatButtonPreviewMouseUp;
 
             _repeatUp.PreviewMouseUp += OnRepeatButtonPreviewMouseUp;
             _repeatDown.PreviewMouseUp += OnRepeatButtonPreviewMouseUp;

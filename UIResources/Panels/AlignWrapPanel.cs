@@ -12,19 +12,19 @@ namespace UIResources.Panels
     public class AlignWrapPanel : Panel
     {
         //Horizontal
-        private int _OptimalColumns;
-        private double _OptimalWidth;
+        private int _optimalColumns;
+        private double _optimalWidth;
 
         //Vertical
-        private int _OptimalRows;
-        private double _OptimalHeight;
+        private int _optimalRows;
+        private double _optimalHeight;
 
-        private int _RealChildCount;
+        private int _realChildCount;
 
-        private Dictionary<int, double> _ColumnIndexToWidthMap = new Dictionary<int, double>();
-        private Dictionary<int, double> _RowIndexToHeightMap = new Dictionary<int, double>();
+        private Dictionary<int, double> _columnIndexToWidthMap = new Dictionary<int, double>();
+        private Dictionary<int, double> _rowIndexToHeightMap = new Dictionary<int, double>();
 
-        private Orientation _Orientation;
+        private Orientation _orientation;
 
         #region Properties
 
@@ -32,14 +32,14 @@ namespace UIResources.Panels
                         new FrameworkPropertyMetadata(Orientation.Horizontal, FrameworkPropertyMetadataOptions.AffectsMeasure, OnOrientationChanged));
         public Orientation Orientation
         {
-            get { return _Orientation; }
+            get { return _orientation; }
             set { SetValue(OrientationProperty, value); }
         }
 
         private static void OnOrientationChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             AlignWrapPanel p = (AlignWrapPanel)d;
-            p._Orientation = (Orientation)e.NewValue;
+            p._orientation = (Orientation)e.NewValue;
         }
 
         #endregion
@@ -118,7 +118,7 @@ namespace UIResources.Panels
             if (realChildCount == 0)
                 return;
 
-            IndexToSize indexToSize = new IndexToSize(_Orientation);
+            IndexToSize indexToSize = new IndexToSize(_orientation);
             double curOptimalDivideSize = 0;
 
             int arrangeCount = 0;
@@ -160,8 +160,8 @@ namespace UIResources.Panels
                     optimalDivideSize = curOptimalDivideSize;
                     optimalDivides = divideIndex;
 
-                    _ColumnIndexToWidthMap = indexToSize.GetColumnIndexToWidthMap;
-                    _RowIndexToHeightMap = indexToSize.GetRowIndexToHeightMap;
+                    _columnIndexToWidthMap = indexToSize.GetColumnIndexToWidthMap;
+                    _rowIndexToHeightMap = indexToSize.GetRowIndexToHeightMap;
                 }
             }
         }
@@ -172,20 +172,20 @@ namespace UIResources.Panels
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            if (_Orientation == Orientation.Horizontal)
-                Divide(availableSize, out _RealChildCount, out _OptimalColumns, out _OptimalWidth);
+            if (_orientation == Orientation.Horizontal)
+                Divide(availableSize, out _realChildCount, out _optimalColumns, out _optimalWidth);
             else
-                Divide(availableSize, out _RealChildCount, out _OptimalRows, out _OptimalHeight);
+                Divide(availableSize, out _realChildCount, out _optimalRows, out _optimalHeight);
 
-            if (_RealChildCount == 0)
+            if (_realChildCount == 0)
                 return base.MeasureOverride(availableSize);
 
-            return new Size(_ColumnIndexToWidthMap.Sum(k => k.Value), _RowIndexToHeightMap.Sum(k => k.Value));
+            return new Size(_columnIndexToWidthMap.Sum(k => k.Value), _rowIndexToHeightMap.Sum(k => k.Value));
         }
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            if (_RealChildCount == 0)
+            if (_realChildCount == 0)
                 return base.ArrangeOverride(finalSize);
 
             Rect childBounds = new Rect();
@@ -197,14 +197,14 @@ namespace UIResources.Panels
 
                 if (child.Visibility != Visibility.Collapsed)
                 {
-                    int ColumnIndex = _Orientation == Orientation.Horizontal ? (RealIndex % _OptimalColumns) : (RealIndex / _OptimalRows);
-                    int RowIndex = _Orientation == Orientation.Horizontal ? (RealIndex / _OptimalColumns) : (RealIndex % _OptimalRows);
+                    int ColumnIndex = _orientation == Orientation.Horizontal ? (RealIndex % _optimalColumns) : (RealIndex / _optimalRows);
+                    int RowIndex = _orientation == Orientation.Horizontal ? (RealIndex / _optimalColumns) : (RealIndex % _optimalRows);
 
-                    childBounds.X = _ColumnIndexToWidthMap.Sum(k => k.Key < ColumnIndex ? k.Value : 0);
-                    childBounds.Y = _RowIndexToHeightMap.Sum(k => k.Key < RowIndex ? k.Value : 0);
+                    childBounds.X = _columnIndexToWidthMap.Sum(k => k.Key < ColumnIndex ? k.Value : 0);
+                    childBounds.Y = _rowIndexToHeightMap.Sum(k => k.Key < RowIndex ? k.Value : 0);
 
-                    childBounds.Width = _ColumnIndexToWidthMap[ColumnIndex];
-                    childBounds.Height = _RowIndexToHeightMap[RowIndex];
+                    childBounds.Width = _columnIndexToWidthMap[ColumnIndex];
+                    childBounds.Height = _rowIndexToHeightMap[RowIndex];
 
                     child.Arrange(childBounds);
                     RealIndex++;
