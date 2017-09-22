@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using UIResources.Controls;
 
 namespace UIResources.Helps
 {
@@ -49,6 +50,31 @@ namespace UIResources.Helps
                 throw new ArgumentNullException("visual");
                 
             return DIU * GetDpi(visual).X;
+        }
+
+        public static decimal GetPixelPerUnit(RulerUnit unit)
+        {
+            decimal result = 1;
+            switch (unit)
+            {
+                case RulerUnit.Pixel:
+                    result = 1;
+                    break;
+                case RulerUnit.Inch:
+                    result = 96;
+                    break;
+                case RulerUnit.Foot:
+                    result = 1152;
+                    break;
+                case RulerUnit.Millimeter:
+                    result = 3.7795m;
+                    break;
+                case RulerUnit.Centimeter:
+                    result = 37.795m;
+                    break;
+            }
+
+            return result;
         }
     }
 }

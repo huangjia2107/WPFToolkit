@@ -30,9 +30,10 @@
                                                 ContentTemplate="{TemplateBinding ContentTemplate}" 
                                                 CanContentScroll="{TemplateBinding CanContentScroll}"/>
 
-                        <!-- Horizontal Ruler    Scale="{Binding Scale,Mode=OneWay,RelativeSource={RelativeSource TemplatedParent}}"-->
+                        <!-- Horizontal Ruler -->
                         <controls:Ruler x:Name="PART_HorizontalRuler" 
-                                        Grid.Row="0" Grid.Column="1">
+                                        Grid.Row="0" Grid.Column="1"
+                                        Unit="{TemplateBinding Unit}">
                             <controls:Ruler.Shift>
                                 <MultiBinding Converter="{StaticResource zoomBoxRulerShiftMultiConverter}">
                                     <Binding Path="HorizontalOffset" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
@@ -44,7 +45,8 @@
 
                         <!-- Vertical Ruler -->
                         <controls:Ruler x:Name="PART_VerticalRuler" 
-                                        Grid.Row="1" Grid.Column="0" MarkDock="Down">
+                                        Grid.Row="1" Grid.Column="0" MarkDock="Down"
+                                        Unit="{TemplateBinding Unit}">
                             <controls:Ruler.Shift>
                                 <MultiBinding Converter="{StaticResource zoomBoxRulerShiftMultiConverter}">
                                     <Binding Path="VerticalOffset" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>

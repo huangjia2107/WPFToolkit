@@ -18,20 +18,20 @@ namespace UIResources.Controls
         private const string VerticalRulerTemplateName = "PART_VerticalRuler";
         private const string ScrollContentPresenterTemplateName = "PART_ScrollContentPresenter";
 
-        private ScaleTransform _partScaleTransform;
         private Ruler _partHorizontalRuler;
         private Ruler _partVerticalRuler;
         private ScrollContentPresenter _partScrollContentPresenter;
+
+        private ScaleTransform _partScaleTransform;
         private FrameworkElement _elementContent;
         private bool _isStringContent = false;
 
+        private ViewPoint? _viewPoint = null;
         private struct ViewPoint
         {
             public Point PointToScrollContent { get; set; }
             public Point PointToViewport { get; set; }
         }
-
-        private ViewPoint? _viewPoint = null;
 
         static ZoomBox()
         {
@@ -86,6 +86,14 @@ namespace UIResources.Controls
         {
             get { return (double)GetValue(ScaleProperty); }
             set { SetValue(ScaleProperty, value); }
+        }
+
+        public static readonly DependencyProperty UnitProperty =
+            DependencyProperty.Register("Unit", typeof(RulerUnit), _typeofSelf, new PropertyMetadata(RulerUnit.Pixel));
+        public RulerUnit Unit
+        {
+            get { return (RulerUnit)GetValue(UnitProperty); }
+            set { SetValue(UnitProperty, value); }
         }
 
         #endregion

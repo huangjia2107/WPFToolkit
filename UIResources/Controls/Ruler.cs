@@ -30,6 +30,7 @@ namespace UIResources.Controls
         private Pen _pen = null;
 
         private int _deferLevel = 0;
+        private bool _needRefresh = false;
 
         public Ruler()
         {
@@ -49,6 +50,8 @@ namespace UIResources.Controls
             var ruler = sender as Ruler;
             if (ruler._deferLevel == 0)
                 ruler.Render();
+            else
+                ruler._needRefresh = true;
         }
 
         public static readonly DependencyProperty UnitProperty =
@@ -64,6 +67,8 @@ namespace UIResources.Controls
             var ruler = sender as Ruler;
             if (ruler._deferLevel == 0)
                 ruler.Render();
+            else
+                ruler._needRefresh = true;
         }
 
         public static readonly DependencyProperty ShiftProperty =
@@ -79,6 +84,8 @@ namespace UIResources.Controls
             var ruler = sender as Ruler;
             if (ruler._deferLevel == 0)
                 ruler.Render();
+            else
+                ruler._needRefresh = true;
         }
 
         public static readonly DependencyProperty ScaleProperty =
@@ -93,6 +100,8 @@ namespace UIResources.Controls
             var ruler = sender as Ruler;
             if (ruler._deferLevel == 0)
                 ruler.Render();
+            else
+                ruler._needRefresh = true;
         }
 
         protected override void OnRender(DrawingContext drawingContext)
@@ -112,39 +121,18 @@ namespace UIResources.Controls
 
         #region DeferRefresh
 
-        private class DeferHelper : IDisposable
-        {
-            public DeferHelper(Ruler ruler)
-            {
-                _ruler = ruler;
-            }
-
-            public void Dispose()
-            {
-                if (_ruler != null)
-                {
-                    _ruler.EndDefer();
-                    _ruler = null;
-                }
-
-                GC.SuppressFinalize(this);
-            }
-
-            private Ruler _ruler;
-        }
-
-        public virtual IDisposable DeferRefresh()
+        public IDisposable DeferRefresh()
         {
             ++_deferLevel;
-            return new DeferHelper(this);
-        }
 
-        private void EndDefer()
-        {
-            --_deferLevel;
+            return new DeferRefresh(
+                () =>
+                {
+                    --_deferLevel;
 
-            if (_deferLevel == 0)
-                Render();
+                    if (_deferLevel == 0 && _needRefresh) 
+                        Render();  
+                });
         }
 
         #endregion
@@ -169,6 +157,8 @@ namespace UIResources.Controls
 
                 DrawOffsetRight(dc, currentStep, miniStep, miniStepCount);
                 DrawOffsetLeft(dc, currentStep, miniStep, miniStepCount);
+
+                _needRefresh = false;
             }
         }
 
@@ -195,32 +185,7 @@ namespace UIResources.Controls
             }
 
             return result;
-        }
-
-        private decimal GetPixelPerUnit()
-        {
-            decimal result = 0;
-            switch (Unit)
-            {
-                case RulerUnit.Pixel:
-                    result = 1;
-                    break;
-                case RulerUnit.Inch:
-                    result = 96;
-                    break;
-                case RulerUnit.Foot:
-                    result = 1152;
-                    break;
-                case RulerUnit.Millimeter:
-                    result = 3.7795m;
-                    break;
-                case RulerUnit.Centimeter:
-                    result = 37.795m;
-                    break;
-            }
-
-            return result;
-        }
+        } 
 
         private decimal GetBaseStep()
         {
@@ -329,10 +294,10 @@ namespace UIResources.Controls
 
         private void DrawStep(DrawingContext dc, decimal stepIndex, decimal currentStep, int miniStepCount, bool ignoreFirstMark = false)
         {
-            var currentStepIndex = (stepIndex - Shift * Scale * GetPixelPerUnit());
+            var currentStepIndex = (stepIndex - Shift * Scale * DpiUtil.GetPixelPerUnit(Unit));
             if (currentStepIndex % currentStep == 0)
             {
-                var mark = Math.Round(currentStepIndex / (Scale * GetPixelPerUnit()), GetPrecision());
+                var mark = Math.Round(currentStepIndex / (Scale * DpiUtil.GetPixelPerUnit(Unit)), GetPrecision());
                 if (ignoreFirstMark && mark == 0)
                     return;
 
@@ -378,7 +343,7 @@ namespace UIResources.Controls
             if (Shift >= (decimal)ActualWidth)
                 return;
 
-            for (var stepIndex = Shift * Scale * GetPixelPerUnit(); stepIndex < (decimal)ActualWidth; stepIndex += miniStep)
+            for (var stepIndex = Shift * Scale * DpiUtil.GetPixelPerUnit(Unit); stepIndex < (decimal)ActualWidth; stepIndex += miniStep)
             {
                 if (stepIndex < 0)
                     continue;
@@ -392,7 +357,7 @@ namespace UIResources.Controls
             if (Shift <= 0)
                 return;
 
-            for (var stepIndex = Shift * Scale * GetPixelPerUnit(); stepIndex >= 0; stepIndex -= miniStep)
+            for (var stepIndex = Shift * Scale * DpiUtil.GetPixelPerUnit(Unit); stepIndex >= 0; stepIndex -= miniStep)
             {
                 if (stepIndex > (decimal)ActualWidth)
                     continue;
