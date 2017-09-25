@@ -49,7 +49,7 @@ namespace UIResources.Controls
             WeakEventManager<FrameworkElement, SizeChangedEventArgs>.AddHandler(this, "SizeChanged", OnSizeChanged);
         }
 
-        #region readonly Properties 
+        #region readonly Properties
 
         private static readonly DependencyPropertyKey HorizontalOriginShiftPropertyKey =
            DependencyProperty.RegisterReadOnly("HorizontalOriginShift", typeof(double), _typeofSelf, new PropertyMetadata(0d));
@@ -83,14 +83,14 @@ namespace UIResources.Controls
                 return GetValue(ContentProperty);
             }
             set { SetValue(ContentProperty, value); }
-        } 
+        }
 
-        public static readonly DependencyProperty ScaleProperty = 
+        public static readonly DependencyProperty ScaleProperty =
             DependencyProperty.Register("Scale", typeof(double), _typeofSelf, new PropertyMetadata(1d, null, CoerceScale));
         public double Scale
         {
-            get { return (double)GetValue(ScaleProperty); } 
-            set { SetValue(ScaleProperty, value); } 
+            get { return (double)GetValue(ScaleProperty); }
+            set { SetValue(ScaleProperty, value); }
         }
 
         private static object CoerceScale(DependencyObject d, object value)
@@ -168,6 +168,13 @@ namespace UIResources.Controls
 
         #region Event
 
+        protected override void OnScrollChanged(ScrollChangedEventArgs e)
+        {
+            base.OnScrollChanged(e);
+
+            UpdateRulerParams();
+        }
+
         protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
         {
             base.OnPreviewMouseWheel(e);
@@ -188,11 +195,6 @@ namespace UIResources.Controls
 
                 e.Handled = true;
             }
-        }
-
-        private void _elementContent_LayoutUpdated(object sender, EventArgs e)
-        {
-            UpdateRulerParams();
         }
 
         private void OnSizeChanged(object sender, EventArgs e)
@@ -225,9 +227,6 @@ namespace UIResources.Controls
                 _elementContent = content;
                 _elementContent.RenderTransformOrigin = new Point(0.5, 0.5);
                 _elementContent.LayoutTransform = _partScaleTransform;
-
-                _elementContent.LayoutUpdated -= _elementContent_LayoutUpdated;
-                _elementContent.LayoutUpdated += _elementContent_LayoutUpdated;
             }
         }
 
@@ -303,7 +302,7 @@ namespace UIResources.Controls
 
         private void ZoomIn()
         {
-            Scale = Scale * ScaleRatio; 
+            Scale = Scale * ScaleRatio;
             UpdateScaleTransform();
         }
 
