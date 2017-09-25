@@ -50,7 +50,7 @@
                 <TextBox Grid.Column="2" Text="{Binding Value,ElementName=UnitScaleSlider,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
             </Grid>
         </StackPanel>
-        <controls:ZoomBox x:Name="zoomBox" Grid.Row="1" Margin="0,20,0,0" FontSize="30"
+        <controls:ZoomBox x:Name="zoomBox" Grid.Row="1" Margin="0,20,0,0" FontSize="30" Background="White"
                           Unit="{Binding SelectedValue,ElementName=UnitComboBox}">
             <controls:ZoomBox.Ribbon>
                 <TextBlock Text="{Binding Scale,ElementName=zoomBox, StringFormat={}{0:P1}}" VerticalAlignment="Center" FontSize="12"/>

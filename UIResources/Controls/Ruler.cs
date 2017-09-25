@@ -27,7 +27,8 @@ namespace UIResources.Controls
         private readonly DrawingGroup _drawingGroup = new DrawingGroup();
 
         private double _devicePixelUnit = 1;
-        private Pen _pen = null;
+        private Pen _markPen = null;
+		private Pen _baselinePen = null;
 
         private int _deferLevel = 0;
         private bool _needRefresh = false;
@@ -108,13 +109,20 @@ namespace UIResources.Controls
         {
             base.OnRender(drawingContext);
 
-            if (_pen == null)
+            if (_markPen == null)
             {
                 _devicePixelUnit = DpiUtil.GetDevicePixelUnit(this);
-                _pen = new Pen(Brushes.Black, 1.0 / _devicePixelUnit);
-                _pen.Freeze();
+                _markPen = new Pen(new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF7F7F7F")), 1.0 / _devicePixelUnit);
+                _markPen.Freeze();
             }
 
+			if(_baselinePen == null)
+			{
+				_devicePixelUnit = DpiUtil.GetDevicePixelUnit(this);
+                _baselinePen = new Pen(Brushes.Black, 1.0 / _devicePixelUnit);
+                _baselinePen.Freeze();
+			}
+			
             Render();
             drawingContext.DrawDrawing(_drawingGroup);
         }
@@ -153,10 +161,10 @@ namespace UIResources.Controls
                 var miniStepCount = 0;
                 InitStepInfo(ref currentStep, ref miniStep, ref miniStepCount);
 
-                dc.DrawLine(_pen, new Point(0, BaseLineOffset), new Point(ActualWidth, BaseLineOffset));
-
                 DrawOffsetRight(dc, currentStep, miniStep, miniStepCount);
                 DrawOffsetLeft(dc, currentStep, miniStep, miniStepCount);
+				
+				dc.DrawLine(_baselinePen, new Point(0, BaseLineOffset), new Point(ActualWidth, BaseLineOffset));
 
                 _needRefresh = false;
             }
@@ -303,7 +311,7 @@ namespace UIResources.Controls
 
                 var ft = GetFormattedText(mark.ToString("#0.###"));
 
-                dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight), new Point((double)stepIndex + 0.5, 0));
+                dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight), new Point((double)stepIndex + 0.5, 0));
                 dc.DrawText(ft, new Point((double)stepIndex + 1.5, MarkDock == MarkDock.Up ? 0 : ActualHeight - ft.Height));
             }
             else
@@ -311,29 +319,29 @@ namespace UIResources.Controls
                 if (miniStepCount == 5)
                 {
                     if (currentStepIndex % (currentStep / 5) == 0)
-                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 2), new Point((double)stepIndex + 0.5, BaseLineOffset));
+                        dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 2), new Point((double)stepIndex + 0.5, BaseLineOffset));
                 }
 
                 if (miniStepCount == 10)
                 {
                     if (currentStepIndex % (currentStep / 2) == 0)
-                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
+                        dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
                     else if (currentStepIndex % (currentStep / 5) == 0)
-                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 2), new Point((double)stepIndex + 0.5, BaseLineOffset));
+                        dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 2), new Point((double)stepIndex + 0.5, BaseLineOffset));
                     else
-                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
+                        dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
                 }
 
                 if (miniStepCount == 20)
                 {
                     if (currentStepIndex % (currentStep / 2) == 0)
-                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
+                        dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
                     else if (currentStepIndex % (currentStep / 4) == 0)
-                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 2), new Point((double)stepIndex + 0.5, BaseLineOffset));
+                        dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 2), new Point((double)stepIndex + 0.5, BaseLineOffset));
                     else if (currentStepIndex % (currentStep / 10) == 0)
-                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
+                        dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
                     else
-                        dc.DrawLine(_pen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 23 / 32d : 9 / 32d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
+                        dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 23 / 32d : 9 / 32d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
                 }
             }
         }
