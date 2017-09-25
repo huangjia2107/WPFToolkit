@@ -9,19 +9,19 @@ namespace UIResources.Helps
 {  
     public class DeferRefresh : IDisposable
     {
-        private Action _action;
+        private Action _endDefer;
 
-        public DeferRefresh(Action action)
+        public DeferRefresh(Action endDefer)
         {
-            _action = action;
+            _endDefer = endDefer;
         }
 
         public void Dispose()
         {
-            if (_action != null)
+            if (_endDefer != null)
             {
-                _action();
-                _action = null;
+                _endDefer();
+                _endDefer = null;
             }
 
             GC.SuppressFinalize(this);

@@ -46,6 +46,14 @@ namespace UIResources.Controls
 
         #region readonly Properties
 
+        public static readonly DependencyPropertyKey ScalePropertyKey = 
+            DependencyProperty.RegisterReadOnly("Scale", typeof(double), _typeofSelf, new PropertyMetadata(1d));
+        public static readonly DependencyProperty ScaleProperty = ScalePropertyKey.DependencyProperty;
+        public double Scale
+        {
+            get { return (double)GetValue(ScaleProperty); } 
+        }
+
         private static readonly DependencyPropertyKey HorizontalOriginShiftPropertyKey =
            DependencyProperty.RegisterReadOnly("HorizontalOriginShift", typeof(double), _typeofSelf, new PropertyMetadata(0d));
         public static readonly DependencyProperty HorizontalOriginShiftProperty = HorizontalOriginShiftPropertyKey.DependencyProperty;
@@ -78,15 +86,7 @@ namespace UIResources.Controls
                 return GetValue(ContentProperty);
             }
             set { SetValue(ContentProperty, value); }
-        }
-
-        public static readonly DependencyProperty ScaleProperty =
-            DependencyProperty.Register("Scale", typeof(double), _typeofSelf, new PropertyMetadata(1d));
-        public double Scale
-        {
-            get { return (double)GetValue(ScaleProperty); }
-            set { SetValue(ScaleProperty, value); }
-        }
+        } 
 
         public static readonly DependencyProperty UnitProperty =
             DependencyProperty.Register("Unit", typeof(RulerUnit), _typeofSelf, new PropertyMetadata(RulerUnit.Pixel, OnUnitPropertyChanged));
@@ -285,13 +285,13 @@ namespace UIResources.Controls
 
         private void ZoomIn()
         {
-            Scale = Math.Max(1, Scale + 0.5);
+            SetValue(ScalePropertyKey, Scale * 1.1); 
             UpdateScaleTransform();
         }
 
         private void ZoomOut()
         {
-            Scale = Math.Max(1, Scale - 0.5);
+            SetValue(ScalePropertyKey, Scale * Math.Round(1 / 1.1, 4, MidpointRounding.AwayFromZero)); //0.9091; //Math.Max(1, Scale - 0.5);
             UpdateScaleTransform();
         }
 
