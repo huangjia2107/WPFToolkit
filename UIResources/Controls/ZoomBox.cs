@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using UIResources.Helps;
 
 namespace UIResources.Controls
 {
@@ -17,6 +18,10 @@ namespace UIResources.Controls
         private const string HorizontalRulerTemplateName = "PART_HorizontalRuler";
         private const string VerticalRulerTemplateName = "PART_VerticalRuler";
         private const string ScrollContentPresenterTemplateName = "PART_ScrollContentPresenter";
+
+        private const double MiniScale = 0.01d;
+        private const double MaxiScale = 48d;
+        private const double ScaleRatio = 1.1;
 
         private Ruler _partHorizontalRuler;
         private Ruler _partVerticalRuler;
@@ -44,15 +49,7 @@ namespace UIResources.Controls
             WeakEventManager<FrameworkElement, SizeChangedEventArgs>.AddHandler(this, "SizeChanged", OnSizeChanged);
         }
 
-        #region readonly Properties
-
-        public static readonly DependencyPropertyKey ScalePropertyKey = 
-            DependencyProperty.RegisterReadOnly("Scale", typeof(double), _typeofSelf, new PropertyMetadata(1d));
-        public static readonly DependencyProperty ScaleProperty = ScalePropertyKey.DependencyProperty;
-        public double Scale
-        {
-            get { return (double)GetValue(ScaleProperty); } 
-        }
+        #region readonly Properties 
 
         private static readonly DependencyPropertyKey HorizontalOriginShiftPropertyKey =
            DependencyProperty.RegisterReadOnly("HorizontalOriginShift", typeof(double), _typeofSelf, new PropertyMetadata(0d));
@@ -87,6 +84,27 @@ namespace UIResources.Controls
             }
             set { SetValue(ContentProperty, value); }
         } 
+
+        public static readonly DependencyProperty ScaleProperty = 
+            DependencyProperty.Register("Scale", typeof(double), _typeofSelf, new PropertyMetadata(1d, null, CoerceScale));
+        public double Scale
+        {
+            get { return (double)GetValue(ScaleProperty); } 
+            set { SetValue(ScaleProperty, value); } 
+        }
+
+        private static object CoerceScale(DependencyObject d, object value)
+        {
+            var val = (double)value;
+
+            if (DoubleUtil.LessThan(val, ZoomBox.MiniScale))
+                return ZoomBox.MiniScale;
+
+            if (DoubleUtil.GreaterThan(val, ZoomBox.MaxiScale))
+                return ZoomBox.MaxiScale;
+
+            return value;
+        }
 
         public static readonly DependencyProperty UnitProperty =
             DependencyProperty.Register("Unit", typeof(RulerUnit), _typeofSelf, new PropertyMetadata(RulerUnit.Pixel, OnUnitPropertyChanged));
@@ -285,13 +303,13 @@ namespace UIResources.Controls
 
         private void ZoomIn()
         {
-            SetValue(ScalePropertyKey, Scale * 1.1); 
+            Scale = Scale * ScaleRatio; 
             UpdateScaleTransform();
         }
 
         private void ZoomOut()
         {
-            SetValue(ScalePropertyKey, Scale * Math.Round(1 / 1.1, 4, MidpointRounding.AwayFromZero)); //0.9091; //Math.Max(1, Scale - 0.5);
+            Scale = Scale / ScaleRatio;
             UpdateScaleTransform();
         }
 
