@@ -36,8 +36,8 @@
                                                     ContentTemplate="{TemplateBinding ContentTemplate}" 
                                                     CanContentScroll="{TemplateBinding CanContentScroll}"/>
 
-                            <Path Height="20"  Data="M0,0 H5 V-5" Stroke="Black" Stretch="Fill" StrokeThickness="1"/> 
-                            <Path Height="20" Data="M3,0 V-6 M0,-3 H6" Stroke="Black" Stretch="Fill" StrokeThickness="1" RenderOptions.EdgeMode="Aliased" StrokeDashArray="1,1"/>
+                            <Path Grid.Row="0" Grid.Column="0" Height="20"  Data="M0,0 H5 V-5" Stroke="Black" Stretch="Fill" StrokeThickness="1" RenderOptions.EdgeMode="Aliased"/> 
+                            <Path Grid.Row="0" Grid.Column="0" Height="20" Data="M3,0 V-6 M0,-3 H6" Stroke="Black" Stretch="Fill" StrokeThickness="1" RenderOptions.EdgeMode="Aliased" StrokeDashArray="1,1"/>
 		           
                             <!-- Horizontal Ruler -->
                             <controls:Ruler x:Name="PART_HorizontalRuler" 
@@ -45,10 +45,9 @@
                                             Unit="{TemplateBinding Unit}">
                                 <controls:Ruler.Shift>
                                     <MultiBinding Converter="{StaticResource zoomBoxRulerShiftMultiConverter}">
-                                        <Binding Path="HorizontalOffset" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                        <Binding Path="HorizontalOriginShift" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                        <Binding Path="Scale" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                        <Binding Path="Unit" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                        <Binding Path="HorizontalOriginShift" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                        <Binding Path="Scale" RelativeSource="{RelativeSource Self}"/>
+                                        <Binding Path="Unit" RelativeSource="{RelativeSource Self}"/>
                                     </MultiBinding>
                                 </controls:Ruler.Shift>
                             </controls:Ruler>
@@ -59,10 +58,9 @@
                                             Unit="{TemplateBinding Unit}">
                                 <controls:Ruler.Shift>
                                     <MultiBinding Converter="{StaticResource zoomBoxRulerShiftMultiConverter}">
-                                        <Binding Path="VerticalOffset" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                        <Binding Path="VerticalOriginShift" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                        <Binding Path="Scale" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                        <Binding Path="Unit" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                        <Binding Path="VerticalOriginShift" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                        <Binding Path="Scale" RelativeSource="{RelativeSource Self}"/>
+                                        <Binding Path="Unit" RelativeSource="{RelativeSource Self}"/>
                                     </MultiBinding>
                                 </controls:Ruler.Shift>
                                 <controls:Ruler.LayoutTransform>

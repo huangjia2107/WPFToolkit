@@ -41,7 +41,7 @@ namespace UIResources.Helps
     public class DoubleToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {  
+        {
             var oriValue = (double)value;
             var compareValue = parameter == null ? 0d : double.Parse(parameter.ToString());
 
@@ -78,12 +78,11 @@ namespace UIResources.Helps
             if (values.Contains(null) || values.Contains(DependencyProperty.UnsetValue))
                 return 0d;
 
-            var scrollbarOffset = (double)values[0];
-            var originShift = (double)values[1];
-            var scale = (double)values[2];
-            var unit = (RulerUnit)values[3];
+            var originShift = (double)values[0];
+            var scale = (decimal)values[1];
+            var unit = (RulerUnit)values[2];
 
-            return (decimal)((originShift - scrollbarOffset) / (double)DpiUtil.GetPixelPerUnit(unit) / scale);
+            return (decimal)originShift / DpiUtil.GetPixelPerUnit(unit) / scale;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

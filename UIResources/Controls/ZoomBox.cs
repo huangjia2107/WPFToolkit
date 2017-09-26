@@ -46,7 +46,6 @@ namespace UIResources.Controls
         public ZoomBox()
         {
             WeakEventManager<FrameworkElement, RoutedEventArgs>.AddHandler(this, "Loaded", OnLoaded);
-            WeakEventManager<FrameworkElement, SizeChangedEventArgs>.AddHandler(this, "SizeChanged", OnSizeChanged);
         }
 
         #region readonly Properties
@@ -123,7 +122,7 @@ namespace UIResources.Controls
         private static void OnUnitPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
             var zoomBox = sender as ZoomBox;
-            zoomBox.UpdateRulerParams(true);
+            zoomBox.UpdateRulerParams();
         }
 
         public static readonly DependencyProperty RibbonProperty =
@@ -178,8 +177,10 @@ namespace UIResources.Controls
         {
             base.OnScrollChanged(e);
 
-            if (IsLoaded)
-                UpdateRulerParams();
+            if (!IsLoaded)
+                return;
+
+            UpdateRulerParams();
         }
 
         protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
@@ -204,14 +205,10 @@ namespace UIResources.Controls
             }
         }
 
-        private void OnSizeChanged(object sender, EventArgs e)
-        {
-            UpdateScaleTransform(false);
-        }
-
         private void OnLoaded(object sender, EventArgs e)
         {
-            UpdateScaleTransform(false);
+            UpdateScaleTransform();
+            UpdateRulerParams();
         }
 
         #endregion
@@ -237,63 +234,55 @@ namespace UIResources.Controls
             }
         }
 
-        private void UpdateRulerParams(bool isForce = false)
+        private void UpdateRulerParams()
         {
             if (_partScrollContentPresenter == null || _elementContent == null || _partHorizontalRuler == null || _partVerticalRuler == null || _partScaleTransform == null)
                 return;
 
-            if (isForce || _partHorizontalRuler.Scale != (decimal)Scale)
+            using (_partHorizontalRuler.DeferRefresh())
             {
-                using (_partHorizontalRuler.DeferRefresh())
-                {
-                    KeepingHorizontalViewPoint((double)_partHorizontalRuler.Scale);
+                KeepingHorizontalViewPoint((double)_partHorizontalRuler.Scale, _partScrollContentPresenter.CanHorizontallyScroll);
 
-                    var offset = _elementContent.TranslatePoint(new Point(), _partScrollContentPresenter);
+                _partHorizontalRuler.Scale = (decimal)Scale;
+                _partHorizontalRuler.Unit = Unit;
 
-                    _partHorizontalRuler.Scale = (decimal)Scale;
-                    SetValue(HorizontalOriginShiftPropertyKey, offset.X + HorizontalOffset);
-                }
+                var offset = _elementContent.TranslatePoint(new Point(), _partScrollContentPresenter);
+                SetValue(HorizontalOriginShiftPropertyKey, offset.X);
             }
 
-            if (isForce || _partVerticalRuler.Scale != (decimal)Scale)
+            using (_partVerticalRuler.DeferRefresh())
             {
-                using (_partVerticalRuler.DeferRefresh())
-                {
-                    KeepingVerticalViewPoint((double)_partVerticalRuler.Scale);
+                KeepingVerticalViewPoint((double)_partVerticalRuler.Scale, _partScrollContentPresenter.CanVerticallyScroll);
 
-                    var offset = _elementContent.TranslatePoint(new Point(), _partScrollContentPresenter);
+                _partVerticalRuler.Scale = (decimal)Scale;
+                _partVerticalRuler.Unit = Unit;
 
-                    _partVerticalRuler.Scale = (decimal)Scale;
-                    SetValue(VerticalOriginShiftPropertyKey, offset.Y + VerticalOffset);
-                }
+                var offset = _elementContent.TranslatePoint(new Point(), _partScrollContentPresenter);
+                SetValue(VerticalOriginShiftPropertyKey, offset.Y);
             }
 
-            if (_partHorizontalRuler.Scale == (decimal)Scale && _partVerticalRuler.Scale == (decimal)Scale)
-                _viewPoint = null;
+            _viewPoint = null;
         }
 
-        private void UpdateScaleTransform(bool isManual = true)
+        private void UpdateScaleTransform()
         {
             if (_partScaleTransform == null)
                 return;
 
             _partScaleTransform.ScaleX = Scale;
             _partScaleTransform.ScaleY = Scale;
-
-            if (!isManual)
-                UpdateRulerParams(true);
         }
 
-        private void KeepingHorizontalViewPoint(double lastScale)
+        private void KeepingHorizontalViewPoint(double lastScale, bool canHorizontallyScroll)
         {
-            if (_viewPoint.HasValue)
-                ScrollToHorizontalOffset(_viewPoint.Value.PointToScrollContent.X * Scale / lastScale - _viewPoint.Value.PointToViewport.X);
+            if (_viewPoint.HasValue && canHorizontallyScroll)
+                ScrollToHorizontalOffset((_viewPoint.Value.PointToScrollContent.X - _elementContent.Margin.Left) * Scale / lastScale + _elementContent.Margin.Left - _viewPoint.Value.PointToViewport.X);
         }
 
-        private void KeepingVerticalViewPoint(double lastScale)
+        private void KeepingVerticalViewPoint(double lastScale, bool canVerticallyScroll)
         {
-            if (_viewPoint.HasValue)
-                ScrollToVerticalOffset(_viewPoint.Value.PointToScrollContent.Y * Scale / lastScale - _viewPoint.Value.PointToViewport.Y);
+            if (_viewPoint.HasValue && canVerticallyScroll)
+                ScrollToVerticalOffset((_viewPoint.Value.PointToScrollContent.Y - _elementContent.Margin.Top) * Scale / lastScale + _elementContent.Margin.Top - _viewPoint.Value.PointToViewport.Y );
         }
 
         private ViewPoint ResetViewPoint()
@@ -302,21 +291,20 @@ namespace UIResources.Controls
             {
                 PointToViewport = Mouse.GetPosition(_partScrollContentPresenter)
             };
+
             viewPoint.PointToScrollContent = new Point(viewPoint.PointToViewport.X + HorizontalOffset, viewPoint.PointToViewport.Y + VerticalOffset);
 
             return viewPoint;
         }
 
-        private void ZoomIn()
+        public void ZoomIn()
         {
             Scale = Scale * ScaleRatio;
-            UpdateScaleTransform();
         }
 
-        private void ZoomOut()
+        public void ZoomOut()
         {
             Scale = Scale / ScaleRatio;
-            UpdateScaleTransform();
         }
 
         #endregion
