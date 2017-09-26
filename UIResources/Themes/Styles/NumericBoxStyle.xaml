@@ -1,7 +1,10 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:controls="clr-namespace:UIResources.Controls"
-                    xmlns:themes="clr-namespace:UIResources.Themes">
+                    xmlns:themes="clr-namespace:UIResources.Themes"
+                    xmlns:helps="clr-namespace:UIResources.Helps">
+
+    <helps:DoubleToVisibilityConverter x:Key="doubleToVisibilityConverter"/>
 
     <Style TargetType="{x:Type controls:NumericBox}">
         <Setter Property="Background" Value="Transparent" />
@@ -36,6 +39,7 @@
                                          InputMethod.IsInputMethodEnabled="False"
                                          MinHeight="{TemplateBinding MinHeight}"
                                          HorizontalAlignment="Stretch"
+                                         VerticalAlignment="Stretch"
                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" 
                                          TextAlignment="{TemplateBinding TextAlignment}"
@@ -52,10 +56,12 @@
                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
                                          TabIndex="{TemplateBinding TabIndex}"
                                          VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}" />
-                                <Grid Grid.Column="1" Width="{TemplateBinding UpDownButtonsWidth}">
+                                <Grid Grid.Column="1" 
+                                      Width="{TemplateBinding UpDownButtonsWidth}" 
+                                      Visibility="{Binding Width,RelativeSource={RelativeSource Self},Converter={StaticResource doubleToVisibilityConverter}}">
                                     <Grid.RowDefinitions>
-                                        <RowDefinition/>    
-                                        <RowDefinition Height="1"/>                   
+                                        <RowDefinition/>
+                                        <RowDefinition Height="1"/>
                                         <RowDefinition/>
                                     </Grid.RowDefinitions>
                                     <RepeatButton x:Name="PART_NumericUp"

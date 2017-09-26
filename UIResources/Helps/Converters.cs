@@ -13,21 +13,7 @@ namespace UIResources.Helps
 {
     #region IValueConverter
 
-    public class MultipleValueConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var dblVal = (double)value;
-            var multiple = parameter == null ? 1d : System.Convert.ToDouble(parameter);
 
-            return dblVal * multiple;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
 
     public class BoolToVisibilityConverter : IValueConverter
     {
@@ -44,6 +30,39 @@ namespace UIResources.Helps
         {
             bool isTrue = (bool)value;
             return isTrue ? TrueVisibility : FalseVisibility;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DoubleToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {  
+            var oriValue = (double)value;
+            var compareValue = parameter == null ? 0d : double.Parse(parameter.ToString());
+
+            return DoubleUtil.GreaterThan(oriValue, compareValue) ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
+    public class MultipleValueConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var dblVal = (double)value;
+            var multiple = parameter == null ? 1d : System.Convert.ToDouble(parameter);
+
+            return dblVal * multiple;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -72,7 +91,6 @@ namespace UIResources.Helps
             throw new NotImplementedException();
         }
     }
-
 
     #endregion
 }

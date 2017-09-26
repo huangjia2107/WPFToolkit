@@ -86,7 +86,7 @@ namespace UIResources.Controls
         }
 
         public static readonly DependencyProperty ScaleProperty =
-            DependencyProperty.Register("Scale", typeof(double), _typeofSelf, new PropertyMetadata(1d, null, CoerceScale));
+            DependencyProperty.Register("Scale", typeof(double), _typeofSelf, new PropertyMetadata(1d, OnScalePropertyChanged, CoerceScale));
         public double Scale
         {
             get { return (double)GetValue(ScaleProperty); }
@@ -97,13 +97,19 @@ namespace UIResources.Controls
         {
             var val = (double)value;
 
-            if (DoubleUtil.LessThan(val, ZoomBox.MiniScale))
-                return ZoomBox.MiniScale;
+            if (DoubleUtil.LessThan(val, MiniScale))
+                return MiniScale;
 
-            if (DoubleUtil.GreaterThan(val, ZoomBox.MaxiScale))
-                return ZoomBox.MaxiScale;
+            if (DoubleUtil.GreaterThan(val, MaxiScale))
+                return MaxiScale;
 
             return value;
+        }
+
+        private static void OnScalePropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            var zoomBox = sender as ZoomBox;
+            zoomBox.UpdateScaleTransform();
         }
 
         public static readonly DependencyProperty UnitProperty =
@@ -172,7 +178,8 @@ namespace UIResources.Controls
         {
             base.OnScrollChanged(e);
 
-            UpdateRulerParams();
+            if (IsLoaded)
+                UpdateRulerParams();
         }
 
         protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)

@@ -7,101 +7,107 @@
     <helps:BoolToVisibilityConverter x:Key="boolToVisibilityConverter"/>
 
     <Style TargetType="{x:Type controls:ZoomBox}">
+        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="HorizontalScrollBarVisibility" Value="Visible"/>
         <Setter Property="VerticalScrollBarVisibility" Value="Visible"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type controls:ZoomBox}">
-                    <Grid Background="{TemplateBinding Background}"
-                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="20"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="20"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <!-- ScrollContentPresenter -->
-                        <ScrollContentPresenter x:Name="PART_ScrollContentPresenter"
-                                                Grid.Column="1" Grid.Row="1"
-                                                Content="{TemplateBinding Content}" 
-                                                ContentTemplate="{TemplateBinding ContentTemplate}" 
-                                                CanContentScroll="{TemplateBinding CanContentScroll}"/>
-
-                        <Path Height="20"  Data="M0,0 H5 V-5" Stroke="Black" Stretch="Fill" StrokeThickness="1"/> 
-                        <Path Height="20" Data="M3,0 V-6 M0,-3 H6" Stroke="Black" Stretch="Fill" StrokeThickness="1" RenderOptions.EdgeMode="Aliased" StrokeDashArray="1,1"/>
-			   
-                        <!-- Horizontal Ruler -->
-                        <controls:Ruler x:Name="PART_HorizontalRuler" 
-                                        Grid.Row="0" Grid.Column="1"
-                                        Unit="{TemplateBinding Unit}">
-                            <controls:Ruler.Shift>
-                                <MultiBinding Converter="{StaticResource zoomBoxRulerShiftMultiConverter}">
-                                    <Binding Path="HorizontalOffset" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                    <Binding Path="HorizontalOriginShift" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                    <Binding Path="Scale" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                    <Binding Path="Unit" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                </MultiBinding>
-                            </controls:Ruler.Shift>
-                        </controls:Ruler>
-
-                        <!-- Vertical Ruler -->
-                        <controls:Ruler x:Name="PART_VerticalRuler" 
-                                        Grid.Row="1" Grid.Column="0" MarkDock="Down"
-                                        Unit="{TemplateBinding Unit}">
-                            <controls:Ruler.Shift>
-                                <MultiBinding Converter="{StaticResource zoomBoxRulerShiftMultiConverter}">
-                                    <Binding Path="VerticalOffset" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                    <Binding Path="VerticalOriginShift" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                    <Binding Path="Scale" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                    <Binding Path="Unit" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                </MultiBinding>
-                            </controls:Ruler.Shift>
-                            <controls:Ruler.LayoutTransform>
-                                <RotateTransform Angle="90"/>
-                            </controls:Ruler.LayoutTransform>
-                        </controls:Ruler>
-
-                        <!-- Horizontal ScrollBar -->
-                        <Grid Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2">
+                    <Border Background="{TemplateBinding Background}" 
+                            BorderThickness="{TemplateBinding BorderThickness}" 
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
+                        <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="20"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <ContentPresenter ContentSource="Ribbon"
-                                              Margin="{TemplateBinding Padding}"
-                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
-                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                              Visibility="{TemplateBinding IsShowRibbon,Converter={StaticResource boolToVisibilityConverter}}"/>
-                            
-                            <GridSplitter Grid.Column="1" Width="3" Background="#FF65778B" HorizontalAlignment="Center" VerticalAlignment="Stretch"
-                                          Visibility="{TemplateBinding IsShowRibbon,Converter={StaticResource boolToVisibilityConverter}}"/>
-                            
-                            <ScrollBar Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" 
-                                   Grid.Column="2"
-                                   x:Name="PART_HorizontalScrollBar"  
-                                   Orientation="Horizontal" 
-                                   Value="{Binding Path=HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" 
-                                   ViewportSize="{TemplateBinding ViewportWidth}" 
-                                   Minimum="0" 
-                                   Maximum="{TemplateBinding ScrollableWidth}" />
-                        </Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <!-- ScrollContentPresenter -->
+                            <ScrollContentPresenter x:Name="PART_ScrollContentPresenter"
+                                                    Grid.Column="1" Grid.Row="1" 
+                                                    Content="{TemplateBinding Content}" 
+                                                    ContentTemplate="{TemplateBinding ContentTemplate}" 
+                                                    CanContentScroll="{TemplateBinding CanContentScroll}"/>
 
-                        <!-- Vertical ScrollBar -->
-                        <ScrollBar Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" 
-                                   Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" 
-                                   x:Name="PART_VerticalScrollBar"  
-                                   Orientation="Vertical" 
-                                   Value="{Binding Path=VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" 
-                                   ViewportSize="{TemplateBinding ViewportHeight}" 
-                                   Minimum="0" 
-                                   Maximum="{TemplateBinding ScrollableHeight}" />
-                    </Grid>
+                            <Path Height="20"  Data="M0,0 H5 V-5" Stroke="Black" Stretch="Fill" StrokeThickness="1"/> 
+                            <Path Height="20" Data="M3,0 V-6 M0,-3 H6" Stroke="Black" Stretch="Fill" StrokeThickness="1" RenderOptions.EdgeMode="Aliased" StrokeDashArray="1,1"/>
+		           
+                            <!-- Horizontal Ruler -->
+                            <controls:Ruler x:Name="PART_HorizontalRuler" 
+                                            Grid.Row="0" Grid.Column="1"
+                                            Unit="{TemplateBinding Unit}">
+                                <controls:Ruler.Shift>
+                                    <MultiBinding Converter="{StaticResource zoomBoxRulerShiftMultiConverter}">
+                                        <Binding Path="HorizontalOffset" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                        <Binding Path="HorizontalOriginShift" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                        <Binding Path="Scale" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                        <Binding Path="Unit" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                    </MultiBinding>
+                                </controls:Ruler.Shift>
+                            </controls:Ruler>
+
+                            <!-- Vertical Ruler -->
+                            <controls:Ruler x:Name="PART_VerticalRuler" 
+                                            Grid.Row="1" Grid.Column="0" MarkDock="Down"
+                                            Unit="{TemplateBinding Unit}">
+                                <controls:Ruler.Shift>
+                                    <MultiBinding Converter="{StaticResource zoomBoxRulerShiftMultiConverter}">
+                                        <Binding Path="VerticalOffset" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                        <Binding Path="VerticalOriginShift" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                        <Binding Path="Scale" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                        <Binding Path="Unit" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                    </MultiBinding>
+                                </controls:Ruler.Shift>
+                                <controls:Ruler.LayoutTransform>
+                                    <RotateTransform Angle="90"/>
+                                </controls:Ruler.LayoutTransform>
+                            </controls:Ruler>
+
+                            <!-- Horizontal ScrollBar -->
+                            <Grid Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Background="{TemplateBinding Background}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter ContentSource="Ribbon"
+                                                  Margin="{TemplateBinding Padding}"
+                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  Visibility="{TemplateBinding IsShowRibbon,Converter={StaticResource boolToVisibilityConverter}}"/>
+                                
+                                <GridSplitter Grid.Column="1" Width="3" Background="DarkGray" HorizontalAlignment="Center" VerticalAlignment="Stretch"
+                                              Visibility="{TemplateBinding IsShowRibbon,Converter={StaticResource boolToVisibilityConverter}}"/>
+                                
+                                <ScrollBar Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" 
+                                       Grid.Column="2"
+                                       x:Name="PART_HorizontalScrollBar"  
+                                       Orientation="Horizontal" 
+                                       Value="{Binding Path=HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" 
+                                       ViewportSize="{TemplateBinding ViewportWidth}" 
+                                       Minimum="0" 
+                                       Maximum="{TemplateBinding ScrollableWidth}" />
+                            </Grid>
+
+                            <!-- Vertical ScrollBar -->
+                            <ScrollBar Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" 
+                                       Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" 
+                                       x:Name="PART_VerticalScrollBar"  
+                                       Orientation="Vertical" 
+                                       Value="{Binding Path=VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" 
+                                       ViewportSize="{TemplateBinding ViewportHeight}" 
+                                       Minimum="0" 
+                                       Maximum="{TemplateBinding ScrollableHeight}" />
+                        </Grid>
+                    </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

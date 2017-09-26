@@ -36,7 +36,7 @@ namespace UIResources.Controls
         private double _internalLargeChange = DefaultInterval;
         private double _intervalValueSinceReset = 0;
         private double? _lastOldValue = null;
-        
+
         private bool _isManual;
         private bool _isBusy;
 
@@ -70,7 +70,7 @@ namespace UIResources.Controls
 
         private static void OnIncreaseCommand(object sender, RoutedEventArgs e)
         {
-            var numericBox = sender as NumericBox; 
+            var numericBox = sender as NumericBox;
             numericBox.ContinueChangeValue(true);
         }
 
@@ -82,7 +82,7 @@ namespace UIResources.Controls
 
         private static void OnDecreaseCommand(object sender, RoutedEventArgs e)
         {
-            var numericBox = sender as NumericBox; 
+            var numericBox = sender as NumericBox;
             numericBox.ContinueChangeValue(false);
         }
 
@@ -303,8 +303,8 @@ namespace UIResources.Controls
         protected virtual void OnValueChanged(double oldValue, double newValue)
         {
             InternalSetText(newValue);
-            InvalidateRequerySuggested(newValue); 
- 
+            InvalidateRequerySuggested(newValue);
+
             if ((!_isBusy || !DisabledValueChangedWhileBusy) && !DoubleUtil.AreClose(oldValue, newValue))
             {
                 Debug.Print("[ NumericBox ] ValueChanged, OldValue = {0}, NewValue = {1}, IsManual = {2}, IsBusy = {3}",
@@ -373,12 +373,12 @@ namespace UIResources.Controls
                     e.Handled = true;
                     break;
 
-                case Key.Up: 
+                case Key.Up:
                     ContinueChangeValue(true);
                     e.Handled = true;
                     break;
 
-                case Key.Down: 
+                case Key.Down:
                     ContinueChangeValue(false);
                     e.Handled = true;
                     break;
@@ -546,18 +546,18 @@ namespace UIResources.Controls
             return Math.Round(originValue, precision ?? 0, MidpointRounding.AwayFromZero);
         }
 
-        private void ContinueChangeValue(bool isIncrease,bool isContinue = true)
+        private void ContinueChangeValue(bool isIncrease, bool isContinue = true)
         {
-            if(IsReadOnly || !IsEnabled)
+            if (IsReadOnly || !IsEnabled)
                 return;
 
             if (isIncrease && DoubleUtil.LessThan(Value, Maximum))
             {
-                if(!_isBusy && isContinue)
+                if (!_isBusy && isContinue)
                 {
                     _isBusy = true;
 
-                    if(DisabledValueChangedWhileBusy)
+                    if (DisabledValueChangedWhileBusy)
                         _lastOldValue = Value;
                 }
 
@@ -567,11 +567,11 @@ namespace UIResources.Controls
 
             if (!isIncrease && DoubleUtil.GreaterThan(Value, Minimum))
             {
-                if(!_isBusy && isContinue)
+                if (!_isBusy && isContinue)
                 {
                     _isBusy = true;
 
-                    if(DisabledValueChangedWhileBusy)
+                    if (DisabledValueChangedWhileBusy)
                         _lastOldValue = Value;
                 }
 
@@ -579,13 +579,13 @@ namespace UIResources.Controls
                 Value = (double)CoerceValue(this, Value - CalculateInterval(isContinue));
             }
         }
- 
+
         private double CalculateInterval(bool isContinue = true)
         {
-            if(!Speedup || !isContinue)
+            if (!Speedup || !isContinue)
                 return Interval;
 
-            if(DoubleUtil.GreaterThan((_intervalValueSinceReset += _internalLargeChange ), _internalLargeChange * 100))
+            if (DoubleUtil.GreaterThan((_intervalValueSinceReset += _internalLargeChange), _internalLargeChange * 100))
                 _internalLargeChange *= 10;
 
             return _internalLargeChange;
@@ -594,11 +594,11 @@ namespace UIResources.Controls
         private void ResetInternal()
         {
             _internalLargeChange = Interval;
-            _intervalValueSinceReset= 0;
+            _intervalValueSinceReset = 0;
 
             _isBusy = false;
 
-            if(_lastOldValue.HasValue)
+            if (_lastOldValue.HasValue)
             {
                 _isManual = true;
                 OnValueChanged(_lastOldValue.Value, Value);
@@ -608,6 +608,9 @@ namespace UIResources.Controls
 
         private void InvalidateRequerySuggested(double value)
         {
+            if (_repeatUp == null || _repeatDown == null)
+                return;
+
             if (DoubleUtil.AreClose(value, Maximum) && _repeatUp.IsEnabled
                || DoubleUtil.AreClose(value, Minimum) && _repeatDown.IsEnabled)
                 CommandManager.InvalidateRequerySuggested();

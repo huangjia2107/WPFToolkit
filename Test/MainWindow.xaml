@@ -53,9 +53,9 @@
         <controls:ZoomBox x:Name="zoomBox" Grid.Row="1" Margin="0,20,0,0" FontSize="30" Background="White"
                           Unit="{Binding SelectedValue,ElementName=UnitComboBox}">
             <controls:ZoomBox.Ribbon>
-                <TextBlock Text="{Binding Scale,ElementName=zoomBox, StringFormat={}{0:P1}}" VerticalAlignment="Center" FontSize="12"/>
+                <controls:NumericBox Value="{Binding Scale,ElementName=zoomBox, Mode=TwoWay}" Maximum="48"  Minimum="0.01"  Precision="2" UpDownButtonsWidth="0" MinHeight="0" TextAlignment="Center" BorderThickness="0"/>
             </controls:ZoomBox.Ribbon>
-            <TextBlock Text="sdjhwdhwidhwid" Background="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Text="sdjhwdhwidhwid" Background="Gray" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,40,10,50"/>
 
         </controls:ZoomBox>
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,3,0,0">
