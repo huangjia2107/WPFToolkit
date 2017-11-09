@@ -41,6 +41,11 @@ namespace Test
 
         public Action action;
 
+        private void ZoomBoxTestButton_Click(object sender, RoutedEventArgs e)
+        {
+            zoomBox.Content="sssssssssssss";
+        }
+
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             //AnchorPopup.Show(testBtn, "This is a test.sdcw dwdwdwd wdwdw dwdwdwdwj dwjwi jdwijdw0000");

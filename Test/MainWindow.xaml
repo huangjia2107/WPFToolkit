@@ -53,8 +53,16 @@
         <controls:ZoomBox x:Name="zoomBox" Grid.Row="1" Margin="0,20,0,0" FontSize="30" Background="White"
                           Unit="{Binding SelectedValue,ElementName=UnitComboBox}">
             <controls:ZoomBox.Ribbon>
-                <controls:NumericBox Value="{Binding Scale,ElementName=zoomBox, Mode=TwoWay}" Maximum="48"  Minimum="0.01"  Precision="2" UpDownButtonsWidth="0" MinHeight="0" TextAlignment="Center" BorderThickness="0"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <controls:NumericBox Value="{Binding Scale,ElementName=zoomBox, Mode=TwoWay}" Maximum="48"  Minimum="0.01"  Precision="2" UpDownButtonsWidth="0" MinHeight="0" TextAlignment="Center" BorderThickness="0"/>
+                    <Button Grid.Column="1" Width="50" Height="25" Content="Test" Click="ZoomBoxTestButton_Click" FontSize="12"/>
+                </Grid>
             </controls:ZoomBox.Ribbon>
+            
             <TextBlock Text="sdjhwdhwidhwid" Background="Gray" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,40,10,50"/>
 
         </controls:ZoomBox>

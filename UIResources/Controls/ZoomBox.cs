@@ -45,6 +45,9 @@ namespace UIResources.Controls
 
         public ZoomBox()
         {
+            var v = DependencyPropertyDescriptor.FromProperty(ContentProperty, _typeofSelf);
+            v.AddValueChanged(this, OnContentChanged);
+
             WeakEventManager<FrameworkElement, RoutedEventArgs>.AddHandler(this, "Loaded", OnLoaded);
         }
 
@@ -82,6 +85,11 @@ namespace UIResources.Controls
                 return GetValue(ContentProperty);
             }
             set { SetValue(ContentProperty, value); }
+        }
+
+        private void OnContentChanged(object sender, EventArgs e)
+        {
+            InitContent();
         }
 
         public static readonly DependencyProperty ScaleProperty =
@@ -217,10 +225,17 @@ namespace UIResources.Controls
 
         private void InitContent()
         {
+            if (_partScrollContentPresenter==null)
+                return;
+
             if (_partScrollContentPresenter.Content != null && _partScrollContentPresenter.Content is string)
             {
                 _partScrollContentPresenter.Content = new TextBlock { Text = (string)_partScrollContentPresenter.Content };
                 _isStringContent = true;
+            }
+            else
+            {
+                _isStringContent = false;
             }
 
             var content = _partScrollContentPresenter.Content as FrameworkElement;
