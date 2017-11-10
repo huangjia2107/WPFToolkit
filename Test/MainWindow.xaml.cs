@@ -48,7 +48,7 @@ namespace Test
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            //AnchorPopup.Show(testBtn, "This is a test.sdcw dwdwdwd wdwdw dwdwdwdwj dwjwi jdwijdw0000");
+            AnchorPopup.Show(testBtn, "This is a test.sdcw dwdwdwd wdwdw dwdwdwdwj dwjwi jdwijdw0000");
 
             /*
             Action action1 = aa;

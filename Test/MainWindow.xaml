@@ -13,6 +13,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel Margin="5" VerticalAlignment="Top" Grid.IsSharedSizeScope="true">
+            <Button x:Name="testBtn" Height="50" Width="100" Content="Test" FontSize="13" Click="Button_Click_1"/>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" SharedSizeGroup="FirstColumn"/>

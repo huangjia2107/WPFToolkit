@@ -103,6 +103,25 @@ namespace UIResources.Extensions
                 throw new ArgumentNullException("Popup_OnOpened");
 
             var placementTarget = _popup.PlacementTarget as FrameworkElement;
+
+            if(placementTarget != null && _popup.Child != null)
+            {
+                var topLeftPoint = _popup.Child.TranslatePoint(new Point(), placementTarget);
+                var topLeftToTargetPoint = new Point(topLeftPoint.X + _anchorBorder.CornerRadius.TopLeft, topLeftPoint.Y);
+                var topRightToTargetPoint = new Point(topLeftPoint.X + _grid.ActualWidth - _anchorBorder.CornerRadius.TopRight, topLeftToTargetPoint.Y + _grid.ActualHeight);  //  testBtn.PointFromScreen(new Point(rect.Right, rect.Top));
+
+                bool isAbove = (topLeftToTargetPoint.Y < 0);
+
+                _anchorBorder.AnchorDock = isAbove ? AnchorDock.BottomLeft : AnchorDock.TopLeft;
+                _anchorBorder.VerticalAlignment = isAbove ? VerticalAlignment.Top : VerticalAlignment.Bottom;
+
+                _anchorBorder.AnchorOffset = GetAnchorOffset(_anchorBorder, placementTarget, topLeftToTargetPoint, topRightToTargetPoint, isAbove);
+                _anchorBorder.DockOffset = GetDockOffset(_anchorBorder, placementTarget, topLeftToTargetPoint, topRightToTargetPoint, isAbove);
+
+                _grid.Height = _anchorBorder.ActualRenderHeight;
+            }
+
+            /* 
             var fromVisual = (HwndSource)PresentationSource.FromVisual(_popup.Child);
 
             if (fromVisual != null && placementTarget != null)
@@ -126,6 +145,7 @@ namespace UIResources.Extensions
                     _grid.Height = _anchorBorder.ActualRenderHeight;
                 }
             }
+            */
         }
 
         private double GetDockOffset(AnchorBorder anchorBorder, FrameworkElement placementTarget, Point topLeftToTargetPoint, Point topRightToTargetPoint, bool isAbove)
