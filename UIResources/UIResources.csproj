@@ -50,6 +50,7 @@
     <Compile Include="Controls\MenuButton.cs" />
     <Compile Include="Controls\RadialGuage.cs" />
     <Compile Include="Controls\Ruler.cs" />
+    <Compile Include="Controls\SpitButton.cs" />
     <Compile Include="Controls\ToggleStatus.cs" />
     <Compile Include="Controls\ZoomBox.cs" />
     <Compile Include="Helps\Converters.cs" />
@@ -102,6 +103,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\Styles\RepeatButtonStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Styles\SpitButtonStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

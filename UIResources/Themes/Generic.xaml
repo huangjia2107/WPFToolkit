@@ -5,7 +5,8 @@
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/UIResources;component/Themes/Styles/ButtonStyle.xaml"/>
         <ResourceDictionary Source="/UIResources;component/Themes/Styles/RepeatButtonStyle.xaml"/>
-        <ResourceDictionary Source="/UIResources;component/Themes/Styles/MenuButtonStyle.xaml"/> 
+        <ResourceDictionary Source="/UIResources;component/Themes/Styles/MenuButtonStyle.xaml"/>
+        <ResourceDictionary Source="/UIResources;component/Themes/Styles/SpitButtonStyle.xaml"/>
 
         <ResourceDictionary Source="/UIResources;component/Themes/Styles/ToggleStatusStyle.xaml"/> 
 
@@ -16,5 +17,5 @@
 
         <ResourceDictionary Source="/UIResources;component/Themes/Styles/ZoomBoxStyle.xaml"/>
     </ResourceDictionary.MergedDictionaries>   
- 
+  
 </ResourceDictionary>
