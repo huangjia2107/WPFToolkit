@@ -58,12 +58,16 @@ namespace UIResources.Markup
             if (service == null)
                 return null;
 
-            UIElement mTarget = service.TargetObject as FrameworkElement;
+            FrameworkElement mTarget = service.TargetObject as FrameworkElement;
             DependencyProperty mProperty = service.TargetProperty as DependencyProperty;
             if (mTarget != null && mProperty != null)
             {
-                var v = DependencyPropertyDescriptor.FromProperty(mProperty, typeof(UIElement));
-                v.AddValueChanged(mTarget, VisibilityChanged);
+                var mDescriptor = DependencyPropertyDescriptor.FromProperty(mProperty, typeof(UIElement));
+                mDescriptor.AddValueChanged(mTarget, VisibilityChanged);
+
+                RoutedEventHandler handler = null;
+                handler = (s, e) => { mDescriptor.RemoveValueChanged(mTarget, VisibilityChanged); mTarget.Unloaded -= handler; };
+                mTarget.Unloaded += handler;
 
                 if (_binding != null)
                     return _binding.ProvideValue(serviceProvider);// BindingOperations.SetBinding(mTarget, mProperty, _Binding);
