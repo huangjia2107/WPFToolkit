@@ -38,6 +38,8 @@ namespace UIResources.Controls
             public Point PointToViewport { get; set; }
         }
 
+        private DependencyPropertyDescriptor _dependencyPropertyDescriptor;
+
         static ZoomBox()
         {
             DefaultStyleKeyProperty.OverrideMetadata(_typeofSelf, new FrameworkPropertyMetadata(_typeofSelf));
@@ -45,11 +47,12 @@ namespace UIResources.Controls
 
         public ZoomBox()
         {
-            var v = DependencyPropertyDescriptor.FromProperty(ContentProperty, _typeofSelf);
-            v.AddValueChanged(this, OnContentChanged);
-
+            _dependencyPropertyDescriptor = DependencyPropertyDescriptor.FromProperty(ContentProperty, _typeofSelf);
+            _dependencyPropertyDescriptor.AddValueChanged(this, OnContentChanged);
+             
             WeakEventManager<FrameworkElement, RoutedEventArgs>.AddHandler(this, "Loaded", OnLoaded);
-        }
+            WeakEventManager<FrameworkElement, RoutedEventArgs>.AddHandler(this, "Unloaded", OnUnloaded);
+        } 
 
         #region readonly Properties
 
@@ -219,13 +222,22 @@ namespace UIResources.Controls
             UpdateRulerParams();
         }
 
+        private void OnUnloaded(object sender, EventArgs e)
+        {
+            if (_dependencyPropertyDescriptor != null)
+                _dependencyPropertyDescriptor.RemoveValueChanged(this, OnContentChanged);
+
+            WeakEventManager<FrameworkElement, RoutedEventArgs>.RemoveHandler(this, "Loaded", OnLoaded);
+            WeakEventManager<FrameworkElement, RoutedEventArgs>.RemoveHandler(this, "Unloaded", OnUnloaded);
+        }
+
         #endregion
 
         #region Func
 
         private void InitContent()
         {
-            if (_partScrollContentPresenter==null)
+            if (_partScrollContentPresenter == null)
                 return;
 
             if (_partScrollContentPresenter.Content != null && _partScrollContentPresenter.Content is string)
@@ -297,7 +309,7 @@ namespace UIResources.Controls
         private void KeepingVerticalViewPoint(double lastScale, bool canVerticallyScroll)
         {
             if (_viewPoint.HasValue && canVerticallyScroll)
-                ScrollToVerticalOffset((_viewPoint.Value.PointToScrollContent.Y - _elementContent.Margin.Top) * Scale / lastScale + _elementContent.Margin.Top - _viewPoint.Value.PointToViewport.Y );
+                ScrollToVerticalOffset((_viewPoint.Value.PointToScrollContent.Y - _elementContent.Margin.Top) * Scale / lastScale + _elementContent.Margin.Top - _viewPoint.Value.PointToViewport.Y);
         }
 
         private ViewPoint ResetViewPoint()
