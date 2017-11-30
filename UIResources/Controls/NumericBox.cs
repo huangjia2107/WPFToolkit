@@ -330,13 +330,11 @@ namespace UIResources.Controls
             if (_valueTextBox == null || _repeatUp == null || _repeatDown == null)
             {
                 throw new NullReferenceException(string.Format("You have missed to specify {0}, {1} or {2} in your template", NumericUpTemplateName, NumericDownTemplateName, TextBoxTemplateName));
-            }
+            } 
 
-            _repeatUp.PreviewMouseUp -= OnRepeatButtonPreviewMouseUp;
-            _repeatDown.PreviewMouseUp -= OnRepeatButtonPreviewMouseUp;
-
-            _repeatUp.PreviewMouseUp += OnRepeatButtonPreviewMouseUp;
-            _repeatDown.PreviewMouseUp += OnRepeatButtonPreviewMouseUp;
+            WeakEventManager<FrameworkElement, RoutedEventArgs>.AddHandler(this, "Unloaded", OnUnloaded);
+            WeakEventManager<FrameworkElement, MouseButtonEventArgs>.AddHandler(_repeatUp, "PreviewMouseUp", OnRepeatButtonPreviewMouseUp);
+            WeakEventManager<FrameworkElement, MouseButtonEventArgs>.AddHandler(_repeatDown, "PreviewMouseUp", OnRepeatButtonPreviewMouseUp);
 
             ToggleReadOnlyMode(IsReadOnly);
             OnValueChanged(Value, Value);
@@ -401,6 +399,13 @@ namespace UIResources.Controls
         #endregion
 
         #region Event
+
+        private void OnUnloaded(object sender, EventArgs e)
+        {
+            WeakEventManager<FrameworkElement, RoutedEventArgs>.RemoveHandler(this, "Unloaded", OnUnloaded);
+            WeakEventManager<FrameworkElement, MouseButtonEventArgs>.RemoveHandler(_repeatUp, "PreviewMouseUp", OnRepeatButtonPreviewMouseUp);
+            WeakEventManager<FrameworkElement, MouseButtonEventArgs>.RemoveHandler(_repeatDown, "PreviewMouseUp", OnRepeatButtonPreviewMouseUp);
+        }
 
         private void OnRepeatButtonPreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
