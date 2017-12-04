@@ -24,7 +24,19 @@ namespace UIResources.Controls
         public RectangleProgressBar()
             : base()
         {
-            WeakEventManager<FrameworkElement, SizeChangedEventArgs>.AddHandler(this, "SizeChanged", (s, e) => UpdateUI());
+            WeakEventManager<FrameworkElement, RoutedEventArgs>.AddHandler(this, "Unloaded", OnUnloaded);
+            WeakEventManager<FrameworkElement, SizeChangedEventArgs>.AddHandler(this, "SizeChanged", OnSizeChanged); 
+        }
+
+        private void OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            UpdateUI();
+        }
+
+        private void OnUnloaded(object sender, EventArgs e)
+        { 
+            WeakEventManager<FrameworkElement, RoutedEventArgs>.RemoveHandler(this, "Unloaded", OnUnloaded);
+            WeakEventManager<FrameworkElement, SizeChangedEventArgs>.RemoveHandler(this, "SizeChanged", OnSizeChanged);
         }
 
         public new double BorderThickness

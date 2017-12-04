@@ -33,6 +33,8 @@ namespace UIResources.Controls
         private Path _pointer = null;
         private RotateTransform _pointerRt = null;
 
+        private DependencyPropertyDescriptor _dependencyPropertyDescriptor;
+
         static RadialGuage()
         {
             DefaultStyleKeyProperty.OverrideMetadata(_typeofSelf, new FrameworkPropertyMetadata(_typeofSelf));
@@ -235,11 +237,21 @@ namespace UIResources.Controls
 
             DrawUiElements();
 
-            if (IsShowIndicator)
+            if (IsShowIndicator && _pointerRt != null)
             {
-                var v = DependencyPropertyDescriptor.FromProperty(RotateTransform.AngleProperty, typeof(RotateTransform));
-                v.AddValueChanged(_pointerRt, OnAnglePropertyChanged);
+                _dependencyPropertyDescriptor = DependencyPropertyDescriptor.FromProperty(RotateTransform.AngleProperty, typeof(RotateTransform));
+                _dependencyPropertyDescriptor.AddValueChanged(_pointerRt, OnAnglePropertyChanged);
+
+                WeakEventManager<FrameworkElement, RoutedEventArgs>.AddHandler(this, "Unloaded", OnUnloaded);
             }
+        }
+
+        private void OnUnloaded(object sender, EventArgs e)
+        {
+            if (_dependencyPropertyDescriptor != null && _pointerRt != null)
+                _dependencyPropertyDescriptor.RemoveValueChanged(_pointerRt, OnAnglePropertyChanged);
+             
+            WeakEventManager<FrameworkElement, RoutedEventArgs>.RemoveHandler(this, "Unloaded", OnUnloaded);
         }
 
         private void OnAnglePropertyChanged(object sender, EventArgs e)
