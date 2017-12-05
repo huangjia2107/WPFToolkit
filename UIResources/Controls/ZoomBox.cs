@@ -47,12 +47,9 @@ namespace UIResources.Controls
 
         public ZoomBox()
         {
-            _dependencyPropertyDescriptor = DependencyPropertyDescriptor.FromProperty(ContentProperty, _typeofSelf);
-            _dependencyPropertyDescriptor.AddValueChanged(this, OnContentChanged);
-             
-            WeakEventManager<FrameworkElement, RoutedEventArgs>.AddHandler(this, "Loaded", OnLoaded);
-            WeakEventManager<FrameworkElement, RoutedEventArgs>.AddHandler(this, "Unloaded", OnUnloaded);
-        } 
+            this.Loaded += OnLoaded;
+            this.Unloaded += OnUnloaded;
+        }
 
         #region readonly Properties
 
@@ -218,6 +215,12 @@ namespace UIResources.Controls
 
         private void OnLoaded(object sender, EventArgs e)
         {
+            if (_dependencyPropertyDescriptor == null)
+            {
+                _dependencyPropertyDescriptor = DependencyPropertyDescriptor.FromProperty(ContentProperty, _typeofSelf);
+                _dependencyPropertyDescriptor.AddValueChanged(this, OnContentChanged);
+            }
+
             UpdateScaleTransform();
             UpdateRulerParams();
         }
@@ -225,10 +228,10 @@ namespace UIResources.Controls
         private void OnUnloaded(object sender, EventArgs e)
         {
             if (_dependencyPropertyDescriptor != null)
+            {
                 _dependencyPropertyDescriptor.RemoveValueChanged(this, OnContentChanged);
-
-            WeakEventManager<FrameworkElement, RoutedEventArgs>.RemoveHandler(this, "Loaded", OnLoaded);
-            WeakEventManager<FrameworkElement, RoutedEventArgs>.RemoveHandler(this, "Unloaded", OnUnloaded);
+                _dependencyPropertyDescriptor = null;
+            } 
         }
 
         #endregion

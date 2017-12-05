@@ -40,6 +40,12 @@ namespace UIResources.Controls
             DefaultStyleKeyProperty.OverrideMetadata(_typeofSelf, new FrameworkPropertyMetadata(_typeofSelf));
         }
 
+        public RadialGuage()
+        {
+            this.Loaded += OnLoaded;
+            this.Unloaded += OnUnloaded;
+        }
+
         public static readonly DependencyProperty TitleMarginProperty = DependencyProperty.Register("TitleMargin", typeof(Thickness), _typeofSelf, new FrameworkPropertyMetadata(new Thickness()), IsThicknessValid);
         public Thickness TitleMargin
         {
@@ -236,22 +242,24 @@ namespace UIResources.Controls
             _pointerRt = GetTemplateChild(PointerRtTemplateName) as RotateTransform;
 
             DrawUiElements();
+        }
 
-            if (IsShowIndicator && _pointerRt != null)
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            if (IsShowIndicator && _pointerRt != null && _dependencyPropertyDescriptor == null)
             {
                 _dependencyPropertyDescriptor = DependencyPropertyDescriptor.FromProperty(RotateTransform.AngleProperty, typeof(RotateTransform));
                 _dependencyPropertyDescriptor.AddValueChanged(_pointerRt, OnAnglePropertyChanged);
-
-                WeakEventManager<FrameworkElement, RoutedEventArgs>.AddHandler(this, "Unloaded", OnUnloaded);
             }
         }
 
         private void OnUnloaded(object sender, EventArgs e)
         {
             if (_dependencyPropertyDescriptor != null && _pointerRt != null)
+            {
                 _dependencyPropertyDescriptor.RemoveValueChanged(_pointerRt, OnAnglePropertyChanged);
-             
-            WeakEventManager<FrameworkElement, RoutedEventArgs>.RemoveHandler(this, "Unloaded", OnUnloaded);
+                _dependencyPropertyDescriptor = null;
+            }
         }
 
         private void OnAnglePropertyChanged(object sender, EventArgs e)

@@ -16,9 +16,9 @@ using System.Windows.Controls.Primitives;
 using System.ComponentModel;
 
 namespace UIResources.Controls
-{ 
+{
     [TemplatePart(Name = ExpandButtonTemplateName, Type = typeof(Button))]
-    public class MenuButton :  ButtonBase
+    public class MenuButton : ButtonBase
     {
         private static readonly Type _typeofSelf = typeof(MenuButton);
 
@@ -28,12 +28,8 @@ namespace UIResources.Controls
         static MenuButton()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(MenuButton), new FrameworkPropertyMetadata(typeof(MenuButton)));
-        }
-
-        public MenuButton()
-        {
-            DependencyPropertyDescriptor.FromProperty(UIElement.VisibilityProperty, typeof(MenuButton)).AddValueChanged(this, OnVisibilityPropertyChanged);
-        }
+            VisibilityProperty.OverrideMetadata(typeof(MenuButton), new UIPropertyMetadata(Visibility.Visible, OnVisibilityPropertyChanged));
+        } 
 
         #region Properties
 
@@ -71,12 +67,12 @@ namespace UIResources.Controls
         {
             base.OnApplyTemplate();
 
+            if (_expandButton != null)
+                _expandButton.Click -= ExpandButton_Click;
+
             _expandButton = base.GetTemplateChild(ExpandButtonTemplateName) as Button;
             if (_expandButton != null)
-            {
-                _expandButton.Click -= ExpandButton_Click;
                 _expandButton.Click += ExpandButton_Click;
-            }
         }
 
         protected override void OnClick()
@@ -125,13 +121,14 @@ namespace UIResources.Controls
 
         private void ContextMenu_Closed(object sender, RoutedEventArgs e)
         {
-            IsExpanded = false; 
-        }
+            IsExpanded = false;
+        } 
 
-        private void OnVisibilityPropertyChanged(object sender, EventArgs e)
+        private static void OnVisibilityPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (this.ContextMenu != null && this.Visibility != Visibility.Visible)
-                IsExpanded = false; 
+            MenuButton obj = d as MenuButton;
+            if (obj.ContextMenu != null && obj.Visibility != Visibility.Visible)
+                obj.IsExpanded = false;
         }
 
         #endregion
@@ -146,7 +143,7 @@ namespace UIResources.Controls
                 return;
             }
 
-            if(IsExpanded)
+            if (IsExpanded)
             {
                 this.ContextMenu.Closed += ContextMenu_Closed;
 
@@ -155,12 +152,10 @@ namespace UIResources.Controls
                 this.ContextMenu.Placement = PlacementMode.Bottom;
             }
             else
-                this.ContextMenu.Closed -= ContextMenu_Closed;                
+                this.ContextMenu.Closed -= ContextMenu_Closed;
 
             this.ContextMenu.IsOpen = IsExpanded;
         }
-
-        
 
         #endregion
     }

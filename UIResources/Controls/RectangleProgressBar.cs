@@ -6,10 +6,10 @@ using System.Windows.Shapes;
 
 namespace UIResources.Controls
 {
-    [TemplatePart(Name = PART_Path, Type = typeof(Path))]
+    [TemplatePart(Name = PathTemplateName, Type = typeof(Path))]
     public class RectangleProgressBar : RangeBase
     {
-        private const string PART_Path = "PART_Path";
+        private const string PathTemplateName = "PART_Path";
         private Path path = null;
 
         static RectangleProgressBar()
@@ -19,24 +19,13 @@ namespace UIResources.Controls
             MinimumProperty.OverrideMetadata(typeof(RectangleProgressBar), new FrameworkPropertyMetadata(0.0d));
             MaximumProperty.OverrideMetadata(typeof(RectangleProgressBar), new FrameworkPropertyMetadata(100.0d));
             ValueProperty.OverrideMetadata(typeof(RectangleProgressBar), new FrameworkPropertyMetadata(0d));
+
+            EventManager.RegisterClassHandler(typeof(RectangleProgressBar), FrameworkElement.SizeChangedEvent, new SizeChangedEventHandler(OnSizeChanged));
         }
 
-        public RectangleProgressBar()
-            : base()
+        private static void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            WeakEventManager<FrameworkElement, RoutedEventArgs>.AddHandler(this, "Unloaded", OnUnloaded);
-            WeakEventManager<FrameworkElement, SizeChangedEventArgs>.AddHandler(this, "SizeChanged", OnSizeChanged); 
-        }
-
-        private void OnSizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            UpdateUI();
-        }
-
-        private void OnUnloaded(object sender, EventArgs e)
-        { 
-            WeakEventManager<FrameworkElement, RoutedEventArgs>.RemoveHandler(this, "Unloaded", OnUnloaded);
-            WeakEventManager<FrameworkElement, SizeChangedEventArgs>.RemoveHandler(this, "SizeChanged", OnSizeChanged);
+            ((RectangleProgressBar)sender).UpdateUI();
         }
 
         public new double BorderThickness
@@ -51,7 +40,7 @@ namespace UIResources.Controls
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
-            path = base.GetTemplateChild(PART_Path) as Path;
+            path = base.GetTemplateChild(PathTemplateName) as Path;
         }
 
         protected override void OnMaximumChanged(double oldMaximum, double newMaximum)
