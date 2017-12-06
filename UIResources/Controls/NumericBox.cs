@@ -345,6 +345,9 @@ namespace UIResources.Controls
                 throw new NullReferenceException(string.Format("You have missed to specify {0}, {1} or {2} in your template", NumericUpTemplateName, NumericDownTemplateName, TextBoxTemplateName));
             }  
 
+            _repeatUp.PreviewMouseUp += OnRepeatButtonPreviewMouseUp;
+            _repeatDown.PreviewMouseUp += OnRepeatButtonPreviewMouseUp;
+
             ToggleReadOnlyMode(IsReadOnly);
             OnValueChanged(Value, Value);
         }
