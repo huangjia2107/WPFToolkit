@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UIResources", "UIResources\UIResources.csproj", "{62E94D91-D60D-49FB-B130-02E4530AAE65}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils", "Utils\Utils.csproj", "{E76AA177-CAD9-46B4-AD51-9237D5117C05}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{62E94D91-D60D-49FB-B130-02E4530AAE65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62E94D91-D60D-49FB-B130-02E4530AAE65}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62E94D91-D60D-49FB-B130-02E4530AAE65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E76AA177-CAD9-46B4-AD51-9237D5117C05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E76AA177-CAD9-46B4-AD51-9237D5117C05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E76AA177-CAD9-46B4-AD51-9237D5117C05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E76AA177-CAD9-46B4-AD51-9237D5117C05}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
