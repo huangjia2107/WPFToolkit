@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using Utils.Helps;
 
 namespace Utils.Functions
 {
@@ -274,7 +275,7 @@ namespace Utils.Functions
                 {
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 Trace.TraceWarning("[ FileWatcher ] The file is locked, File = " + file);
                 return false;
