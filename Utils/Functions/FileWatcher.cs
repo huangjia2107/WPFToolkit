@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using Utils.Algorithms;
 using Utils.Helps;
 
 namespace Utils.Functions
@@ -209,7 +210,7 @@ namespace Utils.Functions
                                 if (_cancellationTokenSource.IsCancellationRequested)
                                     _cancellationTokenSource.Token.ThrowIfCancellationRequested();
 
-                                if (!CanAccessFile(file))
+                                if (!FileUtil.CanAccessFile(file))
                                 {
                                     lock (_lockObj)
                                         _lockFileList.Add(file);
@@ -256,33 +257,7 @@ namespace Utils.Functions
                     GetFilterFiles(directory, fileList);
                 }
             }
-        }
-
-        private bool CanAccessFile(string file, bool ignoreZeroSize = false)
-        {
-            if (file == null || string.IsNullOrEmpty(file.Trim()) || !File.Exists(file))
-                throw new FileNotFoundException("The file is invalid. File = " + file);
-
-            if (!ignoreZeroSize && (new FileInfo(file)).Length == 0)
-            {
-                Trace.TraceWarning("[ FileWatcher ] The file size is zero, File = " + file);
-                return false;
-            }
-
-            try
-            {
-                using (var fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.None))
-                {
-                }
-            }
-            catch
-            {
-                Trace.TraceWarning("[ FileWatcher ] The file is locked, File = " + file);
-                return false;
-            }
-
-            return true;
-        }
+        } 
 
         #endregion
 
@@ -356,7 +331,7 @@ namespace Utils.Functions
                 for (int i = 0; i < _lockFileList.Count; i++)
                 {
                     var file = _lockFileList[i];
-                    if (CanAccessFile(file))
+                    if (FileUtil.CanAccessFile(file))
                     {
                         _lockFileList.RemoveAt(i);
                         i--;
@@ -389,7 +364,7 @@ namespace Utils.Functions
             if (!FilterFile(e.Name))
                 return;
 
-            if (!CanAccessFile(e.FullPath))
+            if (!FileUtil.CanAccessFile(e.FullPath))
             {
                 Trace.TraceWarning("[ FileWatcher ] Add lock file, File = " + e.FullPath);
                 _lockFileList.Add(e.FullPath);
