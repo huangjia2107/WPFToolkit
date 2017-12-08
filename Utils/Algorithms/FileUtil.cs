@@ -43,5 +43,29 @@ namespace Utils.Algorithms
 
             return true;
         }
+        
+        public static void CopyDirectory(string sourcePath, string destinationPath, bool overwrite)
+        {
+            DirectoryInfo sourceDir = new DirectoryInfo(sourcePath);
+            if (!sourceDir.Exists)
+                return;
+
+            if (Directory.Exists(destinationPath) && overwrite)
+                Directory.Delete(destinationPath, true);
+
+            if (!Directory.Exists(destinationPath))
+                Directory.CreateDirectory(destinationPath);
+
+            foreach (FileInfo fileInfo in sourceDir.GetFiles("*.*", SearchOption.TopDirectoryOnly))
+            {
+                if ((overwrite || !File.Exists(destinationPath + "\\" + fileInfo.Name)) && fileInfo.Exists)
+                    File.Copy(fileInfo.FullName, destinationPath + "\\" + fileInfo.Name, overwrite);
+            }
+
+            foreach (DirectoryInfo directoryInfo in sourceDir.GetDirectories("*", SearchOption.TopDirectoryOnly))
+            {
+                CopyDirectory(directoryInfo.FullName, destinationPath + "\\" + directoryInfo.Name, overwrite);
+            }
+        }
     }
 }
