@@ -28,7 +28,7 @@ namespace UIResources.Controls
 
         private double _devicePixelUnit = 1;
         private Pen _markPen = null;
-		private Pen _baselinePen = null;
+		    private Pen _baselinePen = null;
 
         private int _deferLevel = 0;
         private bool _needRefresh = false;
