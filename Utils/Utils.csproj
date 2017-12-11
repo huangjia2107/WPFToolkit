@@ -39,9 +39,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Algorithms\FileUtil.cs" />
     <Compile Include="Functions\FileWatcher.cs" />
     <Compile Include="Helps\PatternMatcher.cs" />
+    <Compile Include="IO\FileUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
