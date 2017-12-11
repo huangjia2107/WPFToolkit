@@ -50,6 +50,8 @@ namespace Test
         {
             AnchorPopup.Show(testBtn, "This is a test.sdcw dwdwdwd wdwdw dwdwdwdwj dwjwi jdwijdw0000");
 
+            rootGrid.Children.Remove(zoomBox);
+
             /*
             Action action1 = aa;
 
