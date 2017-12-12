@@ -116,12 +116,12 @@ namespace UIResources.Controls
                 _markPen.Freeze();
             }
 
-			if(_baselinePen == null)
-			{
-				_devicePixelUnit = DpiUtil.GetDevicePixelUnit(this);
+		      	if(_baselinePen == null)
+	      		{
+		        		_devicePixelUnit = DpiUtil.GetDevicePixelUnit(this);
                 _baselinePen = new Pen(Brushes.Black, 1.0 / _devicePixelUnit);
                 _baselinePen.Freeze();
-			}
+			      }
 			
             Render();
             drawingContext.DrawDrawing(_drawingGroup);
