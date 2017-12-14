@@ -13,7 +13,41 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel Margin="5" VerticalAlignment="Top" Grid.IsSharedSizeScope="true">
-            <Button x:Name="testBtn" Height="50" Width="100" Content="Test" FontSize="13" Click="Button_Click_1"/>
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="testBtn" Height="50" Width="100" Content="Test" FontSize="13" Click="Button_Click_1"/>
+                
+                <Grid Margin="20,0,0,0">
+                    <CheckBox Content="Vertical" Height="16" HorizontalAlignment="Right" x:Name="IsVerticalCheckBox" IsChecked="False" VerticalAlignment="Top" Width="69" Click="IsVerticalCheckBox_Click" Margin="0,8,0,0" />
+                    <CheckBox Content="IsSplit" Height="16" HorizontalAlignment="Left" x:Name="IsSpitCheckBox" VerticalAlignment="Top" Width="60" Margin="0,30,0,0" />
+                </Grid> 
+                
+                <controls:SpitButton x:Name="menuEx" IsSplit="{Binding IsChecked, ElementName=IsSpitCheckBox, Mode=TwoWay}" Width="100" 
+                                     Content="Test" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" >
+                    <Border BorderBrush="Red" BorderThickness="1" Height="50"/>
+                    <controls:SpitButtonMenuItem Header="AAAAAAAAAA" Icon="dd">
+                        <Border BorderBrush="Blue" BorderThickness="1" Height="50" Background="White"/>
+                        <controls:SpitButtonMenuItem Header="11111111111111">
+                            <controls:SpitButtonMenuItem Header="AAAAAAAAAAAAAAAAAAAA" IsEnabled="False"/>
+                            <controls:SpitButtonMenuItem Header="BBBBBBBBBBBBBBBBBBBB"/>
+                            <Separator Style="{DynamicResource {x:Static themes:ResourceKeys.SeparatorStyleKey}}"/>
+                            <controls:SpitButtonMenuItem Header="CCCCCCCCCCCCCCCCCCCC"/>
+                            <controls:SpitButtonMenuItem Header="DDDDDDDDDDDDDDDDDDDD"/>
+                            <controls:SpitButtonMenuItem Header="EEEEEEEEEEEEEEEEEEEE"/>
+                        </controls:SpitButtonMenuItem>
+                        <controls:SpitButtonMenuItem Header="2222222222"/>
+                        <controls:SpitButtonMenuItem Header="333333333333333333"/>
+                    </controls:SpitButtonMenuItem>
+
+                    <controls:SpitButtonMenuItem Header="BBBBBBBBBB">
+                        <Grid Height="100" Background="White" Width="300"/>
+                        <Button Height="100" Background="White" Content="Button"/>
+                    </controls:SpitButtonMenuItem>
+
+                    <controls:SpitButtonMenuItem Header="CCCCCCCCCCC"/>
+                </controls:SpitButton>
+                 
+            </StackPanel>
+            
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" SharedSizeGroup="FirstColumn"/>
@@ -59,7 +93,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <controls:NumericBox Value="{Binding Scale,ElementName=zoomBox, Mode=TwoWay}" Maximum="48"  Minimum="0.01"  Precision="2" UpDownButtonsWidth="0" MinHeight="0" TextAlignment="Center" BorderThickness="0"/>
+                    <controls:NumericBox Value="{Binding Scale,ElementName=zoomBox, Mode=TwoWay}" Maximum="48"  Minimum="0.01"  Precision="2" UpDownButtonsWidth="20" MinHeight="0" TextAlignment="Center" BorderThickness="0"/>
                     <Button Grid.Column="1" Width="50" Height="25" Content="Test" Click="ZoomBoxTestButton_Click" FontSize="12"/>
                 </Grid>
             </controls:ZoomBox.Ribbon>

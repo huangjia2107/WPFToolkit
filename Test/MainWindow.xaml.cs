@@ -23,15 +23,15 @@ using UIResources.Panels;
 using MvvmUtils.ViewModel;
 
 namespace Test
-{ 
+{
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    { 
+    {
         public MainWindow()
         {
-            InitializeComponent(); 
+            InitializeComponent();
         }
 
         private void aa()
@@ -43,7 +43,7 @@ namespace Test
 
         private void ZoomBoxTestButton_Click(object sender, RoutedEventArgs e)
         {
-            zoomBox.Content="sssssssssssss";
+            zoomBox.Content = "sssssssssssss";
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
@@ -72,6 +72,15 @@ namespace Test
             //                 action.Method.IsStatic,
             //                 action1.Target,
             //                 action1.Method.IsStatic));
-        } 
+        }
+
+        private void IsVerticalCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            if (IsVerticalCheckBox.IsChecked.Value)
+                menuEx.Orientation = Orientation.Vertical;
+
+            if (!IsVerticalCheckBox.IsChecked.Value)
+                menuEx.Orientation = Orientation.Horizontal;
+        }
     }
 }

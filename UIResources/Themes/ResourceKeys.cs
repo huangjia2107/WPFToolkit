@@ -8,7 +8,7 @@ using System.Windows;
 
 namespace UIResources.Themes
 {
-    public class ResourceKeys
+    public static class ResourceKeys
     {
         #region ButtonBase
         /// <summary>
@@ -19,7 +19,7 @@ namespace UIResources.Themes
         {
             get { return new ComponentResourceKey(typeof(ResourceKeys), NoBgButtonBaseStyle); }
         }
-        
+
         #endregion
 
         #region Button
@@ -66,6 +66,52 @@ namespace UIResources.Themes
         public static ComponentResourceKey NoBgToggleStatusStyleKey
         {
             get { return new ComponentResourceKey(typeof(ResourceKeys), NoBgToggleStatusStyle); }
+        }
+
+        #endregion
+
+        #region SpitButton
+
+        public const string MenuItemStyle = "MenuItemStyle";
+        public static ComponentResourceKey MenuItemStyleKey
+        {
+            get { return new ComponentResourceKey(typeof(ResourceKeys), MenuItemStyle); }
+        }
+
+        public const string SeparatorStyle = "SeparatorStyle";
+        public static ComponentResourceKey SeparatorStyleKey
+        {
+            get { return new ComponentResourceKey(typeof(ResourceKeys), SeparatorStyle); }
+        }
+
+        public const string MenuItemSubmenuContent = "MenuItemSubmenuContent";
+        public static ComponentResourceKey MenuItemSubmenuContentKey
+        {
+            get { return new ComponentResourceKey(typeof(ResourceKeys), MenuItemSubmenuContent); }
+        }
+
+        public const string MenuItemTopLevelHeaderTemplate = "MenuItemTopLevelHeaderTemplate";
+        public static ComponentResourceKey MenuItemTopLevelHeaderTemplateKey
+        {
+            get { return new ComponentResourceKey(typeof(ResourceKeys), MenuItemTopLevelHeaderTemplate); }
+        }
+
+        public const string MenuItemTopLevelItemTemplate = "MenuItemTopLevelItemTemplate";
+        public static ComponentResourceKey MenuItemTopLevelItemTemplateKey
+        {
+            get { return new ComponentResourceKey(typeof(ResourceKeys), MenuItemTopLevelItemTemplate); }
+        }
+
+        public const string MenuItemSubmenuHeaderTemplate = "MenuItemSubmenuHeaderTemplate";
+        public static ComponentResourceKey MenuItemSubmenuHeaderTemplateKey
+        {
+            get { return new ComponentResourceKey(typeof(ResourceKeys), MenuItemSubmenuHeaderTemplate); }
+        }
+
+        public const string MenuItemSubmenuItemTemplate = "MenuItemSubmenuItemTemplate";
+        public static ComponentResourceKey MenuItemSubmenuItemTemplateKey
+        {
+            get { return new ComponentResourceKey(typeof(ResourceKeys), MenuItemSubmenuItemTemplate); }
         }
 
         #endregion

@@ -1,15 +1,146 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:controls="clr-namespace:UIResources.Controls">
+                    xmlns:controls="clr-namespace:UIResources.Controls"
+                    xmlns:themes="clr-namespace:UIResources.Themes"
+                    xmlns:markup="clr-namespace:UIResources.Markup">
 
+    <ResourceDictionary.MergedDictionaries>
+        <markup:SharedResourceDictionary Source="/UIResources;component/Themes/Styles/BaseStyle.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    
     <Style TargetType="{x:Type controls:SpitButton}">
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="Black"/>
+        <Setter Property="Background" Value="#FFB1B1B1"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type controls:SpitButton}">
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <DockPanel x:Name="PART_DockPanel" Background="#00000000">
+                                <Border x:Name="PART_DropDownBorder" 
+                                        Background="#00000000"
+                                        IsHitTestVisible="False"
+                                        DockPanel.Dock="Right" 
+                                        Width="15">
+                                    <Path x:Name="ExpandPath" Height="4" Width="6" Stretch="Fill" Data="M7,10L12,15L17,10H7Z" Fill="{TemplateBinding Foreground}"/>
+                                </Border>
+                                <Path x:Name="SeparaterPath" DockPanel.Dock="Right" Data="M0,0 V10" Margin="0,2" StrokeThickness="1" Stretch="Fill" RenderOptions.EdgeMode="Aliased" Stroke="#886E6E6E" 
+                                          IsHitTestVisible="False" Visibility="Hidden"/>
+
+                                <Button x:Name="PART_ContentButton" 
+                                        IsHitTestVisible="False"
+                                        Content="{TemplateBinding Content}"
+                                        Style="{StaticResource {x:Static themes:ResourceKeys.NoBgButtonBaseStyleKey}}"
+                                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                        HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            </DockPanel>
+                            <Popup x:Name="PART_Popup"
+                                   HorizontalOffset="1"
+                                   VerticalOffset="-1" 
+                                   AllowsTransparency="True"
+                                   Placement="Bottom" 
+                                   Focusable="False"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   PopupAnimation="{DynamicResource {x:Static SystemParameters.MenuPopupAnimationKey}}">
+                                <Border Background="#F1F1F1" Padding="1" BorderThickness="1" BorderBrush="LightGray">
+                                    <StackPanel IsItemsHost="True" 
+                                                Orientation="Vertical"
+                                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                KeyboardNavigation.TabNavigation="Cycle"
+                                                KeyboardNavigation.DirectionalNavigation="Cycle"
+                                                Grid.IsSharedSizeScope="True"/>
+                                </Border>
+                            </Popup>
+                        </Grid>
+
                     </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Orientation" Value="Vertical">
+                            <Setter TargetName="PART_DropDownBorder" Property="DockPanel.Dock" Value="Bottom"/>
+                            <Setter TargetName="PART_DropDownBorder" Property="Width" Value="auto"/>
+                            <Setter TargetName="PART_DropDownBorder" Property="Height" Value="15"/>
+                            <Setter TargetName="SeparaterPath" Property="DockPanel.Dock" Value="Bottom"/>
+                            <Setter TargetName="SeparaterPath" Property="Margin" Value="2,0"/>
+                            <Setter TargetName="SeparaterPath" Property="Data" Value="M0,0 H10"/>
+                        </Trigger>
+
+                        <Trigger Property="IsDropDownOpen" Value="true">
+                            <Setter TargetName="ExpandPath" Property="Data" Value="M7,15L12,10L17,15H7Z"/>
+                        </Trigger>
+
+                        <Trigger Property="IsMouseOver" SourceName="PART_ContentButton" Value="True">
+                            <Setter TargetName="PART_ContentButton" Property="Background" Value="#FFC1C1C1"/>
+                        </Trigger>
+
+                        <Trigger Property="IsPressed" SourceName="PART_ContentButton" Value="True">
+                            <Setter TargetName="PART_ContentButton" Property="Background" Value="#FFDDDDDD"/>
+                        </Trigger>
+
+                        <Trigger Property="IsMouseCaptured" SourceName="PART_ContentButton" Value="true">
+                            <Setter TargetName="PART_ContentButton" Property="Background" Value="#FFDDDDDD"/>
+                        </Trigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="PART_ContentButton" Property="Foreground" Value="#FF808080"/>
+                            <Setter Property="Foreground" Value="#FF808080"/>
+                        </Trigger>
+
+                        <!--IsSpit == true-->
+                        <Trigger Property="IsSplit" Value="true">
+                            <Setter TargetName="PART_DropDownBorder" Property="IsHitTestVisible" Value="true"/>
+                            <Setter TargetName="PART_ContentButton" Property="IsHitTestVisible" Value="true"/>
+                            <Setter TargetName="SeparaterPath" Property="Visibility" Value="Hidden"/>
+                        </Trigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSplit" Value="true"/>
+                                <Condition Property="IsMouseOver" Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="SeparaterPath" Property="Visibility" Value="Visible"/>
+                        </MultiTrigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSplit" Value="true"/>
+                                <Condition Property="IsDropDownOpen" Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="PART_DropDownBorder" Property="Background" Value="#FFDDDDDD"/>
+                        </MultiTrigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSplit" Value="true"/>
+                                <Condition Property="IsMouseOver" SourceName="PART_DropDownBorder" Value="true"/>
+                                <Condition Property="IsDropDownOpen" Value="false"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="PART_DropDownBorder" Property="Background" Value="#FFC1C1C1"/>
+                        </MultiTrigger>
+
+                        <!--IsSpit == false-->
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSplit" Value="false"/>
+                                <Condition Property="IsMouseOver" Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" Value="#FFC1C1C1"/>
+                        </MultiTrigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSplit" Value="false"/>
+                                <Condition Property="IsDropDownOpen" Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" Value="#FFDDDDDD"/>
+                        </MultiTrigger>
+
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
