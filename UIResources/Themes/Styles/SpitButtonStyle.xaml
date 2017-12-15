@@ -2,7 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:controls="clr-namespace:UIResources.Controls"
                     xmlns:themes="clr-namespace:UIResources.Themes"
-                    xmlns:markup="clr-namespace:UIResources.Markup">
+                    xmlns:markup="clr-namespace:UIResources.Markup"
+                    xmlns:microsoftWindowsThemes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero">
 
     <ResourceDictionary.MergedDictionaries>
         <markup:SharedResourceDictionary Source="/UIResources;component/Themes/Styles/BaseStyle.xaml"/>
@@ -48,14 +49,16 @@
                                    Focusable="False"
                                    IsOpen="{TemplateBinding IsDropDownOpen}"
                                    PopupAnimation="{DynamicResource {x:Static SystemParameters.MenuPopupAnimationKey}}">
-                                <Border Background="#F1F1F1" Padding="1" BorderThickness="1" BorderBrush="LightGray">
-                                    <StackPanel IsItemsHost="True" 
-                                                Orientation="Vertical"
-                                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                                KeyboardNavigation.TabNavigation="Cycle"
-                                                KeyboardNavigation.DirectionalNavigation="Cycle"
-                                                Grid.IsSharedSizeScope="True"/>
-                                </Border>
+                                <microsoftWindowsThemes:SystemDropShadowChrome x:Name="Shdw" Color="Transparent">
+                                    <Border Background="#F1F1F1" Padding="1" BorderThickness="1" BorderBrush="LightGray">
+                                        <StackPanel IsItemsHost="True" 
+                                                    Orientation="Vertical"
+                                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                    KeyboardNavigation.TabNavigation="Cycle"
+                                                    KeyboardNavigation.DirectionalNavigation="Cycle"
+                                                    Grid.IsSharedSizeScope="True"/>
+                                    </Border>
+                                </microsoftWindowsThemes:SystemDropShadowChrome>
                             </Popup>
                         </Grid>
 
@@ -68,6 +71,10 @@
                             <Setter TargetName="SeparaterPath" Property="DockPanel.Dock" Value="Bottom"/>
                             <Setter TargetName="SeparaterPath" Property="Margin" Value="2,0"/>
                             <Setter TargetName="SeparaterPath" Property="Data" Value="M0,0 H10"/>
+                        </Trigger>
+                        <Trigger Property="HasDropShadow" SourceName="PART_Popup" Value="true">
+                            <Setter Property="Margin" TargetName="Shdw" Value="0,0,5,5"/>
+                            <Setter Property="Color" TargetName="Shdw" Value="#71000000"/>
                         </Trigger>
 
                         <Trigger Property="IsDropDownOpen" Value="true">
