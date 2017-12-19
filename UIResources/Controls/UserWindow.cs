@@ -123,6 +123,14 @@ namespace UIResources.Controls
 
         #region Override
 
+        protected override void OnStateChanged(EventArgs e)
+        {
+            base.OnStateChanged(e);
+
+            if(this.WindowState == WindowState.Normal)
+                this.Top = Math.Max(0, this.Top);
+        }
+
         protected override void OnClosing(CancelEventArgs e)
         {
             if (IsCloseEnabled == false && DialogResult == null)
