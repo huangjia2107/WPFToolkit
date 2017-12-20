@@ -482,7 +482,7 @@ namespace UIResources.Panels
             if (H < CornerRadius.TopRight + CornerRadius.BottomRight)
             {
                 topRight = CornerRadius.TopRight * H / (CornerRadius.TopRight + CornerRadius.BottomRight);
-                bottomRight = CornerRadius.TopRight * H / (CornerRadius.TopRight + CornerRadius.BottomRight);
+                bottomRight = CornerRadius.BottomRight * H / (CornerRadius.TopRight + CornerRadius.BottomRight);
             }
 
             if (W < CornerRadius.TopLeft + CornerRadius.TopRight)
