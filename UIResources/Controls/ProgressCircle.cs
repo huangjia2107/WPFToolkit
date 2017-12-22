@@ -589,7 +589,7 @@ namespace UIResources.Controls
                 }
             }
 
-            var pathGeometry = Geometry.Combine(_outerProgressStreamGeometry, _innerProgressStreamGeometry, GeometryCombineMode.Union, null);
+            var pathGeometry = Geometry.Combine(_outerProgressStreamGeometry, _innerProgressStreamGeometry, GeometryCombineMode.Xor, null);
             pathGeometry.Freeze();
             drawingContext.DrawGeometry(Brushes.Red, new Pen(Brushes.Transparent, 1), pathGeometry);
 
