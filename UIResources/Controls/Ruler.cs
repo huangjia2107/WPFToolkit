@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
 using UIResources.Helps;
@@ -28,7 +29,7 @@ namespace UIResources.Controls
 
         private double _devicePixelUnit = 1;
         private Pen _markPen = null;
-		    private Pen _baselinePen = null;
+        private Pen _baselinePen = null;
 
         private int _deferLevel = 0;
         private bool _needRefresh = false;
@@ -116,13 +117,13 @@ namespace UIResources.Controls
                 _markPen.Freeze();
             }
 
-		      	if(_baselinePen == null)
-	      		{
-		        		_devicePixelUnit = DpiUtil.GetDevicePixelUnit(this);
+            if (_baselinePen == null)
+            {
+                _devicePixelUnit = DpiUtil.GetDevicePixelUnit(this);
                 _baselinePen = new Pen(Brushes.Black, 1.0 / _devicePixelUnit);
                 _baselinePen.Freeze();
-			      }
-			
+            }
+
             Render();
             drawingContext.DrawDrawing(_drawingGroup);
         }
@@ -138,8 +139,8 @@ namespace UIResources.Controls
                 {
                     --_deferLevel;
 
-                    if (_deferLevel == 0 && _needRefresh) 
-                        Render();  
+                    if (_deferLevel == 0 && _needRefresh)
+                        Render();
                 });
         }
 
@@ -163,8 +164,8 @@ namespace UIResources.Controls
 
                 DrawOffsetRight(dc, currentStep, miniStep, miniStepCount);
                 DrawOffsetLeft(dc, currentStep, miniStep, miniStepCount);
-				
-				dc.DrawLine(_baselinePen, new Point(0, BaseLineOffset), new Point(ActualWidth, BaseLineOffset));
+
+                dc.DrawLine(_baselinePen, new Point(0, BaseLineOffset), new Point(ActualWidth, BaseLineOffset));
 
                 _needRefresh = false;
             }
@@ -193,7 +194,7 @@ namespace UIResources.Controls
             }
 
             return result;
-        } 
+        }
 
         private decimal GetBaseStep()
         {
@@ -300,9 +301,36 @@ namespace UIResources.Controls
             return ft;
         }
 
+        private decimal DecimalRound(decimal input)
+        {
+            var inputStr = input.ToString();
+
+            int decimalCount = inputStr.Contains(".") ? inputStr.Split('.')[1].Length : 0;
+            if (decimalCount == 0)
+                return input;
+
+            if (Regex.IsMatch(inputStr, @"9{2,}\d$"))
+            {
+                //Filter ##.##################9999999[0-9] to ##.##################
+                int contiguousNine = Regex.Match(inputStr, @"9{2,}\d$").Length;
+
+                return Math.Round(input, decimalCount - contiguousNine, MidpointRounding.AwayFromZero);
+            }
+            else if (Regex.IsMatch(inputStr, @"0{3,}\d$"))
+            {
+                //Filter ##.##################0000000[0-9] to ##.##################   
+                int contiguousZeroOne = Regex.Match(inputStr, @"0{3,}\d$").Length;
+
+                return Math.Round(input, decimalCount - contiguousZeroOne, MidpointRounding.AwayFromZero);
+            }
+
+            return input;
+        }      
+
         private void DrawStep(DrawingContext dc, decimal stepIndex, decimal currentStep, int miniStepCount, bool ignoreFirstMark = false)
         {
-            var currentStepIndex = (stepIndex - Shift * Scale * DpiUtil.GetPixelPerUnit(Unit));
+            var currentStepIndex = DecimalRound(stepIndex - Shift * Scale * DpiUtil.GetPixelPerUnit(Unit));    
+
             if (currentStepIndex % currentStep == 0)
             {
                 var mark = Math.Round(currentStepIndex / (Scale * DpiUtil.GetPixelPerUnit(Unit)), GetPrecision());
@@ -348,10 +376,11 @@ namespace UIResources.Controls
 
         private void DrawOffsetRight(DrawingContext dc, decimal currentStep, decimal miniStep, int miniStepCount)
         {
-            if (Shift >= (decimal)ActualWidth)
+            var realShift = Shift * Scale * DpiUtil.GetPixelPerUnit(Unit);
+            if (realShift >= (decimal)ActualWidth)
                 return;
 
-            for (var stepIndex = Shift * Scale * DpiUtil.GetPixelPerUnit(Unit); stepIndex < (decimal)ActualWidth; stepIndex += miniStep)
+            for (var stepIndex = realShift; stepIndex < (decimal)ActualWidth; stepIndex += miniStep)
             {
                 if (stepIndex < 0)
                     continue;
