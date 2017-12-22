@@ -78,11 +78,14 @@ namespace UIResources.Helps
         }
         
         /// <summary>
-        /// Rounds the given value based on the DPI scale
+        /// Calculates the value to be used for layout rounding at high DPI.
         /// </summary>
-        /// <param name="value">Value to round</param>
-        /// <param name="dpiScale">DPI Scale</param>
-        /// <returns></returns>
+        /// <param name="value">Input value to be rounded.</param>
+        /// <param name="dpiScale">Ratio of screen's DPI to layout DPI</param>
+        /// <returns>Adjusted value that will produce layout rounding on screen at high dpi.</returns>
+        /// <remarks>This is a layout helper method. It takes DPI into account and also does not return
+        /// the rounded value if it is unacceptable for layout, e.g. Infinity or NaN. It's a helper associated with
+        /// UseLayoutRounding  property and should not be used as a general rounding utility.</remarks>
         public static double RoundLayoutValue(double value, double dpiScale)
         {
             double newValue;
