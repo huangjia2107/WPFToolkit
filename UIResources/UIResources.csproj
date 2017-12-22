@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\MenuButton.cs" />
+    <Compile Include="Controls\ProgressCircle.cs" />
     <Compile Include="Controls\RadialGuage.cs" />
     <Compile Include="Controls\Ruler.cs" />
     <Compile Include="Controls\SpitButton.cs" />
