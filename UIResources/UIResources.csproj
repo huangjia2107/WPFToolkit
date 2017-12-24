@@ -59,6 +59,7 @@
     <Compile Include="Helps\Converters.cs" />
     <Compile Include="Helps\DeferRefresh.cs" />
     <Compile Include="Helps\DpiUtil.cs" />
+    <Compile Include="Helps\ExtensionMethod.cs" />
     <Compile Include="Helps\LayoutUtil.cs" />
     <Compile Include="Markup\BubbleVisibility.cs" />
     <Compile Include="Markup\SharedResourceDictionary.cs" />

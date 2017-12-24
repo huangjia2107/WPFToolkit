@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -15,15 +16,151 @@ namespace UIResources.Controls
     {
         private static readonly Type _typeofSelf = typeof(ProgressCircle);
 
+        private readonly DrawingGroup _drawingGroup = null;
+        private readonly CombinedGeometry _fgCombinedGeometry = null;
+
+
         private CornerRadius _tempCornerRadius;
         private double _tempCircleThickness;
+        private double _tempProgressValue;
 
-        private StreamGeometry _outerStreamGeometryCache = null;
-        private StreamGeometry _innerStreamGeometryCache = null;
+        private Pen _drawPen = null;
+        private SolidColorBrush _backgroundBrush = null;
+        private SolidColorBrush _foregroundBrush = null;
+
+        //Background
+        private StreamGeometry _outerBgStreamGeometry = null;
+        private StreamGeometry _innerBgStreamGeometry = null;
+
+        //Foreground
+        private StreamGeometry _outerFgStreamGeometry = null;
+        private StreamGeometry _innerFgStreamGeometry = null;
+
+        //Corners
+        private CornerInfo _topLeftCorner;
+        private CornerInfo _topRightCorner;
+        private CornerInfo _bottomLeftCorner;
+        private CornerInfo _bottomRightCorner;
 
         public ProgressCircle()
         {
+            _drawingGroup = new DrawingGroup();
 
+            _outerFgStreamGeometry = new StreamGeometry();
+            _innerFgStreamGeometry = new StreamGeometry();
+
+            _fgCombinedGeometry = new CombinedGeometry(GeometryCombineMode.Xor, _outerFgStreamGeometry, _innerFgStreamGeometry);
+
+            _drawPen = new Pen();
+            _drawPen.Freeze();
+
+            _backgroundBrush = new SolidColorBrush(Colors.LightGray);
+            _foregroundBrush = new SolidColorBrush(Colors.Red);
+        }
+
+        #region Event
+
+        public static readonly RoutedEvent ValueChangedEvent =
+            EventManager.RegisterRoutedEvent("ValueChanged", RoutingStrategy.Bubble, typeof(RoutedPropertyChangedEventHandler<double>), _typeofSelf);
+        [Category("Behavior")]
+        public event RoutedPropertyChangedEventHandler<double> ValueChanged
+        {
+            add { AddHandler(ValueChangedEvent, value); }
+            remove { RemoveHandler(ValueChangedEvent, value); }
+        }
+
+        #endregion
+
+        #region Properties    
+
+        public static readonly DependencyProperty MinimumProperty = DependencyProperty.Register("Minimum", typeof(double), _typeofSelf,
+                        new FrameworkPropertyMetadata(0.0d, OnMinimumChanged), IsValidDoubleValue);
+        [Bindable(true), Category("Behavior")]
+        public double Minimum
+        {
+            get { return (double)GetValue(MinimumProperty); }
+            set { SetValue(MinimumProperty, value); }
+        }
+
+        private static void OnMinimumChanged(DependencyObject dp, DependencyPropertyChangedEventArgs e)
+        {
+            var ctrl = (ProgressCircle)dp;
+
+            ctrl.CoerceValue(MaximumProperty);
+            ctrl.CoerceValue(ValueProperty);
+
+            ctrl.DrawForegroundCircle(ctrl._tempProgressValue);
+        }
+
+        public static readonly DependencyProperty MaximumProperty = DependencyProperty.Register("Maximum", typeof(double), _typeofSelf,
+                       new FrameworkPropertyMetadata(100.0d, OnMaximumChanged, CoerceMaximum), IsValidDoubleValue);
+        [Bindable(true), Category("Behavior")]
+        public double Maximum
+        {
+            get { return (double)GetValue(MaximumProperty); }
+            set { SetValue(MaximumProperty, value); }
+        }
+
+        private static object CoerceMaximum(DependencyObject dp, object value)
+        {
+            var ctrl = (ProgressCircle)dp;
+            double min = ctrl.Minimum;
+
+            if ((double)value < min)
+                return min;
+
+            return value;
+        }
+
+        private static void OnMaximumChanged(DependencyObject dp, DependencyPropertyChangedEventArgs e)
+        {
+            var ctrl = (ProgressCircle)dp;
+
+            ctrl.CoerceValue(ValueProperty);
+            ctrl.DrawForegroundCircle(ctrl._tempProgressValue);
+        }
+
+        public static readonly DependencyProperty ValueProperty = DependencyProperty.Register("Value", typeof(double), _typeofSelf,
+            new FrameworkPropertyMetadata(0.0d,
+                FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.Journal,
+                OnValueChanged, CoerceValue), IsValidDoubleValue);
+        [Bindable(true), Category("Behavior")]
+        public double Value
+        {
+            get { return (double)GetValue(ValueProperty); }
+            set { SetValue(ValueProperty, value); }
+        }
+
+        private static object CoerceValue(DependencyObject dp, object value)
+        {
+            var ctrl = (ProgressCircle)dp;
+            double min = ctrl.Minimum;
+            double v = (double)value;
+            if (v < min)
+                return min;
+
+            double max = ctrl.Maximum;
+            if (v > max)
+                return max;
+
+            return value;
+        }
+
+        private static void OnValueChanged(DependencyObject dp, DependencyPropertyChangedEventArgs e)
+        {
+            var ctrl = (ProgressCircle)dp;
+
+            ctrl._tempProgressValue = (double)e.NewValue;
+
+            ctrl.DrawForegroundCircle((double)e.NewValue);
+            ctrl.OnValueChanged((double)e.OldValue, (double)e.NewValue);
+        }
+
+        protected virtual void OnValueChanged(double oldValue, double newValue)
+        {
+            var args = new RoutedPropertyChangedEventArgs<double>(oldValue, newValue);
+            args.RoutedEvent = ValueChangedEvent;
+            RaiseEvent(args);
         }
 
         public static readonly DependencyProperty CornerRadiusProperty = DependencyProperty.Register("CornerRadius", typeof(CornerRadius), _typeofSelf,
@@ -35,9 +172,8 @@ namespace UIResources.Controls
         }
         static void OnCornerRadiusChanged(DependencyObject dp, DependencyPropertyChangedEventArgs e)
         {
-            var progressCircle = dp as ProgressCircle;
-            if (progressCircle != null)
-                progressCircle._tempCornerRadius = (CornerRadius)e.NewValue;
+            var ctrl = (ProgressCircle)dp;
+            ctrl._tempCornerRadius = (CornerRadius)e.NewValue;
         }
 
         static bool IsCornerRadiusValid(object value)
@@ -46,24 +182,8 @@ namespace UIResources.Controls
             return t.IsValid(false, false, false, false);
         }
 
-        public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register("Foreground", typeof(Brush), _typeofSelf,
-            new FrameworkPropertyMetadata(Brushes.Black, FrameworkPropertyMetadataOptions.AffectsRender));
-        public Brush Foreground
-        {
-            get { return (Brush)GetValue(ForegroundProperty); }
-            set { SetValue(ForegroundProperty, value); }
-        }
-
-        public static readonly DependencyProperty BackgroundProperty = DependencyProperty.Register("Background", typeof(Brush), _typeofSelf,
-            new FrameworkPropertyMetadata(Brushes.Black, FrameworkPropertyMetadataOptions.AffectsRender));
-        public Brush Background
-        {
-            get { return (Brush)GetValue(BackgroundProperty); }
-            set { SetValue(BackgroundProperty, value); }
-        }
-
         public static readonly DependencyProperty CircleThicknessProperty = DependencyProperty.Register("CircleThickness", typeof(double), _typeofSelf,
-            new FrameworkPropertyMetadata(5d, FrameworkPropertyMetadataOptions.AffectsRender, OnCircleThickness, CoerceCircleThickness));
+           new FrameworkPropertyMetadata(5d, FrameworkPropertyMetadataOptions.AffectsRender, OnCircleThickness, CoerceCircleThickness), IsValidDoubleValue);
         public double CircleThickness
         {
             get { return (double)GetValue(CircleThicknessProperty); }
@@ -76,25 +196,82 @@ namespace UIResources.Controls
 
         static void OnCircleThickness(DependencyObject dp, DependencyPropertyChangedEventArgs e)
         {
-            var progressCircle = dp as ProgressCircle;
-            if (progressCircle != null)
-                progressCircle._tempCircleThickness = (double)e.NewValue;
+            var ctrl = (ProgressCircle)dp;
+            ctrl._tempCircleThickness = (double)e.NewValue;
         }
 
-        public static readonly DependencyProperty ValueProperty = DependencyProperty.Register("Value", typeof(double), _typeofSelf,
-            new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceValue));
-        public double Value
+        public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register("Foreground", typeof(Color), _typeofSelf,
+            new FrameworkPropertyMetadata(Colors.Red, OnForegroundChanged));
+        public Color Foreground
         {
-            get { return (double)GetValue(ValueProperty); }
-            set { SetValue(ValueProperty, value); }
+            get { return (Color)GetValue(ForegroundProperty); }
+            set { SetValue(ForegroundProperty, value); }
         }
 
-        static object CoerceValue(DependencyObject d, object value)
+        private static void OnForegroundChanged(DependencyObject dp, DependencyPropertyChangedEventArgs e)
         {
-            return Math.Max(0, (double)value);
+            var ctrl = (ProgressCircle)dp;
+            ctrl._foregroundBrush.Color = (Color)e.NewValue;
         }
 
+        public static readonly DependencyProperty BackgroundProperty = DependencyProperty.Register("Background", typeof(Color), _typeofSelf,
+            new FrameworkPropertyMetadata(Colors.LightGray, OnBackgroundChanged));
+        public Color Background
+        {
+            get { return (Color)GetValue(BackgroundProperty); }
+            set { SetValue(BackgroundProperty, value); }
+        }
 
+        private static void OnBackgroundChanged(DependencyObject dp, DependencyPropertyChangedEventArgs e)
+        {
+            var ctrl = (ProgressCircle)dp;
+            ctrl._backgroundBrush.Color = (Color)e.NewValue;
+        }
+
+        #endregion
+
+        #region Override
+
+        protected override void OnRender(DrawingContext drawingContext)
+        {
+            using (var dc = _drawingGroup.Open())
+            {
+                _tempCircleThickness = CoerceCircleThickness(CircleThickness, this.ActualWidth, this.ActualHeight);
+                _tempCornerRadius = CornerRadius.Coerce(Math.Max(0, this.ActualWidth - 2 * _tempCircleThickness), Math.Max(0, this.ActualHeight - 2 * _tempCircleThickness));
+
+                InitAllCornerInfo();
+
+                DrawBackgroundCircle(dc);
+
+                DrawForegroundCircle(_tempProgressValue);
+                dc.DrawGeometry(_foregroundBrush, _drawPen, _fgCombinedGeometry);
+            }
+
+            drawingContext.DrawDrawing(_drawingGroup);
+        }
+
+        #endregion
+
+        #region General Method   
+
+        private static bool IsValidDoubleValue(object value)
+        {
+            double d = (double)value;
+            return !(DoubleUtil.IsNaN(d) || double.IsInfinity(d));
+        }
+
+        private double CoerceCircleThickness(double circleThickness, double width, double height)
+        {
+            var minWidthOrHeight = Math.Min(this.ActualWidth, this.ActualHeight);
+
+            return DoubleUtil.LessThan(minWidthOrHeight, 2 * circleThickness)
+                ? minWidthOrHeight / 2
+                : circleThickness;
+        }
+
+        #endregion
+
+        #region Draw Method
 
         private void BeginFigure(StreamGeometryContext sgc, Point startPoint, bool isFilled = true/* is filled */, bool isClosed = true/* is closed */)
         {
@@ -112,492 +289,26 @@ namespace UIResources.Controls
             sgc.ArcTo(point, size, rotationAngle, isLargeArc, sweepDirection, isStroked, isSmoothJoin);
         }
 
-        protected override void OnRender(DrawingContext drawingContext)
-        {
-            _tempCircleThickness = CoerceCircleThickness(CircleThickness, this.ActualWidth, this.ActualHeight);
-            _tempCornerRadius = CoerceCornerRadius(CornerRadius, Math.Max(0, this.ActualWidth - 2 * _tempCircleThickness), Math.Max(0, this.ActualHeight - 2 * _tempCircleThickness));
-
-            ConstructAllCornerInfo();
-            DrawCircle(drawingContext);
-
-            if (DoubleUtil.IsZero(Value))
-                return;
-
-            DrawCircleWithValue(drawingContext, Value);
-        }
-
-        public double Maximum = 100;
-        public double Minimum = 0;
-
-        private StreamGeometry _outerProgressStreamGeometry = null;
-        private StreamGeometry _innerProgressStreamGeometry = null;
-
         private double GetCircumference()
         {
             //ArcLength
-            var arclength = _topLeftCorner.OutterCorner.ArcLength + _topRightCorner.OutterCorner.ArcLength +
-                            _bottomLeftCorner.OutterCorner.ArcLength + _bottomRightCorner.OutterCorner.ArcLength;
-            var allRadius = (_topLeftCorner.OutterCorner.Radius + _topRightCorner.OutterCorner.Radius +
-                          _bottomLeftCorner.OutterCorner.Radius + _bottomRightCorner.OutterCorner.Radius) * 2;
+            var arclength = _topLeftCorner.OuterCorner.ArcLength + _topRightCorner.OuterCorner.ArcLength +
+                            _bottomLeftCorner.OuterCorner.ArcLength + _bottomRightCorner.OuterCorner.ArcLength;
+            var allRadius = (_topLeftCorner.OuterCorner.Radius + _topRightCorner.OuterCorner.Radius +
+                          _bottomLeftCorner.OuterCorner.Radius + _bottomRightCorner.OuterCorner.Radius) * 2;
 
             return (ActualWidth + ActualHeight) * 2 + arclength - allRadius;
         }
 
-        private bool DrawTopRightProgress(StreamGeometryContext octx, StreamGeometryContext ictx, double drawLength, ref double availableLength)
+        private void InitAllCornerInfo()
         {
-            //Top Right
-            if (_topRightCorner.IsRightAngle)
-            {
-                if (DoubleUtil.GreaterThan(drawLength,
-                    availableLength + ActualWidth - _topLeftCorner.OutterCorner.Radius))
-                {
-                    LineTo(octx, _topRightCorner.OutterCorner.RightAnglePoint);
-                    LineTo(ictx, _topRightCorner.InnerCorner.RightAnglePoint);
-
-                    availableLength += (ActualWidth - _topLeftCorner.OutterCorner.Radius);
-                    //完整 上直边
-                    return true;
-                }
-                else
-                {
-                    var innerEndPoint = new Point(Math.Min(_topRightCorner.InnerCorner.RightAnglePoint.X, drawLength + _topLeftCorner.OutterCorner.Radius), _tempCircleThickness);
-
-                    LineTo(octx, new Point(drawLength + _topLeftCorner.OutterCorner.Radius, 0));
-                    LineTo(octx, innerEndPoint);
-
-                    LineTo(ictx, innerEndPoint);
-                    //不完整上直边
-                    return false;
-                }
-            }
-            else
-            {
-                if (DoubleUtil.GreaterThan(drawLength,
-                    availableLength + ActualWidth - _topLeftCorner.OutterCorner.Radius - _topRightCorner.OutterCorner.Radius))
-                {
-                    LineTo(octx, _topRightCorner.OutterCorner.ArcFromPoint);
-                    LineTo(ictx, _topRightCorner.InnerCorner.ArcFromPoint);
-
-                    availableLength += (ActualWidth - _topLeftCorner.OutterCorner.Radius - _topRightCorner.OutterCorner.Radius);
-                    //完整 上直边
-
-                    if (DoubleUtil.GreaterThan(drawLength,
-                        availableLength + _topRightCorner.OutterCorner.ArcLength))
-                    {
-                        ArcTo(octx, _topRightCorner.OutterCorner.ArcToPoint, new Size(_topRightCorner.OutterCorner.Radius, _topRightCorner.OutterCorner.Radius));
-                        ArcTo(ictx, _topRightCorner.InnerCorner.ArcToPoint, new Size(_topRightCorner.InnerCorner.Radius, _topRightCorner.InnerCorner.Radius));
-
-                        availableLength += _topRightCorner.OutterCorner.ArcLength;
-                        //完整 右上弧
-                        return true;
-                    }
-                    else
-                    {
-                        var curOutterArcLength = drawLength - availableLength;
-                        var curAngle = curOutterArcLength * 90 / _topRightCorner.OutterCorner.ArcLength;
-
-                        var outterEndPoint = GetSpecialPoint(CornerPos.TopRight, curAngle, _topRightCorner.OutterCorner);
-                        var innerEndPoint = GetSpecialPoint(CornerPos.TopRight, curAngle, _topRightCorner.InnerCorner);
-
-                        ArcTo(octx, outterEndPoint, new Size(_topRightCorner.OutterCorner.Radius, _topRightCorner.OutterCorner.Radius), curAngle);
-                        LineTo(octx, innerEndPoint);
-
-                        ArcTo(ictx, innerEndPoint, new Size(_topRightCorner.InnerCorner.Radius, _topRightCorner.InnerCorner.Radius), curAngle);
-                        //不完整 右上弧
-                        return false;
-                    }
-                }
-                else
-                {
-                    LineTo(octx, new Point(drawLength + _topLeftCorner.OutterCorner.Radius, 0));
-                    LineTo(octx, new Point(drawLength + _topLeftCorner.OutterCorner.Radius, _tempCircleThickness));
-
-                    LineTo(ictx, new Point(drawLength + _topLeftCorner.OutterCorner.Radius, _tempCircleThickness));
-                    //不完整 上直边
-                    return false;
-                }
-            }
+            _topLeftCorner = new CornerInfo(CornerPos.TopLeft, _tempCornerRadius.TopLeft, _tempCircleThickness, this.ActualWidth, this.ActualHeight);
+            _topRightCorner = new CornerInfo(CornerPos.TopRight, _tempCornerRadius.TopRight, _tempCircleThickness, this.ActualWidth, this.ActualHeight);
+            _bottomLeftCorner = new CornerInfo(CornerPos.BottomLeft, _tempCornerRadius.BottomLeft, _tempCircleThickness, this.ActualWidth, this.ActualHeight);
+            _bottomRightCorner = new CornerInfo(CornerPos.BottomRight, _tempCornerRadius.BottomRight, _tempCircleThickness, this.ActualWidth, this.ActualHeight);
         }
 
-        private bool DrawBottomRightProgress(StreamGeometryContext octx, StreamGeometryContext ictx, double drawLength, ref double availableLength)
-        {
-            if (_bottomRightCorner.IsRightAngle)
-            {
-                if (DoubleUtil.GreaterThan(drawLength,
-                    availableLength + ActualHeight - _topRightCorner.OutterCorner.Radius))
-                {
-                    LineTo(octx, _bottomRightCorner.OutterCorner.RightAnglePoint);
-                    LineTo(ictx, _bottomRightCorner.InnerCorner.RightAnglePoint);
-
-                    availableLength += (ActualHeight - _topRightCorner.OutterCorner.Radius);
-                    //完整 右直边
-                    return true;
-                }
-                else
-                {
-                    var outterYOffset = drawLength - availableLength + _topRightCorner.OutterCorner.Radius;
-                    var innerEndPoint = new Point(ActualWidth - _tempCircleThickness, Math.Min(_bottomRightCorner.InnerCorner.RightAnglePoint.Y, Math.Max(_topRightCorner.InnerCorner.RightAnglePoint.Y, outterYOffset)));
-
-                    LineTo(octx, new Point(ActualWidth, outterYOffset));
-                    LineTo(octx, innerEndPoint);
-
-                    if (_topRightCorner.IsRightAngle)
-                    {
-                        LineTo(ictx, innerEndPoint);
-                    }
-                    else
-                    {
-                        LineTo(ictx, innerEndPoint);
-                    }
-
-                    //不完整 右直边
-                    return false;
-                }
-            }
-            else
-            {
-                if (DoubleUtil.GreaterThan(drawLength,
-                    availableLength + ActualHeight - _topRightCorner.OutterCorner.Radius - _bottomRightCorner.OutterCorner.Radius))
-                {
-                    LineTo(octx, _bottomRightCorner.OutterCorner.ArcFromPoint);
-                    LineTo(ictx, _bottomRightCorner.InnerCorner.ArcFromPoint);
-
-                    availableLength += (ActualHeight - _topRightCorner.OutterCorner.Radius - _bottomRightCorner.OutterCorner.Radius);
-                    //完整 右直边
-
-                    if (DoubleUtil.GreaterThan(drawLength,
-                        availableLength + _bottomRightCorner.OutterCorner.ArcLength))
-                    {
-                        ArcTo(octx, _bottomRightCorner.OutterCorner.ArcToPoint, new Size(_bottomRightCorner.OutterCorner.Radius, _bottomRightCorner.OutterCorner.Radius));
-                        ArcTo(ictx, _bottomRightCorner.InnerCorner.ArcToPoint, new Size(_bottomRightCorner.InnerCorner.Radius, _bottomRightCorner.InnerCorner.Radius));
-
-                        availableLength += _bottomRightCorner.OutterCorner.ArcLength;
-                        //完整 右下弧
-                        return true;
-                    }
-                    else
-                    {
-                        var curOutterArcLength = drawLength - availableLength;
-                        var curAngle = curOutterArcLength * 90 / _bottomRightCorner.OutterCorner.ArcLength;
-
-                        var outterEndPoint = GetSpecialPoint(CornerPos.BottomRight, curAngle, _bottomRightCorner.OutterCorner);
-                        var innerEndPoint = GetSpecialPoint(CornerPos.BottomRight, curAngle, _bottomRightCorner.InnerCorner);
-
-                        ArcTo(octx, outterEndPoint, new Size(_bottomRightCorner.OutterCorner.Radius, _bottomRightCorner.OutterCorner.Radius), curAngle);
-                        LineTo(octx, innerEndPoint);
-
-                        ArcTo(ictx, innerEndPoint, new Size(_bottomRightCorner.InnerCorner.Radius, _bottomRightCorner.InnerCorner.Radius), curAngle);
-                        //不完整 右下弧
-                        return false;
-                    }
-                }
-                else
-                {
-                    var outterYOffset = drawLength - availableLength + _topRightCorner.OutterCorner.Radius;
-                    var innerEndPoint = new Point(ActualWidth - _tempCircleThickness, Math.Max(_topRightCorner.InnerCorner.RightAnglePoint.Y, outterYOffset));
-
-                    LineTo(octx, new Point(ActualWidth, outterYOffset));
-                    LineTo(octx, innerEndPoint);
-
-                    if (_topRightCorner.IsRightAngle)
-                    {
-                        LineTo(ictx, innerEndPoint);
-                    }
-                    else
-                    {
-                        LineTo(ictx, innerEndPoint);
-                    }
-
-                    //不完整 右直边
-                    return false;
-                }
-            }
-        }
-
-        private bool DrawBottomLeftProgress(StreamGeometryContext octx, StreamGeometryContext ictx, double drawLength, ref double availableLength)
-        {
-            if (_bottomLeftCorner.IsRightAngle)
-            {
-                if (DoubleUtil.GreaterThan(drawLength,
-                    availableLength + ActualWidth - _bottomRightCorner.OutterCorner.Radius))
-                {
-                    LineTo(octx, _bottomLeftCorner.OutterCorner.RightAnglePoint);
-                    LineTo(ictx, _bottomLeftCorner.InnerCorner.RightAnglePoint);
-
-                    availableLength += (ActualWidth - _bottomRightCorner.OutterCorner.Radius);
-                    //完整 下直边
-                    return true;
-                }
-                else
-                {
-                    var outterXOffset = ActualWidth - (drawLength - availableLength + _bottomRightCorner.OutterCorner.Radius);
-                    var innerEndPoint = new Point(Math.Max(_bottomLeftCorner.InnerCorner.RightAnglePoint.X, Math.Min(outterXOffset, _bottomRightCorner.InnerCorner.RightAnglePoint.X)), _bottomLeftCorner.InnerCorner.RightAnglePoint.Y);
-
-                    LineTo(octx, new Point(outterXOffset, ActualHeight));
-
-                    if (_bottomRightCorner.IsRightAngle)
-                    {
-                        LineTo(octx, innerEndPoint);
-                        LineTo(ictx, innerEndPoint);
-                    }
-                    else
-                    {
-                        LineTo(octx, new Point(Math.Max(outterXOffset, _bottomLeftCorner.InnerCorner.RightAnglePoint.X), ActualHeight - _tempCircleThickness));
-                        LineTo(ictx, new Point(Math.Max(outterXOffset, _bottomLeftCorner.InnerCorner.RightAnglePoint.X), _bottomLeftCorner.InnerCorner.RightAnglePoint.Y));
-                    }
-
-                    //不完整 下直边
-                    return false;
-                }
-            }
-            else
-            {
-                if (DoubleUtil.GreaterThan(drawLength,
-                    availableLength + ActualWidth - _bottomLeftCorner.OutterCorner.Radius - _bottomRightCorner.OutterCorner.Radius))
-                {
-                    LineTo(octx, _bottomLeftCorner.OutterCorner.ArcFromPoint);
-                    LineTo(ictx, _bottomLeftCorner.InnerCorner.ArcFromPoint);
-
-                    availableLength += (ActualWidth - _bottomLeftCorner.OutterCorner.Radius - _bottomRightCorner.OutterCorner.Radius);
-                    //完整 下直边
-
-                    if (DoubleUtil.GreaterThan(drawLength,
-                        availableLength + _bottomLeftCorner.OutterCorner.ArcLength))
-                    {
-                        ArcTo(octx, _bottomLeftCorner.OutterCorner.ArcToPoint, new Size(_bottomLeftCorner.OutterCorner.Radius, _bottomLeftCorner.OutterCorner.Radius));
-                        ArcTo(ictx, _bottomLeftCorner.InnerCorner.ArcToPoint, new Size(_bottomLeftCorner.InnerCorner.Radius, _bottomLeftCorner.InnerCorner.Radius));
-
-                        availableLength += _bottomLeftCorner.OutterCorner.ArcLength;
-                        //完整 左下弧
-                        return true;
-                    }
-                    else
-                    {
-                        var curOutterArcLength = drawLength - availableLength;
-                        var curAngle = curOutterArcLength * 90 / _bottomLeftCorner.OutterCorner.ArcLength;
-
-                        var outterEndPoint = GetSpecialPoint(CornerPos.BottomLeft, curAngle, _bottomLeftCorner.OutterCorner);
-                        var innerEndPoint = GetSpecialPoint(CornerPos.BottomLeft, curAngle, _bottomLeftCorner.InnerCorner);
-
-                        ArcTo(octx, outterEndPoint, new Size(_bottomLeftCorner.OutterCorner.Radius, _bottomLeftCorner.OutterCorner.Radius), curAngle);
-                        LineTo(octx, innerEndPoint);
-
-                        ArcTo(ictx, innerEndPoint, new Size(_bottomLeftCorner.InnerCorner.Radius, _bottomLeftCorner.InnerCorner.Radius), curAngle);
-                        //不完整 左下弧
-                        return false;
-                    }
-                }
-                else
-                {
-                    var outterXOffset = ActualWidth - (drawLength - availableLength + _bottomRightCorner.OutterCorner.Radius);
-                    var innerEndPoint = new Point(Math.Min(outterXOffset, _bottomRightCorner.InnerCorner.RightAnglePoint.X), ActualHeight - _tempCircleThickness);
-
-                    LineTo(octx, new Point(outterXOffset, ActualHeight));
-                    LineTo(octx, new Point(Math.Min(ActualWidth - _tempCircleThickness, outterXOffset), ActualHeight - _tempCircleThickness));
-
-                    if (_bottomRightCorner.IsRightAngle)
-                    {
-                        LineTo(ictx, innerEndPoint);
-                    }
-                    else
-                    {
-                        LineTo(ictx, new Point(outterXOffset, ActualHeight - _tempCircleThickness));
-                    }
-
-                    //不完整 下直边
-                    return false;
-                }
-            }
-        }
-
-        private bool DrawTopLeftProgress(StreamGeometryContext octx, StreamGeometryContext ictx, double drawLength, ref double availableLength)
-        {
-            if (_topLeftCorner.IsRightAngle)
-            {
-                if (DoubleUtil.AreClose(drawLength + _tempCircleThickness,
-                    availableLength + ActualHeight - _bottomLeftCorner.OutterCorner.Radius))
-                {
-                    LineTo(octx, new Point(0, _topLeftCorner.InnerCorner.RightAnglePoint.Y));
-                    LineTo(ictx, _topLeftCorner.InnerCorner.RightAnglePoint);
-
-                    availableLength += (ActualHeight - _bottomLeftCorner.OutterCorner.Radius);
-                    //完整 左直边
-                    return true;
-                }
-                else
-                {
-                    var outterYOffset = ActualHeight - (drawLength - availableLength + _bottomLeftCorner.OutterCorner.Radius);
-                    var innerEndPoint = new Point(_bottomLeftCorner.InnerCorner.RightAnglePoint.X, Math.Min(outterYOffset, _bottomLeftCorner.InnerCorner.RightAnglePoint.Y));
-
-                    LineTo(octx, new Point(0, outterYOffset));
-
-                    if (_bottomLeftCorner.IsRightAngle)
-                    {
-                        LineTo(octx, innerEndPoint);
-                        LineTo(ictx, innerEndPoint);
-                    }
-                    else
-                    {
-                        LineTo(octx, new Point(_topLeftCorner.InnerCorner.RightAnglePoint.X, outterYOffset));
-                        LineTo(ictx, new Point(_topLeftCorner.InnerCorner.RightAnglePoint.X, outterYOffset));
-                    }
-
-                    //不完整 左直边
-                    return false;
-                }
-            }
-            else
-            {
-                if (DoubleUtil.GreaterThan(drawLength,
-                    availableLength + ActualHeight - _topLeftCorner.OutterCorner.Radius - _bottomLeftCorner.OutterCorner.Radius))
-                {
-                    LineTo(octx, _topLeftCorner.OutterCorner.ArcFromPoint);
-                    LineTo(ictx, _topLeftCorner.InnerCorner.ArcFromPoint);
-
-                    availableLength += (ActualHeight - _topLeftCorner.OutterCorner.Radius - _bottomLeftCorner.OutterCorner.Radius);
-                    //完整 左直边
-
-                    if (DoubleUtil.AreClose(drawLength,
-                        availableLength + _topLeftCorner.OutterCorner.ArcLength))
-                    {
-                        ArcTo(octx, _topLeftCorner.OutterCorner.ArcToPoint, new Size(_topLeftCorner.OutterCorner.Radius, _topLeftCorner.OutterCorner.Radius));
-                        ArcTo(ictx, _topLeftCorner.InnerCorner.ArcToPoint, new Size(_topLeftCorner.InnerCorner.Radius, _topLeftCorner.InnerCorner.Radius));
-
-                        availableLength += _topLeftCorner.OutterCorner.ArcLength;
-                        //完整 左上弧
-                        return true;
-                    }
-                    else
-                    {
-                        var curOutterArcLength = drawLength - availableLength;
-                        var curAngle = curOutterArcLength * 90 / _topLeftCorner.OutterCorner.ArcLength;
-
-                        var outterEndPoint = GetSpecialPoint(CornerPos.TopLeft, curAngle, _topLeftCorner.OutterCorner);
-                        var innerEndPoint = GetSpecialPoint(CornerPos.TopLeft, curAngle, _topLeftCorner.InnerCorner);
-
-                        ArcTo(octx, outterEndPoint, new Size(_topLeftCorner.OutterCorner.Radius, _topLeftCorner.OutterCorner.Radius), curAngle);
-                        LineTo(octx, innerEndPoint);
-
-                        ArcTo(ictx, innerEndPoint, new Size(_topLeftCorner.InnerCorner.Radius, _topLeftCorner.InnerCorner.Radius), curAngle);
-                        //不完整 左上弧
-                        return false;
-                    }
-                }
-                else
-                {
-                    var outterYOffset = ActualHeight - (drawLength - availableLength + _bottomLeftCorner.OutterCorner.Radius);
-                    var innerEndPoint = new Point(_tempCircleThickness, Math.Min(outterYOffset, _bottomLeftCorner.InnerCorner.RightAnglePoint.Y));
-
-                    LineTo(octx, new Point(0, outterYOffset));
-
-                    if (_bottomLeftCorner.IsRightAngle)
-                    {
-                        LineTo(octx, innerEndPoint);
-                        LineTo(ictx, innerEndPoint);
-                    }
-                    else
-                    {
-                        LineTo(octx, new Point(_tempCircleThickness, outterYOffset));
-                        LineTo(ictx, new Point(_tempCircleThickness, outterYOffset));
-                    }
-
-                    //不完整 左直边
-                    return false;
-                }
-            }
-        }
-
-        private void DrawCircleWithValue(DrawingContext drawingContext, double value)
-        {
-            var circumference = GetCircumference();
-
-            if (_outerProgressStreamGeometry == null)
-                _outerProgressStreamGeometry = new StreamGeometry();
-            else
-                _outerProgressStreamGeometry.Clear();
-
-            if (_innerProgressStreamGeometry == null)
-                _innerProgressStreamGeometry = new StreamGeometry();
-            else
-                _innerProgressStreamGeometry.Clear();
-
-            if (DoubleUtil.IsZero(Value))
-                return;
-
-            double drawLength = 0;
-            double availableLength = 0;
-
-            using (var octx = _outerProgressStreamGeometry.Open())
-            {
-                using (var ictx = _innerProgressStreamGeometry.Open())
-                {
-                    //Top Left End
-                    if (_topLeftCorner.IsRightAngle)
-                    {
-                        drawLength = (circumference - _tempCircleThickness) * value / (Maximum - Minimum);
-
-                        //Outter
-                        BeginFigure(octx, new Point(0, _topLeftCorner.InnerCorner.RightAnglePoint.Y),
-                            isClosed: false);
-                        LineTo(octx, _topRightCorner.OutterCorner.RightAnglePoint);
-
-                        //Inner
-                        if (!DoubleUtil.AreClose(drawLength, circumference - _tempCircleThickness))
-                            BeginFigure(ictx, new Point(0, _topLeftCorner.InnerCorner.RightAnglePoint.Y), isClosed: false);
-                        else
-                            BeginFigure(ictx, _topLeftCorner.InnerCorner.RightAnglePoint, isClosed: false);
-
-                        //availableLength = _tempCircleThickness;
-                    }
-                    else
-                    {
-                        drawLength = circumference * value / (Maximum - Minimum);
-
-                        //Outter
-                        if (!DoubleUtil.AreClose(drawLength, circumference))
-                        {
-                            BeginFigure(octx, _topLeftCorner.InnerCorner.ArcToPoint, isClosed: false);
-                            LineTo(octx, _topLeftCorner.OutterCorner.ArcToPoint);
-                        }
-                        else
-                            BeginFigure(octx, _topLeftCorner.OutterCorner.ArcToPoint, isClosed: false);
-
-                        //Inner
-                        BeginFigure(ictx, _topLeftCorner.InnerCorner.ArcToPoint, isClosed: false);
-
-                        availableLength = 0;
-                    }
-
-                    while (true)
-                    {
-                        //Top Right
-                        if (!DrawTopRightProgress(octx, ictx, drawLength, ref availableLength))
-                            break;
-
-                        //Bottom Right
-                        if (!DrawBottomRightProgress(octx, ictx, drawLength, ref availableLength))
-                            break;
-
-                        if (!DrawBottomLeftProgress(octx, ictx, drawLength, ref availableLength))
-                            break;
-
-                        if (!DrawTopLeftProgress(octx, ictx, drawLength, ref availableLength))
-                            break;
-
-                        break;
-                    }
-                }
-            }
-
-            var pathGeometry = Geometry.Combine(_outerProgressStreamGeometry, _innerProgressStreamGeometry, GeometryCombineMode.Xor, null);
-            pathGeometry.Freeze();
-            drawingContext.DrawGeometry(Brushes.Red, new Pen(Brushes.Transparent, 1), pathGeometry);
-
-            //             drawingContext.DrawGeometry(Brushes.Transparent, new Pen(Brushes.Red, 1), _outerProgressStreamGeometry);
-            //             drawingContext.DrawGeometry(Brushes.Transparent, new Pen(Brushes.Blue, 1), _innerProgressStreamGeometry);
-        }
-
-        private Point GetSpecialPoint(CornerPos cornerPos, double availableAngle, Corner corner)
+        private Point GetArcSpecialPoint(CornerPos cornerPos, double availableAngle, Corner corner)
         {
             var d1 = Math.Sin(availableAngle * Math.PI / 180) * corner.Radius;
             var d2 = (1 - Math.Cos(availableAngle * Math.PI / 180)) * corner.Radius;
@@ -626,37 +337,401 @@ namespace UIResources.Controls
             return result;
         }
 
-        private void DrawCircle(DrawingContext drawingContext)
+        private bool DrawTopRightProgress(StreamGeometryContext octx, StreamGeometryContext ictx, double drawLength, ref double availableLength)
         {
-            _outerStreamGeometryCache = new StreamGeometry();
-            _innerStreamGeometryCache = new StreamGeometry();
-
-            using (var octx = _outerStreamGeometryCache.Open())
+            //Top Right
+            if (_topRightCorner.IsRightAngle)
             {
-                using (var ictx = _innerStreamGeometryCache.Open())
+                if (DoubleUtil.GreaterThan(drawLength,
+                    availableLength + ActualWidth - _topLeftCorner.OuterCorner.Radius))
+                {
+                    LineTo(octx, _topRightCorner.OuterCorner.RightAnglePoint);
+                    LineTo(ictx, _topRightCorner.InnerCorner.RightAnglePoint);
+
+                    availableLength += (ActualWidth - _topLeftCorner.OuterCorner.Radius);
+                    //完整 上直边
+                    return true;
+                }
+                else
+                {
+                    var innerEndPoint = new Point(Math.Min(_topRightCorner.InnerCorner.RightAnglePoint.X, drawLength + _topLeftCorner.OuterCorner.Radius), _tempCircleThickness);
+
+                    LineTo(octx, new Point(drawLength + _topLeftCorner.OuterCorner.Radius, 0));
+                    LineTo(octx, innerEndPoint);
+
+                    LineTo(ictx, innerEndPoint);
+                    //不完整上直边
+                    return false;
+                }
+            }
+            else
+            {
+                if (DoubleUtil.GreaterThan(drawLength,
+                    availableLength + ActualWidth - _topLeftCorner.OuterCorner.Radius - _topRightCorner.OuterCorner.Radius))
+                {
+                    LineTo(octx, _topRightCorner.OuterCorner.ArcFromPoint);
+                    LineTo(ictx, _topRightCorner.InnerCorner.ArcFromPoint);
+
+                    availableLength += (ActualWidth - _topLeftCorner.OuterCorner.Radius - _topRightCorner.OuterCorner.Radius);
+                    //完整 上直边
+
+                    if (DoubleUtil.GreaterThan(drawLength,
+                        availableLength + _topRightCorner.OuterCorner.ArcLength))
+                    {
+                        ArcTo(octx, _topRightCorner.OuterCorner.ArcToPoint, new Size(_topRightCorner.OuterCorner.Radius, _topRightCorner.OuterCorner.Radius));
+                        ArcTo(ictx, _topRightCorner.InnerCorner.ArcToPoint, new Size(_topRightCorner.InnerCorner.Radius, _topRightCorner.InnerCorner.Radius));
+
+                        availableLength += _topRightCorner.OuterCorner.ArcLength;
+                        //完整 右上弧
+                        return true;
+                    }
+                    else
+                    {
+                        var curOutterArcLength = drawLength - availableLength;
+                        var curAngle = curOutterArcLength * 90 / _topRightCorner.OuterCorner.ArcLength;
+
+                        var outterEndPoint = GetArcSpecialPoint(CornerPos.TopRight, curAngle, _topRightCorner.OuterCorner);
+                        var innerEndPoint = GetArcSpecialPoint(CornerPos.TopRight, curAngle, _topRightCorner.InnerCorner);
+
+                        ArcTo(octx, outterEndPoint, new Size(_topRightCorner.OuterCorner.Radius, _topRightCorner.OuterCorner.Radius), curAngle);
+                        LineTo(octx, innerEndPoint);
+
+                        ArcTo(ictx, innerEndPoint, new Size(_topRightCorner.InnerCorner.Radius, _topRightCorner.InnerCorner.Radius), curAngle);
+                        //不完整 右上弧
+                        return false;
+                    }
+                }
+                else
+                {
+                    LineTo(octx, new Point(drawLength + _topLeftCorner.OuterCorner.Radius, 0));
+                    LineTo(octx, new Point(drawLength + _topLeftCorner.OuterCorner.Radius, _tempCircleThickness));
+
+                    LineTo(ictx, new Point(drawLength + _topLeftCorner.OuterCorner.Radius, _tempCircleThickness));
+                    //不完整 上直边
+                    return false;
+                }
+            }
+        }
+
+        private bool DrawBottomRightProgress(StreamGeometryContext octx, StreamGeometryContext ictx, double drawLength, ref double availableLength)
+        {
+            if (_bottomRightCorner.IsRightAngle)
+            {
+                if (DoubleUtil.GreaterThan(drawLength,
+                    availableLength + ActualHeight - _topRightCorner.OuterCorner.Radius))
+                {
+                    LineTo(octx, _bottomRightCorner.OuterCorner.RightAnglePoint);
+                    LineTo(ictx, _bottomRightCorner.InnerCorner.RightAnglePoint);
+
+                    availableLength += (ActualHeight - _topRightCorner.OuterCorner.Radius);
+                    //完整 右直边
+                    return true;
+                }
+                else
+                {
+                    var outterYOffset = drawLength - availableLength + _topRightCorner.OuterCorner.Radius;
+                    var innerEndPoint = new Point(ActualWidth - _tempCircleThickness, Math.Min(_bottomRightCorner.InnerCorner.RightAnglePoint.Y, Math.Max(_topRightCorner.InnerCorner.RightAnglePoint.Y, outterYOffset)));
+
+                    LineTo(octx, new Point(ActualWidth, outterYOffset));
+                    LineTo(octx, innerEndPoint);
+
+                    if (_topRightCorner.IsRightAngle)
+                    {
+                        LineTo(ictx, innerEndPoint);
+                    }
+                    else
+                    {
+                        LineTo(ictx, innerEndPoint);
+                    }
+
+                    //不完整 右直边
+                    return false;
+                }
+            }
+            else
+            {
+                if (DoubleUtil.GreaterThan(drawLength,
+                    availableLength + ActualHeight - _topRightCorner.OuterCorner.Radius - _bottomRightCorner.OuterCorner.Radius))
+                {
+                    LineTo(octx, _bottomRightCorner.OuterCorner.ArcFromPoint);
+                    LineTo(ictx, _bottomRightCorner.InnerCorner.ArcFromPoint);
+
+                    availableLength += (ActualHeight - _topRightCorner.OuterCorner.Radius - _bottomRightCorner.OuterCorner.Radius);
+                    //完整 右直边
+
+                    if (DoubleUtil.GreaterThan(drawLength,
+                        availableLength + _bottomRightCorner.OuterCorner.ArcLength))
+                    {
+                        ArcTo(octx, _bottomRightCorner.OuterCorner.ArcToPoint, new Size(_bottomRightCorner.OuterCorner.Radius, _bottomRightCorner.OuterCorner.Radius));
+                        ArcTo(ictx, _bottomRightCorner.InnerCorner.ArcToPoint, new Size(_bottomRightCorner.InnerCorner.Radius, _bottomRightCorner.InnerCorner.Radius));
+
+                        availableLength += _bottomRightCorner.OuterCorner.ArcLength;
+                        //完整 右下弧
+                        return true;
+                    }
+                    else
+                    {
+                        var curOutterArcLength = drawLength - availableLength;
+                        var curAngle = curOutterArcLength * 90 / _bottomRightCorner.OuterCorner.ArcLength;
+
+                        var outterEndPoint = GetArcSpecialPoint(CornerPos.BottomRight, curAngle, _bottomRightCorner.OuterCorner);
+                        var innerEndPoint = GetArcSpecialPoint(CornerPos.BottomRight, curAngle, _bottomRightCorner.InnerCorner);
+
+                        ArcTo(octx, outterEndPoint, new Size(_bottomRightCorner.OuterCorner.Radius, _bottomRightCorner.OuterCorner.Radius), curAngle);
+                        LineTo(octx, innerEndPoint);
+
+                        ArcTo(ictx, innerEndPoint, new Size(_bottomRightCorner.InnerCorner.Radius, _bottomRightCorner.InnerCorner.Radius), curAngle);
+                        //不完整 右下弧
+                        return false;
+                    }
+                }
+                else
+                {
+                    var outterYOffset = drawLength - availableLength + _topRightCorner.OuterCorner.Radius;
+                    var innerEndPoint = new Point(ActualWidth - _tempCircleThickness, Math.Max(_topRightCorner.InnerCorner.RightAnglePoint.Y, outterYOffset));
+
+                    LineTo(octx, new Point(ActualWidth, outterYOffset));
+                    LineTo(octx, innerEndPoint);
+
+                    if (_topRightCorner.IsRightAngle)
+                    {
+                        LineTo(ictx, innerEndPoint);
+                    }
+                    else
+                    {
+                        LineTo(ictx, innerEndPoint);
+                    }
+
+                    //不完整 右直边
+                    return false;
+                }
+            }
+        }
+
+        private bool DrawBottomLeftProgress(StreamGeometryContext octx, StreamGeometryContext ictx, double drawLength, ref double availableLength)
+        {
+            if (_bottomLeftCorner.IsRightAngle)
+            {
+                if (DoubleUtil.GreaterThan(drawLength,
+                    availableLength + ActualWidth - _bottomRightCorner.OuterCorner.Radius))
+                {
+                    LineTo(octx, _bottomLeftCorner.OuterCorner.RightAnglePoint);
+                    LineTo(ictx, _bottomLeftCorner.InnerCorner.RightAnglePoint);
+
+                    availableLength += (ActualWidth - _bottomRightCorner.OuterCorner.Radius);
+                    //完整 下直边
+                    return true;
+                }
+                else
+                {
+                    var outterXOffset = ActualWidth - (drawLength - availableLength + _bottomRightCorner.OuterCorner.Radius);
+                    var innerEndPoint = new Point(Math.Max(_bottomLeftCorner.InnerCorner.RightAnglePoint.X, Math.Min(outterXOffset, _bottomRightCorner.InnerCorner.RightAnglePoint.X)), _bottomLeftCorner.InnerCorner.RightAnglePoint.Y);
+
+                    LineTo(octx, new Point(outterXOffset, ActualHeight));
+
+                    if (_bottomRightCorner.IsRightAngle)
+                    {
+                        LineTo(octx, innerEndPoint);
+                        LineTo(ictx, innerEndPoint);
+                    }
+                    else
+                    {
+                        LineTo(octx, new Point(Math.Max(outterXOffset, _bottomLeftCorner.InnerCorner.RightAnglePoint.X), ActualHeight - _tempCircleThickness));
+                        LineTo(ictx, new Point(Math.Max(outterXOffset, _bottomLeftCorner.InnerCorner.RightAnglePoint.X), _bottomLeftCorner.InnerCorner.RightAnglePoint.Y));
+                    }
+
+                    //不完整 下直边
+                    return false;
+                }
+            }
+            else
+            {
+                if (DoubleUtil.GreaterThan(drawLength,
+                    availableLength + ActualWidth - _bottomLeftCorner.OuterCorner.Radius - _bottomRightCorner.OuterCorner.Radius))
+                {
+                    LineTo(octx, _bottomLeftCorner.OuterCorner.ArcFromPoint);
+                    LineTo(ictx, _bottomLeftCorner.InnerCorner.ArcFromPoint);
+
+                    availableLength += (ActualWidth - _bottomLeftCorner.OuterCorner.Radius - _bottomRightCorner.OuterCorner.Radius);
+                    //完整 下直边
+
+                    if (DoubleUtil.GreaterThan(drawLength,
+                        availableLength + _bottomLeftCorner.OuterCorner.ArcLength))
+                    {
+                        ArcTo(octx, _bottomLeftCorner.OuterCorner.ArcToPoint, new Size(_bottomLeftCorner.OuterCorner.Radius, _bottomLeftCorner.OuterCorner.Radius));
+                        ArcTo(ictx, _bottomLeftCorner.InnerCorner.ArcToPoint, new Size(_bottomLeftCorner.InnerCorner.Radius, _bottomLeftCorner.InnerCorner.Radius));
+
+                        availableLength += _bottomLeftCorner.OuterCorner.ArcLength;
+                        //完整 左下弧
+                        return true;
+                    }
+                    else
+                    {
+                        var curOutterArcLength = drawLength - availableLength;
+                        var curAngle = curOutterArcLength * 90 / _bottomLeftCorner.OuterCorner.ArcLength;
+
+                        var outterEndPoint = GetArcSpecialPoint(CornerPos.BottomLeft, curAngle, _bottomLeftCorner.OuterCorner);
+                        var innerEndPoint = GetArcSpecialPoint(CornerPos.BottomLeft, curAngle, _bottomLeftCorner.InnerCorner);
+
+                        ArcTo(octx, outterEndPoint, new Size(_bottomLeftCorner.OuterCorner.Radius, _bottomLeftCorner.OuterCorner.Radius), curAngle);
+                        LineTo(octx, innerEndPoint);
+
+                        ArcTo(ictx, innerEndPoint, new Size(_bottomLeftCorner.InnerCorner.Radius, _bottomLeftCorner.InnerCorner.Radius), curAngle);
+                        //不完整 左下弧
+                        return false;
+                    }
+                }
+                else
+                {
+                    var outterXOffset = ActualWidth - (drawLength - availableLength + _bottomRightCorner.OuterCorner.Radius);
+                    var innerEndPoint = new Point(Math.Min(outterXOffset, _bottomRightCorner.InnerCorner.RightAnglePoint.X), ActualHeight - _tempCircleThickness);
+
+                    LineTo(octx, new Point(outterXOffset, ActualHeight));
+                    LineTo(octx, new Point(Math.Min(ActualWidth - _tempCircleThickness, outterXOffset), ActualHeight - _tempCircleThickness));
+
+                    if (_bottomRightCorner.IsRightAngle)
+                    {
+                        LineTo(ictx, innerEndPoint);
+                    }
+                    else
+                    {
+                        LineTo(ictx, new Point(outterXOffset, ActualHeight - _tempCircleThickness));
+                    }
+
+                    //不完整 下直边
+                    return false;
+                }
+            }
+        }
+
+        private bool DrawTopLeftProgress(StreamGeometryContext octx, StreamGeometryContext ictx, double drawLength, ref double availableLength)
+        {
+            if (_topLeftCorner.IsRightAngle)
+            {
+                if (DoubleUtil.AreClose(drawLength + _tempCircleThickness,
+                    availableLength + ActualHeight - _bottomLeftCorner.OuterCorner.Radius))
+                {
+                    LineTo(octx, new Point(0, _topLeftCorner.InnerCorner.RightAnglePoint.Y));
+                    LineTo(ictx, _topLeftCorner.InnerCorner.RightAnglePoint);
+
+                    availableLength += (ActualHeight - _bottomLeftCorner.OuterCorner.Radius);
+                    //完整 左直边
+                    return true;
+                }
+                else
+                {
+                    var outterYOffset = ActualHeight - (drawLength - availableLength + _bottomLeftCorner.OuterCorner.Radius);
+                    var innerEndPoint = new Point(_bottomLeftCorner.InnerCorner.RightAnglePoint.X, Math.Min(outterYOffset, _bottomLeftCorner.InnerCorner.RightAnglePoint.Y));
+
+                    LineTo(octx, new Point(0, outterYOffset));
+
+                    if (_bottomLeftCorner.IsRightAngle)
+                    {
+                        LineTo(octx, innerEndPoint);
+                        LineTo(ictx, innerEndPoint);
+                    }
+                    else
+                    {
+                        LineTo(octx, new Point(_topLeftCorner.InnerCorner.RightAnglePoint.X, outterYOffset));
+                        LineTo(ictx, new Point(_topLeftCorner.InnerCorner.RightAnglePoint.X, outterYOffset));
+                    }
+
+                    //不完整 左直边
+                    return false;
+                }
+            }
+            else
+            {
+                if (DoubleUtil.GreaterThan(drawLength,
+                    availableLength + ActualHeight - _topLeftCorner.OuterCorner.Radius - _bottomLeftCorner.OuterCorner.Radius))
+                {
+                    LineTo(octx, _topLeftCorner.OuterCorner.ArcFromPoint);
+                    LineTo(ictx, _topLeftCorner.InnerCorner.ArcFromPoint);
+
+                    availableLength += (ActualHeight - _topLeftCorner.OuterCorner.Radius - _bottomLeftCorner.OuterCorner.Radius);
+                    //完整 左直边
+
+                    if (DoubleUtil.AreClose(drawLength,
+                        availableLength + _topLeftCorner.OuterCorner.ArcLength))
+                    {
+                        ArcTo(octx, _topLeftCorner.OuterCorner.ArcToPoint, new Size(_topLeftCorner.OuterCorner.Radius, _topLeftCorner.OuterCorner.Radius));
+                        ArcTo(ictx, _topLeftCorner.InnerCorner.ArcToPoint, new Size(_topLeftCorner.InnerCorner.Radius, _topLeftCorner.InnerCorner.Radius));
+
+                        availableLength += _topLeftCorner.OuterCorner.ArcLength;
+                        //完整 左上弧
+                        return true;
+                    }
+                    else
+                    {
+                        var curOutterArcLength = drawLength - availableLength;
+                        var curAngle = curOutterArcLength * 90 / _topLeftCorner.OuterCorner.ArcLength;
+
+                        var outterEndPoint = GetArcSpecialPoint(CornerPos.TopLeft, curAngle, _topLeftCorner.OuterCorner);
+                        var innerEndPoint = GetArcSpecialPoint(CornerPos.TopLeft, curAngle, _topLeftCorner.InnerCorner);
+
+                        ArcTo(octx, outterEndPoint, new Size(_topLeftCorner.OuterCorner.Radius, _topLeftCorner.OuterCorner.Radius), curAngle);
+                        LineTo(octx, innerEndPoint);
+
+                        ArcTo(ictx, innerEndPoint, new Size(_topLeftCorner.InnerCorner.Radius, _topLeftCorner.InnerCorner.Radius), curAngle);
+                        //不完整 左上弧
+                        return false;
+                    }
+                }
+                else
+                {
+                    var outterYOffset = ActualHeight - (drawLength - availableLength + _bottomLeftCorner.OuterCorner.Radius);
+                    var innerEndPoint = new Point(_tempCircleThickness, Math.Min(outterYOffset, _bottomLeftCorner.InnerCorner.RightAnglePoint.Y));
+
+                    LineTo(octx, new Point(0, outterYOffset));
+
+                    if (_bottomLeftCorner.IsRightAngle)
+                    {
+                        LineTo(octx, innerEndPoint);
+                        LineTo(ictx, innerEndPoint);
+                    }
+                    else
+                    {
+                        LineTo(octx, new Point(_tempCircleThickness, outterYOffset));
+                        LineTo(ictx, new Point(_tempCircleThickness, outterYOffset));
+                    }
+
+                    //不完整 左直边
+                    return false;
+                }
+            }
+        }
+
+        private void DrawBackgroundCircle(DrawingContext drawingContext)
+        {
+            _outerBgStreamGeometry = new StreamGeometry();
+            _innerBgStreamGeometry = new StreamGeometry();
+
+            using (var octx = _outerBgStreamGeometry.Open())
+            {
+                using (var ictx = _innerBgStreamGeometry.Open())
                 {
                     //Top Left End
                     if (_topLeftCorner.IsRightAngle)
                     {
-                        BeginFigure(octx, _topLeftCorner.OutterCorner.RightAnglePoint);
+                        BeginFigure(octx, _topLeftCorner.OuterCorner.RightAnglePoint);
                         BeginFigure(ictx, _topLeftCorner.InnerCorner.RightAnglePoint);
                     }
                     else
                     {
-                        BeginFigure(octx, _topLeftCorner.OutterCorner.ArcToPoint);
+                        BeginFigure(octx, _topLeftCorner.OuterCorner.ArcToPoint);
                         BeginFigure(ictx, _topLeftCorner.InnerCorner.ArcToPoint);
                     }
 
                     //Top Right
                     if (_topRightCorner.IsRightAngle)
                     {
-                        LineTo(octx, _topRightCorner.OutterCorner.RightAnglePoint);
+                        LineTo(octx, _topRightCorner.OuterCorner.RightAnglePoint);
                         LineTo(ictx, _topRightCorner.InnerCorner.RightAnglePoint);
                     }
                     else
                     {
-                        LineTo(octx, _topRightCorner.OutterCorner.ArcFromPoint);
-                        ArcTo(octx, _topRightCorner.OutterCorner.ArcToPoint, new Size(_topRightCorner.OutterCorner.Radius, _topRightCorner.OutterCorner.Radius));
+                        LineTo(octx, _topRightCorner.OuterCorner.ArcFromPoint);
+                        ArcTo(octx, _topRightCorner.OuterCorner.ArcToPoint, new Size(_topRightCorner.OuterCorner.Radius, _topRightCorner.OuterCorner.Radius));
 
                         LineTo(ictx, _topRightCorner.InnerCorner.ArcFromPoint);
                         ArcTo(ictx, _topRightCorner.InnerCorner.ArcToPoint, new Size(_topRightCorner.InnerCorner.Radius, _topRightCorner.InnerCorner.Radius));
@@ -665,13 +740,13 @@ namespace UIResources.Controls
                     //Bottom Right
                     if (_bottomRightCorner.IsRightAngle)
                     {
-                        LineTo(octx, _bottomRightCorner.OutterCorner.RightAnglePoint);
+                        LineTo(octx, _bottomRightCorner.OuterCorner.RightAnglePoint);
                         LineTo(ictx, _bottomRightCorner.InnerCorner.RightAnglePoint);
                     }
                     else
                     {
-                        LineTo(octx, _bottomRightCorner.OutterCorner.ArcFromPoint);
-                        ArcTo(octx, _bottomRightCorner.OutterCorner.ArcToPoint, new Size(_bottomRightCorner.OutterCorner.Radius, _bottomRightCorner.OutterCorner.Radius));
+                        LineTo(octx, _bottomRightCorner.OuterCorner.ArcFromPoint);
+                        ArcTo(octx, _bottomRightCorner.OuterCorner.ArcToPoint, new Size(_bottomRightCorner.OuterCorner.Radius, _bottomRightCorner.OuterCorner.Radius));
 
                         LineTo(ictx, _bottomRightCorner.InnerCorner.ArcFromPoint);
                         ArcTo(ictx, _bottomRightCorner.InnerCorner.ArcToPoint, new Size(_bottomRightCorner.InnerCorner.Radius, _bottomRightCorner.InnerCorner.Radius));
@@ -680,13 +755,13 @@ namespace UIResources.Controls
                     //Bottom Left
                     if (_bottomLeftCorner.IsRightAngle)
                     {
-                        LineTo(octx, _bottomLeftCorner.OutterCorner.RightAnglePoint);
+                        LineTo(octx, _bottomLeftCorner.OuterCorner.RightAnglePoint);
                         LineTo(ictx, _bottomLeftCorner.InnerCorner.RightAnglePoint);
                     }
                     else
                     {
-                        LineTo(octx, _bottomLeftCorner.OutterCorner.ArcFromPoint);
-                        ArcTo(octx, _bottomLeftCorner.OutterCorner.ArcToPoint, new Size(_bottomLeftCorner.OutterCorner.Radius, _bottomLeftCorner.OutterCorner.Radius));
+                        LineTo(octx, _bottomLeftCorner.OuterCorner.ArcFromPoint);
+                        ArcTo(octx, _bottomLeftCorner.OuterCorner.ArcToPoint, new Size(_bottomLeftCorner.OuterCorner.Radius, _bottomLeftCorner.OuterCorner.Radius));
 
                         LineTo(ictx, _bottomLeftCorner.InnerCorner.ArcFromPoint);
                         ArcTo(ictx, _bottomLeftCorner.InnerCorner.ArcToPoint, new Size(_bottomLeftCorner.InnerCorner.Radius, _bottomLeftCorner.InnerCorner.Radius));
@@ -695,13 +770,13 @@ namespace UIResources.Controls
                     //Top Left
                     if (_topLeftCorner.IsRightAngle)
                     {
-                        LineTo(octx, _topLeftCorner.OutterCorner.RightAnglePoint);
+                        LineTo(octx, _topLeftCorner.OuterCorner.RightAnglePoint);
                         LineTo(ictx, _topLeftCorner.InnerCorner.RightAnglePoint);
                     }
                     else
                     {
-                        LineTo(octx, _topLeftCorner.OutterCorner.ArcFromPoint);
-                        ArcTo(octx, _topLeftCorner.OutterCorner.ArcToPoint, new Size(_topLeftCorner.OutterCorner.Radius, _topLeftCorner.OutterCorner.Radius));
+                        LineTo(octx, _topLeftCorner.OuterCorner.ArcFromPoint);
+                        ArcTo(octx, _topLeftCorner.OuterCorner.ArcToPoint, new Size(_topLeftCorner.OuterCorner.Radius, _topLeftCorner.OuterCorner.Radius));
 
                         LineTo(ictx, _topLeftCorner.InnerCorner.ArcFromPoint);
                         ArcTo(ictx, _topLeftCorner.InnerCorner.ArcToPoint, new Size(_topLeftCorner.InnerCorner.Radius, _topLeftCorner.InnerCorner.Radius));
@@ -709,79 +784,101 @@ namespace UIResources.Controls
                 }
             }
 
-            _outerStreamGeometryCache.Freeze();
-            _innerStreamGeometryCache.Freeze();
+            _outerBgStreamGeometry.Freeze();
+            _innerBgStreamGeometry.Freeze();
 
-            var pathGeometry = Geometry.Combine(_outerStreamGeometryCache, _innerStreamGeometryCache,
+            var pathGeometry = Geometry.Combine(_outerBgStreamGeometry, _innerBgStreamGeometry,
                 GeometryCombineMode.Xor, null);
             pathGeometry.Freeze();
 
-            drawingContext.DrawGeometry(Brushes.DarkGray, new Pen(Brushes.Transparent, 1), pathGeometry);
+            drawingContext.DrawGeometry(_backgroundBrush, new Pen(Brushes.Transparent, 1), pathGeometry);
         }
 
-        private double CoerceCircleThickness(double circleThickness, double width, double height)
+        private void DrawForegroundCircle(double value)
         {
-            var minWidthOrHeight = Math.Min(this.ActualWidth, this.ActualHeight);
+            if (_outerFgStreamGeometry == null)
+                _outerFgStreamGeometry = new StreamGeometry();
+            else
+                _outerFgStreamGeometry.Clear();
 
-            return DoubleUtil.LessThan(minWidthOrHeight, 2 * circleThickness)
-                ? minWidthOrHeight / 2
-                : circleThickness;
+            if (_innerFgStreamGeometry == null)
+                _innerFgStreamGeometry = new StreamGeometry();
+            else
+                _innerFgStreamGeometry.Clear();
+
+            if (DoubleUtil.IsZero(Value))
+                return;
+
+            var drawLength = 0d;
+            var availableLength = 0d;
+            var circumference = GetCircumference();
+
+            using (var octx = _outerFgStreamGeometry.Open())
+            {
+                using (var ictx = _innerFgStreamGeometry.Open())
+                {
+                    //Top Left End
+                    if (_topLeftCorner.IsRightAngle)
+                    {
+                        drawLength = (circumference - _tempCircleThickness) * value / (Maximum - Minimum);
+
+                        //Outter
+                        BeginFigure(octx, new Point(0, _topLeftCorner.InnerCorner.RightAnglePoint.Y),
+                            isClosed: false);
+                        LineTo(octx, _topLeftCorner.OuterCorner.RightAnglePoint);
+
+                        //Inner
+                        if (!DoubleUtil.AreClose(drawLength, circumference - _tempCircleThickness))
+                            BeginFigure(ictx, new Point(0, _topLeftCorner.InnerCorner.RightAnglePoint.Y), isClosed: false);
+                        else
+                            BeginFigure(ictx, _topLeftCorner.InnerCorner.RightAnglePoint, isClosed: false);
+
+                        //availableLength = _tempCircleThickness;
+                    }
+                    else
+                    {
+                        drawLength = circumference * value / (Maximum - Minimum);
+
+                        //Outter
+                        if (!DoubleUtil.AreClose(drawLength, circumference))
+                        {
+                            BeginFigure(octx, _topLeftCorner.InnerCorner.ArcToPoint, isClosed: false);
+                            LineTo(octx, _topLeftCorner.OuterCorner.ArcToPoint);
+                        }
+                        else
+                            BeginFigure(octx, _topLeftCorner.OuterCorner.ArcToPoint, isClosed: false);
+
+                        //Inner
+                        BeginFigure(ictx, _topLeftCorner.InnerCorner.ArcToPoint, isClosed: false);
+
+                        availableLength = 0;
+                    }
+
+                    while (true)
+                    {
+                        //Top Right
+                        if (!DrawTopRightProgress(octx, ictx, drawLength, ref availableLength))
+                            break;
+
+                        //Bottom Right
+                        if (!DrawBottomRightProgress(octx, ictx, drawLength, ref availableLength))
+                            break;
+
+                        if (!DrawBottomLeftProgress(octx, ictx, drawLength, ref availableLength))
+                            break;
+
+                        if (!DrawTopLeftProgress(octx, ictx, drawLength, ref availableLength))
+                            break;
+
+                        break;
+                    }
+                }
+            }
         }
 
-        private CornerRadius CoerceCornerRadius(CornerRadius cornerRadius, double availableWidth, double availableHeight)
-        {
-            double? topLeft = null;
-            double? bottomLeft = null;
-            if (availableHeight < cornerRadius.TopLeft + cornerRadius.BottomLeft)
-            {
-                topLeft = cornerRadius.TopLeft * availableHeight / (cornerRadius.TopLeft + cornerRadius.BottomLeft);
-                bottomLeft = cornerRadius.BottomLeft * availableHeight / (cornerRadius.TopLeft + cornerRadius.BottomLeft);
-            }
+        #endregion             
 
-            double? topRight = null;
-            double? bottomRight = null;
-            if (availableHeight < cornerRadius.TopRight + cornerRadius.BottomRight)
-            {
-                topRight = cornerRadius.TopRight * availableHeight / (cornerRadius.TopRight + cornerRadius.BottomRight);
-                bottomRight = cornerRadius.BottomRight * availableHeight / (cornerRadius.TopRight + cornerRadius.BottomRight);
-            }
-
-            if (availableWidth < cornerRadius.TopLeft + cornerRadius.TopRight)
-            {
-                var tl = cornerRadius.TopLeft * availableWidth / (cornerRadius.TopLeft + cornerRadius.TopRight);
-                topLeft = topLeft == null ? tl : Math.Min(tl, topLeft.Value);
-
-                var tr = cornerRadius.TopRight * availableWidth / (cornerRadius.TopLeft + cornerRadius.TopRight);
-                topRight = topRight == null ? tr : Math.Min(tr, topRight.Value);
-            }
-
-            if (availableWidth < cornerRadius.BottomLeft + cornerRadius.BottomRight)
-            {
-                var bl = cornerRadius.BottomLeft * availableWidth / (cornerRadius.BottomLeft + cornerRadius.BottomRight);
-                bottomLeft = bottomLeft == null ? bl : Math.Min(bl, bottomLeft.Value);
-
-                var br = cornerRadius.BottomRight * availableWidth / (cornerRadius.BottomLeft + cornerRadius.BottomRight);
-                bottomRight = bottomRight == null ? br : Math.Min(br, bottomRight.Value);
-            }
-
-            if (topLeft != null || topRight != null || bottomLeft != null || bottomRight != null)
-                return new CornerRadius(topLeft.Value, topRight.Value, bottomRight.Value, bottomLeft.Value);
-
-            return cornerRadius;
-        }
-
-        private CornerInfo _topLeftCorner;
-        private CornerInfo _topRightCorner;
-        private CornerInfo _bottomLeftCorner;
-        private CornerInfo _bottomRightCorner;
-
-        private void ConstructAllCornerInfo()
-        {
-            _topLeftCorner = new CornerInfo(CornerPos.TopLeft, _tempCornerRadius.TopLeft, _tempCircleThickness, this.ActualWidth, this.ActualHeight);
-            _topRightCorner = new CornerInfo(CornerPos.TopRight, _tempCornerRadius.TopRight, _tempCircleThickness, this.ActualWidth, this.ActualHeight);
-            _bottomLeftCorner = new CornerInfo(CornerPos.BottomLeft, _tempCornerRadius.BottomLeft, _tempCircleThickness, this.ActualWidth, this.ActualHeight);
-            _bottomRightCorner = new CornerInfo(CornerPos.BottomRight, _tempCornerRadius.BottomRight, _tempCircleThickness, this.ActualWidth, this.ActualHeight);
-        }
+        #region Struct
 
         enum CornerPos
         {
@@ -799,9 +896,9 @@ namespace UIResources.Controls
             private double _width;
             private double _height;
 
-            public bool IsRightAngle { get; set; }
-            public Corner OutterCorner { get; set; }
-            public Corner InnerCorner { get; set; }
+            public bool IsRightAngle { get; }
+            public Corner OuterCorner { get; }
+            public Corner InnerCorner { get; }
 
             public CornerInfo(CornerPos cornerPos, double radius, double circleThickness, double width, double height)
                 : this()
@@ -813,7 +910,7 @@ namespace UIResources.Controls
                 _height = height;
 
                 IsRightAngle = DoubleUtil.IsZero(_radius);
-                OutterCorner = ConstructCorner(0, circleThickness);
+                OuterCorner = ConstructCorner(0, circleThickness);
                 InnerCorner = ConstructCorner(circleThickness);
             }
 
@@ -853,11 +950,11 @@ namespace UIResources.Controls
 
         struct Corner
         {
-            public double Radius { get; private set; }
-            public Point ArcFromPoint { get; private set; }
-            public Point ArcToPoint { get; private set; }
+            public double Radius { get; }
+            public Point ArcFromPoint { get; }
+            public Point ArcToPoint { get; }
 
-            public Point RightAnglePoint { get; private set; }
+            public Point RightAnglePoint { get; }
 
             private double _arcLength;
             public double ArcLength
@@ -882,18 +979,9 @@ namespace UIResources.Controls
                 ArcFromPoint = arcFromPoint;
                 ArcToPoint = arcToPoint;
             }
-
-            public Point GetSpecialPoint(double availableAngle)
-            {
-                if (DoubleUtil.IsZero(_arcLength))
-                    return RightAnglePoint;
-
-                var d1 = Math.Sin(availableAngle * Math.PI / 180) * Radius;
-                var d2 = (1 - Math.Cos(availableAngle * Math.PI / 180)) * Radius;
-
-                return new Point(ArcFromPoint.X + d1, ArcFromPoint.Y + d2);
-            }
         }
+
+        #endregion
     }
 }
 

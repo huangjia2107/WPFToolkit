@@ -32,7 +32,7 @@ namespace UIResources.Panels
     public class AnchorBorder : Decorator
     {
         private CornerRadius _tempCornerRadius;
-        private StreamGeometry _streamGeometryCache; 
+        private StreamGeometry _streamGeometryCache;
 
         #region readonly Properties
 
@@ -138,7 +138,7 @@ namespace UIResources.Panels
         static object CoerceBorderThickness(DependencyObject d, object value)
         {
             return Math.Max(0, (double)value);
-        }          
+        }
 
         public static readonly DependencyProperty PaddingProperty = DependencyProperty.Register("Padding", typeof(Thickness), typeof(AnchorBorder),
             new FrameworkPropertyMetadata(default(Thickness), FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
@@ -465,53 +465,11 @@ namespace UIResources.Panels
             end = new Point(topLeftRadius, 0);
             DrawBorderWithAnchor(ctx, dockTwo, dockAnchor, dockOne, end);
             ctx.ArcTo(new Point(0, topLeftRadius), topLeftSize, 90, false, SweepDirection.Counterclockwise, true, false);
-        }
-
-        private void AdjustCornerRadius(double W, double H)
-        {
-            double? topLeft = null;
-            double? bottomLeft = null;
-            if (H < CornerRadius.TopLeft + CornerRadius.BottomLeft)
-            {
-                topLeft = CornerRadius.TopLeft * H / (CornerRadius.TopLeft + CornerRadius.BottomLeft);
-                bottomLeft = CornerRadius.BottomLeft * H / (CornerRadius.TopLeft + CornerRadius.BottomLeft);
-            }
-
-            double? topRight = null;
-            double? bottomRight = null;
-            if (H < CornerRadius.TopRight + CornerRadius.BottomRight)
-            {
-                topRight = CornerRadius.TopRight * H / (CornerRadius.TopRight + CornerRadius.BottomRight);
-                bottomRight = CornerRadius.BottomRight * H / (CornerRadius.TopRight + CornerRadius.BottomRight);
-            }
-
-            if (W < CornerRadius.TopLeft + CornerRadius.TopRight)
-            {
-                var tl = CornerRadius.TopLeft * W / (CornerRadius.TopLeft + CornerRadius.TopRight);
-                topLeft = topLeft == null ? tl : Math.Min(tl, topLeft.Value);
-
-                var tr = CornerRadius.TopRight * W / (CornerRadius.TopLeft + CornerRadius.TopRight);
-                topRight = topRight == null ? tr : Math.Min(tr, topRight.Value);
-            }
-
-            if (W < CornerRadius.BottomLeft + CornerRadius.BottomRight)
-            {
-                var bl = CornerRadius.BottomLeft * W / (CornerRadius.BottomLeft + CornerRadius.BottomRight);
-                bottomLeft = bottomLeft == null ? bl : Math.Min(bl, bottomLeft.Value);
-
-                var br = CornerRadius.BottomRight * W / (CornerRadius.BottomLeft + CornerRadius.BottomRight);
-                bottomRight = bottomRight == null ? br : Math.Min(br, bottomRight.Value);
-            }
-
-            if (topLeft != null || topRight != null || bottomLeft != null || bottomRight != null)
-                _tempCornerRadius = new CornerRadius(topLeft.Value, topRight.Value, bottomRight.Value, bottomLeft.Value);
-            else
-                _tempCornerRadius = CornerRadius;
-        }
+        }                                                        
 
         private void DrawDecorativeBorder(double W, double H, DrawingContext drawingContext)
         {
-            AdjustCornerRadius(W, H);
+            _tempCornerRadius = CornerRadius.Coerce(W, H);
 
             if (_streamGeometryCache == null)
                 _streamGeometryCache = new StreamGeometry();

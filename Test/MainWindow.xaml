@@ -8,19 +8,19 @@
         Title="MainWindow" Height="382" Width="654" WindowStartupLocation="CenterScreen">
     <Grid x:Name="rootGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <StackPanel Margin="5" VerticalAlignment="Top" Grid.IsSharedSizeScope="true">
-            <StackPanel Orientation="Horizontal">
+        <StackPanel>
+            <StackPanel Margin="5" Orientation="Horizontal" VerticalAlignment="Top" Grid.IsSharedSizeScope="true">
                 <Button x:Name="testBtn" Height="50" Width="100" Content="Test" FontSize="13" Click="Button_Click_1"/>
-                
+
                 <Grid Margin="20,0,0,0">
                     <CheckBox Content="Vertical" Height="16" HorizontalAlignment="Right" x:Name="IsVerticalCheckBox" IsChecked="False" VerticalAlignment="Top" Width="69" Click="IsVerticalCheckBox_Click" Margin="0,8,0,0" />
                     <CheckBox Content="IsSplit" Height="16" HorizontalAlignment="Left" x:Name="IsSpitCheckBox" VerticalAlignment="Top" Width="60" Margin="0,30,0,0" />
-                </Grid> 
-                
+                </Grid>
+
                 <controls:SpitButton x:Name="menuEx" IsSplit="{Binding IsChecked, ElementName=IsSpitCheckBox, Mode=TwoWay}" Width="100" 
                                      Content="Test" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" >
                     <Border BorderBrush="Red" BorderThickness="1" Height="50"/>
@@ -45,59 +45,35 @@
 
                     <controls:SpitButtonMenuItem Header="CCCCCCCCCCC"/>
                 </controls:SpitButton>
-                 
-            </StackPanel>
-            
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" SharedSizeGroup="FirstColumn"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="Shift" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                <Slider x:Name="OffsetSlider" Grid.Column="1" Minimum="0" Maximum="100" Value="0" SmallChange="1" TickFrequency="1" IsSnapToTickEnabled="True"/>
-                <TextBox Grid.Column="2" Text="{Binding Value,ElementName=OffsetSlider,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
-            </Grid>
-            <Grid Margin="0,10,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" SharedSizeGroup="FirstColumn"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="Scale" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                <Slider x:Name="ScaleSlider" Grid.Column="1" Minimum="1" Maximum="100" Value="1" SmallChange="0.5" TickFrequency="0.5" IsSnapToTickEnabled="True"/>
-                <TextBox Grid.Column="2" Text="{Binding Value,ElementName=ScaleSlider,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
-            </Grid>
-            <controls:Ruler Scale="{Binding Value,ElementName=ScaleSlider}" Shift="{Binding Value,ElementName=OffsetSlider}" Height="20" Margin="0,10,0,0" />
+                <Grid Width="120" Height="60" Margin="20,0,0,0">
+                    <controls:ProgressCircle CornerRadius="0,20,20,20" CircleThickness="8" Foreground="Green"
+                                         Value="{Binding Value,ElementName=ProgressSlider}"/>
+                    <TextBlock Text="{Binding Value,ElementName=ProgressSlider}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>                                                                                                     
 
-            <controls:Ruler Scale="{Binding Value,ElementName=UnitScaleSlider}" Unit="{Binding SelectedValue,ElementName=UnitComboBox}" Height="20" Margin="0,15,0,0"/>
-            <Grid Margin="0,10,0,0" >
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <ComboBox x:Name="UnitComboBox"  VerticalAlignment="Center" Margin="0,0,5,0" Height="25" Width="90"
-                          ItemsSource="{x:Static local:Map.RulerUnitDictionary}"
-                          SelectedValuePath="Key"
-                          DisplayMemberPath="Value" SelectedIndex="0"/>
-                <Slider x:Name="UnitScaleSlider" Grid.Column="1" Minimum="1" Maximum="100" Value="1" SmallChange="0.5" TickFrequency="0.5" IsSnapToTickEnabled="True"/>
-                <TextBox Grid.Column="2" Text="{Binding Value,ElementName=UnitScaleSlider,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="15,0,0,0" Width="80"/>
-            </Grid>
+            </StackPanel>
+            <Slider x:Name="ProgressSlider" Minimum="0" Maximum="100" Value="90" SmallChange="0.5" TickFrequency="1" IsSnapToTickEnabled="True" Margin="20,5"/>
         </StackPanel>
+       
         <controls:ZoomBox x:Name="zoomBox" Grid.Row="1" Margin="0,20,0,0" FontSize="30" Background="White"
                           Unit="{Binding SelectedValue,ElementName=UnitComboBox}">
             <controls:ZoomBox.Ribbon>
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <controls:NumericBox Value="{Binding Scale,ElementName=zoomBox, Mode=TwoWay}" Maximum="48"  Minimum="0.01"  Precision="2" UpDownButtonsWidth="20" MinHeight="0" TextAlignment="Center" BorderThickness="0"/>
-                    <Button Grid.Column="1" Width="50" Height="25" Content="Test" Click="ZoomBoxTestButton_Click" FontSize="12"/>
+                    <ComboBox x:Name="UnitComboBox"  VerticalAlignment="Center" Height="25" Width="90" FontSize="12"
+                              VerticalContentAlignment="Center"
+                          ItemsSource="{x:Static local:Map.RulerUnitDictionary}"
+                          SelectedValuePath="Key"
+                          DisplayMemberPath="Value" SelectedIndex="0"/>
+                    <controls:NumericBox Grid.Column="1" Value="{Binding Scale,ElementName=zoomBox, Mode=TwoWay}" Maximum="48"  Minimum="0.01"  Precision="2" UpDownButtonsWidth="20" MinHeight="0" TextAlignment="Center" BorderThickness="0"/>
+                    <Button Grid.Column="2" Width="50" Height="25" Content="Test" Click="ZoomBoxTestButton_Click" FontSize="12"/>
                 </Grid>
             </controls:ZoomBox.Ribbon>
-            
+
             <TextBlock Text="sdjhwdhwidhwid" Background="Gray" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,40,10,50"/>
 
         </controls:ZoomBox>
