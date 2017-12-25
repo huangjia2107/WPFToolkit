@@ -896,9 +896,9 @@ namespace UIResources.Controls
             private double _width;
             private double _height;
 
-            public bool IsRightAngle { get; }
-            public Corner OuterCorner { get; }
-            public Corner InnerCorner { get; }
+            public bool IsRightAngle { get; private set; }
+            public Corner OuterCorner { get; private set; }
+            public Corner InnerCorner { get; private set; }
 
             public CornerInfo(CornerPos cornerPos, double radius, double circleThickness, double width, double height)
                 : this()
@@ -950,11 +950,11 @@ namespace UIResources.Controls
 
         struct Corner
         {
-            public double Radius { get; }
-            public Point ArcFromPoint { get; }
-            public Point ArcToPoint { get; }
+            public double Radius { get; private set;}
+            public Point ArcFromPoint { get; private set; }
+            public Point ArcToPoint { get; private set; }
 
-            public Point RightAnglePoint { get; }
+            public Point RightAnglePoint { get; private set; }
 
             private double _arcLength;
             public double ArcLength
