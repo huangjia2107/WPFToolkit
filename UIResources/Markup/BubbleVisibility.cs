@@ -13,6 +13,7 @@ namespace UIResources.Markup
 {
     [MarkupExtensionReturnType(typeof(Visibility))]
     [ContentProperty("Binding")]
+    [Obsolete]
     public class BubbleVisibilityExtension : MarkupExtension
     {
         public BubbleVisibilityExtension() { }

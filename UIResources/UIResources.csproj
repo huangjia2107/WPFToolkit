@@ -48,6 +48,10 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttachedProperties\IsHandleMouseWheel.cs" />
+    <Compile Include="AttachedProperties\IsHandleSelectWithCtrl.cs" />
+    <Compile Include="Datas\RelativeBindings.cs" />
+    <Compile Include="AttachedProperties\RelativeVisibility.cs" />
     <Compile Include="Controls\MenuButton.cs" />
     <Compile Include="Controls\ProgressCircle.cs" />
     <Compile Include="Controls\RadialGuage.cs" />
