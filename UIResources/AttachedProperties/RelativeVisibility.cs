@@ -24,7 +24,7 @@ namespace UIResources.AttachedProperties
             var obj = target as UIElement;
 
             obj.Visibility = (Visibility)e.NewValue;
-            var binding = (IRelativeBinding)BindingOperations.GetBinding(obj, RelativeVisibilityProperty);
+            var binding = (IRelativeBinding)BindingOperations.GetBindingBase(obj, RelativeVisibilityProperty);
 
             if (binding != null)
                 UpdateSpecifiedAncestorTypeVisibility(obj, binding.AncestorType, binding.AncestorLevel);
