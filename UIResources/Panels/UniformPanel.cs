@@ -22,6 +22,7 @@ namespace UIResources.Panels
         uint _realChildCount = 0;
         uint _realColumns = 1;
         uint _realRows = 1;
+        uint _realFirstColumn = 0;
 
         Size _spaceSize;
 
@@ -89,7 +90,7 @@ namespace UIResources.Panels
 
         static void RowsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            UniformPanel panel = (d as UniformPanel);
+            var panel = (d as UniformPanel);
             if (panel.DivideMode != DivideMode.Column)
                 panel.UpdateChildLayout();
         }
@@ -107,9 +108,42 @@ namespace UIResources.Panels
 
         static void ColumnsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            UniformPanel panel = (d as UniformPanel);
+            var panel = (d as UniformPanel);
             if (panel.DivideMode != DivideMode.Row)
                 panel.UpdateChildLayout();
+        }
+
+        public static readonly DependencyProperty FirstColumnProperty = DependencyProperty.Register("FirstColumn", typeof(uint), typeof(UniformPanel),
+            new FrameworkPropertyMetadata(
+                0u,
+                FirstColumnPropertyChanged,
+                CoerceFirstColumn));
+        public uint FirstColumn
+        {
+            get { return (uint)GetValue(FirstColumnProperty); }
+            set { SetValue(FirstColumnProperty, value); }
+        }
+
+        static object CoerceFirstColumn(DependencyObject d, object value)
+        {
+            return Math.Max(0, (uint)value);
+        }
+
+        static void FirstColumnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var panel = (d as UniformPanel);
+            var firstColumn = (uint)e.NewValue;
+
+            if(firstColumn >= 0 && firstColumn < panel._realColumns)
+            {
+                if(firstColumn != panel._realFirstColumn)
+                    panel.UpdateChildLayout();
+            }
+            else
+            {
+                if(panel._realFirstColumn != 0)
+                    panel.UpdateChildLayout();
+            }
         }
 
         private void UpdateChildLayout()
@@ -119,7 +153,7 @@ namespace UIResources.Panels
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            DivideRowAndColumn(DivideMode, out _realChildCount, out _realColumns, out _realRows);
+            DivideRowAndColumn(DivideMode, out _realChildCount, out _realColumns, out _realRows, out _realFirstColumn);
 
             if (_realChildCount == 0)
                 return base.MeasureOverride(availableSize);
@@ -186,9 +220,9 @@ namespace UIResources.Panels
         }
 
         //当_RealChildCount ==0 则_Columns与_Rows无意义
-        private void DivideRowAndColumn(DivideMode devideMode, out uint realChildCount, out uint realColumns, out uint realRows)
+        private void DivideRowAndColumn(DivideMode devideMode, out uint realChildCount, out uint realColumns, out uint realRows,out uint realFirstColumn)
         {
-            realRows = realColumns = realChildCount = 0;
+            realRows = realColumns = realChildCount = realFirstColumn = 0;
 
             foreach (UIElement child in InternalChildren)
             {
@@ -203,17 +237,37 @@ namespace UIResources.Panels
             {
                 case DivideMode.Row:
                     realRows = Rows;
+
+                    //Condition:
+                    //   firstColumn + 1 <= (firstColumn + realChildCount) / Rows + ((firstColumn + realChildCount) % Rows == 0 ? 0 : 1))
+                    //
+                    //Result 1:
+                    //   firstColumn <=  (realChildCount / Rows + realChildCount % Rows) / (1 - 1 / Rows - 1 % Rows) && (firstColumn + realChildCount) % Rows != 0
+                    //Or
+                    //Result 2:
+                    //   firstColumn <= (realChildCount - Rows) / (Rows - 1) && (firstColumn + realChildCount) % Rows == 0
+                    //
+                    //Finally Result:
+                    //   realColumns = FirstColumn + 1
+                    //   realFirstColumn = Math.Min(realColumns - 1, Math.Max(0, FirstColumn));
+
                     realColumns = (uint)(realChildCount / Rows + (realChildCount % Rows == 0 ? 0 : 1));
                     break;
 
                 case DivideMode.Column:
                     realColumns = Columns;
-                    realRows = (uint)(realChildCount / Columns + (realChildCount % Columns == 0 ? 0 : 1));
+                    realFirstColumn = Math.Min(realColumns - 1, Math.Max(0, FirstColumn));
+                    var needCellCount = realChildCount + realFirstColumn + 1;
+
+                    realRows = (uint)(needCellCount / Columns + (needCellCount % Columns == 0 ? 0 : 1));
                     break;
 
                 case DivideMode.Both:
                     realColumns = Columns;
-                    realRows = (uint)Math.Max(Rows, realChildCount / Columns + (realChildCount % Columns == 0 ? 0 : 1));
+                    realFirstColumn = Math.Min(realColumns - 1, Math.Max(0, FirstColumn));
+                    var needCellCount = realChildCount + realFirstColumn + 1;
+
+                    realRows = (uint)Math.Max(Rows, needCellCount / Columns + (needCellCount % Columns == 0 ? 0 : 1));
                     break;
 
                 case DivideMode.Auto:
@@ -234,6 +288,8 @@ namespace UIResources.Panels
                     }
                     break;
             }
+
+            realFirstColumn = Math.Min(realColumns - 1, Math.Max(0, FirstColumn));
         }
     }
 }
