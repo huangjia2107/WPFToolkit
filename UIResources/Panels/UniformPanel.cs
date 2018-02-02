@@ -9,20 +9,12 @@ using UIResources.Helps;
 
 namespace UIResources.Panels
 {
-    public enum DivideMode
-    {
-        Auto,
-        Row,
-        Column,
-        Both
-    }
-
     public class UniformPanel : Panel
     {
-        uint _realChildCount = 0;
-        uint _realColumns = 1;
-        uint _realRows = 1;
-        uint _realFirstColumn = 0;
+        int _nonCollapsedCount = 0;
+        int _realColumns = 0;
+        int _realRows = 0;
+        int _realFirstColumn = 0;
 
         Size _spaceSize;
 
@@ -59,91 +51,47 @@ namespace UIResources.Panels
             return itemSpace;
         }
 
-        public static readonly DependencyProperty DivideModeProperty = DependencyProperty.Register("DivideMode", typeof(DivideMode), typeof(UniformPanel),
-            new FrameworkPropertyMetadata(DivideMode.Auto, DivideModePropertyChanged));
-        public DivideMode DivideMode
+        static bool ValidateRowsOrColumns(object value)
         {
-            get { return (DivideMode)GetValue(DivideModeProperty); }
-            set { SetValue(DivideModeProperty, value); }
+            return (int)value >= 0;
         }
 
-        static void DivideModePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            (d as UniformPanel).UpdateChildLayout();
-        }
-
-        static object CoerceRowAndColumnValue(DependencyObject d, object value)
-        {
-            return Math.Max(1, (uint)value);
-        }
-
-        public static readonly DependencyProperty RowsProperty = DependencyProperty.Register("Rows", typeof(uint), typeof(UniformPanel),
+        public static readonly DependencyProperty RowsProperty = DependencyProperty.Register("Rows", typeof(int), typeof(UniformPanel),
             new FrameworkPropertyMetadata(
-                1u,
-                RowsPropertyChanged,
-                CoerceRowAndColumnValue));
-        public uint Rows
+                0,
+                FrameworkPropertyMetadataOptions.AffectsMeasure),
+                ValidateRowsOrColumns);
+        public int Rows
         {
-            get { return (uint)GetValue(RowsProperty); }
+            get { return (int)GetValue(RowsProperty); }
             set { SetValue(RowsProperty, value); }
         }
 
-        static void RowsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var panel = (d as UniformPanel);
-            if (panel.DivideMode != DivideMode.Column)
-                panel.UpdateChildLayout();
-        }
-
-        public static readonly DependencyProperty ColumnsProperty = DependencyProperty.Register("Columns", typeof(uint), typeof(UniformPanel),
+        public static readonly DependencyProperty ColumnsProperty = DependencyProperty.Register("Columns", typeof(int), typeof(UniformPanel),
             new FrameworkPropertyMetadata(
-                1u,
-                ColumnsPropertyChanged,
-                CoerceRowAndColumnValue));
-        public uint Columns
+                0,
+                FrameworkPropertyMetadataOptions.AffectsMeasure),
+                ValidateRowsOrColumns);
+        public int Columns
         {
-            get { return (uint)GetValue(ColumnsProperty); }
+            get { return (int)GetValue(ColumnsProperty); }
             set { SetValue(ColumnsProperty, value); }
         }
 
-        static void ColumnsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        public static readonly DependencyProperty FirstColumnProperty = DependencyProperty.Register("FirstColumn", typeof(int), typeof(UniformPanel),
+            new FrameworkPropertyMetadata(0, OnFirstColumnChanged), ValidateRowsOrColumns);
+        public int FirstColumn
         {
-            var panel = (d as UniformPanel);
-            if (panel.DivideMode != DivideMode.Row)
-                panel.UpdateChildLayout();
-        }
-
-        public static readonly DependencyProperty FirstColumnProperty = DependencyProperty.Register("FirstColumn", typeof(uint), typeof(UniformPanel),
-            new FrameworkPropertyMetadata(
-                0u,
-                FirstColumnPropertyChanged,
-                CoerceFirstColumn));
-        public uint FirstColumn
-        {
-            get { return (uint)GetValue(FirstColumnProperty); }
+            get { return (int)GetValue(FirstColumnProperty); }
             set { SetValue(FirstColumnProperty, value); }
         }
 
-        static object CoerceFirstColumn(DependencyObject d, object value)
-        {
-            return Math.Max(0, (uint)value);
-        }
-
-        static void FirstColumnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        static void OnFirstColumnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var panel = (d as UniformPanel);
-            var firstColumn = (uint)e.NewValue;
 
-            if(firstColumn >= 0 && firstColumn < panel._realColumns)
-            {
-                if(firstColumn != panel._realFirstColumn)
-                    panel.UpdateChildLayout();
-            }
-            else
-            {
-                if(panel._realFirstColumn != 0)
-                    panel.UpdateChildLayout();
-            }
+            if (panel.Columns > 0)
+                panel.UpdateChildLayout();
         }
 
         private void UpdateChildLayout()
@@ -153,16 +101,16 @@ namespace UIResources.Panels
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            DivideRowAndColumn(DivideMode, out _realChildCount, out _realColumns, out _realRows, out _realFirstColumn);
+            UpdateComputedValues();
 
-            if (_realChildCount == 0)
+            if (_nonCollapsedCount == 0)
                 return base.MeasureOverride(availableSize);
 
-            _spaceSize = GetSpaceSize(_realChildCount);
+            _spaceSize = GetSpaceSize(_nonCollapsedCount);
 
-            double maxChildDesiredWidth = 0.0;
-            double maxChildDesiredHeight = 0.0;
-            Size childConstraint = new Size(Math.Max(availableSize.Width - _spaceSize.Width, 0) / _realColumns, Math.Max(availableSize.Height - _spaceSize.Height, 0) / _realRows);
+            var maxChildDesiredWidth = 0d;
+            var maxChildDesiredHeight = 0d;
+            var childConstraint = new Size(Math.Max(availableSize.Width - _spaceSize.Width, 0) / _realColumns, Math.Max(availableSize.Height - _spaceSize.Height, 0) / _realRows);
 
             foreach (UIElement child in InternalChildren)
             {
@@ -171,7 +119,7 @@ namespace UIResources.Panels
 
                 // Measure the child.
                 child.Measure(childConstraint);
-                Size childDesiredSize = child.DesiredSize;
+                var childDesiredSize = child.DesiredSize;
 
                 maxChildDesiredWidth = Math.Max(maxChildDesiredWidth, childDesiredSize.Width);
                 maxChildDesiredHeight = Math.Max(maxChildDesiredHeight, childDesiredSize.Height);
@@ -182,20 +130,20 @@ namespace UIResources.Panels
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            if (_realChildCount == 0)
+            if (_nonCollapsedCount == 0)
                 return base.ArrangeOverride(finalSize);
 
-            Rect childBounds = new Rect(0, 0, Math.Max(finalSize.Width - _spaceSize.Width, 0) / _realColumns, Math.Max(finalSize.Height - _spaceSize.Height, 0) / _realRows);
-            uint realIndex = 0;
+            var childBounds = new Rect(0, 0, Math.Max(finalSize.Width - _spaceSize.Width, 0) / _realColumns, Math.Max(finalSize.Height - _spaceSize.Height, 0) / _realRows);
+            var realIndex = _realFirstColumn;
 
-            for (int index = 0; index < InternalChildren.Count; index++)
+            for (var index = 0; index < InternalChildren.Count; index++)
             {
                 var child = InternalChildren[index];
                 if (child.Visibility == Visibility.Collapsed)
                     continue;
 
-                uint columnIndex = realIndex % _realColumns;
-                uint rowIndex = (uint)Math.Floor((double)realIndex / _realColumns);
+                var columnIndex = realIndex % _realColumns;
+                var rowIndex = (uint)Math.Floor((double)realIndex / _realColumns);
 
                 childBounds.X = columnIndex * (childBounds.Width + ItemSpace.Width) + Padding.Left;
                 childBounds.Y = rowIndex * (childBounds.Height + ItemSpace.Height) + Padding.Top;
@@ -207,9 +155,9 @@ namespace UIResources.Panels
             return new Size(childBounds.Width * _realColumns + _spaceSize.Width, childBounds.Height * _realRows + _spaceSize.Height);
         }
 
-        private Size GetSpaceSize(uint realChildCount)
+        private Size GetSpaceSize(int nonCollapsedCount)
         {
-            if (realChildCount == 0 || realChildCount == 1)
+            if (nonCollapsedCount == 0 || nonCollapsedCount == 1)
                 return new Size(Padding.Left + Padding.Right, Padding.Top + Padding.Bottom);
 
             return new Size
@@ -220,58 +168,47 @@ namespace UIResources.Panels
         }
 
         //当_RealChildCount ==0 则_Columns与_Rows无意义
-        private void DivideRowAndColumn(DivideMode devideMode, out uint realChildCount, out uint realColumns, out uint realRows,out uint realFirstColumn)
+        private void UpdateComputedValues()
         {
-            realRows = realColumns = realChildCount = realFirstColumn = 0;
+            _realColumns = Columns;
+            _realRows = Rows;
+            _realFirstColumn = FirstColumn;
+            _nonCollapsedCount = 0;
 
             foreach (UIElement child in InternalChildren)
             {
                 if (child.Visibility != Visibility.Collapsed)
-                    realChildCount++;
+                    _nonCollapsedCount++;
             }
 
-            if (realChildCount == 0)
+            if (_nonCollapsedCount == 0)
                 return;
 
-            switch (devideMode)
+            //parameter checking. 
+            if (_realFirstColumn >= _realColumns)
+                _realFirstColumn = 0;
+
+            if (_realRows == 0 && _realColumns == 0)
             {
-                case DivideMode.Row:
-                    realRows = Rows;
+                _realColumns = (int)Math.Sqrt(_nonCollapsedCount);
+                if ((_realColumns * _realColumns) < _nonCollapsedCount)
+                    _realColumns++;
 
-                    //Condition:
-                    //   firstColumn + 1 <= (firstColumn + realChildCount) / Rows + ((firstColumn + realChildCount) % Rows == 0 ? 0 : 1))
-                    //
-                    //Result 1:
-                    //   firstColumn <=  (realChildCount / Rows + realChildCount % Rows) / (1 - 1 / Rows - 1 % Rows) && (firstColumn + realChildCount) % Rows != 0
-                    //Or
-                    //Result 2:
-                    //   firstColumn <= (realChildCount - Rows) / (Rows - 1) && (firstColumn + realChildCount) % Rows == 0
-                    //
-                    //Finally Result:
-                    //   realColumns = FirstColumn + 1
-                    //   realFirstColumn = Math.Min(realColumns - 1, Math.Max(0, FirstColumn));
+                _realRows = (_nonCollapsedCount + (_realColumns - 1)) / _realColumns;
+            }
 
-                    realColumns = (uint)(realChildCount / Rows + (realChildCount % Rows == 0 ? 0 : 1));
-                    break;
+            if (_realRows == 0 && _realColumns > 0)
+                _realRows = (_realFirstColumn + _nonCollapsedCount + (_realColumns - 1)) / _realColumns;
 
-                case DivideMode.Column:
-                    realColumns = Columns;
-                    realFirstColumn = Math.Min(realColumns - 1, Math.Max(0, FirstColumn));
-                    var needCellCount = realChildCount + realFirstColumn + 1;
+            if (_realRows > 0 && _realColumns == 0)
+                _realColumns = (_nonCollapsedCount + (_realRows - 1)) / _realRows;
 
-                    realRows = (uint)(needCellCount / Columns + (needCellCount % Columns == 0 ? 0 : 1));
-                    break;
+            if (_realRows > 0 && _realColumns > 0)
+                _realRows = Math.Max(_realRows, (_realFirstColumn + _nonCollapsedCount + (_realColumns - 1)) / _realColumns);
 
-                case DivideMode.Both:
-                    realColumns = Columns;
-                    realFirstColumn = Math.Min(realColumns - 1, Math.Max(0, FirstColumn));
-                    var needCellCount = realChildCount + realFirstColumn + 1;
-
-                    realRows = (uint)Math.Max(Rows, needCellCount / Columns + (needCellCount % Columns == 0 ? 0 : 1));
-                    break;
-
-                case DivideMode.Auto:
-                    for (int index = 0; index < realChildCount; index++)
+            /*
+             * 
+             * for (int index = 0; index < realChildCount; index++)
                     {
                         if (index == 0)
                             realColumns = realRows = 1;
@@ -286,10 +223,9 @@ namespace UIResources.Panels
                             }
                         }
                     }
-                    break;
-            }
-
-            realFirstColumn = Math.Min(realColumns - 1, Math.Max(0, FirstColumn));
+             * 
+             *  
+             */
         }
     }
 }
