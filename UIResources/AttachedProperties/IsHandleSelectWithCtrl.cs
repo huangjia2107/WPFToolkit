@@ -11,10 +11,10 @@ namespace UIResources.AttachedProperties
             var container = ItemsControl.ContainerFromElement(s as ItemsControl, (DependencyObject) e.OriginalSource);
             if (container != null)
             {
-                if (container is TreeViewItem && (container as TreeViewItem).IsSelected && Keyboard.Modifiers == ModifierKeys.Control)
+                if (container is TreeViewItem && (container as TreeViewItem).IsSelected && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
                     e.Handled = true;
 
-                if (container is ListBoxItem && (container as ListBoxItem).IsSelected && Keyboard.Modifiers == ModifierKeys.Control)
+                if (container is ListBoxItem && (container as ListBoxItem).IsSelected && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
                     e.Handled = true;
             }
         };
