@@ -1,0 +1,74 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:UIResources.Controls"
+                    xmlns:helps="clr-namespace:UIResources.Helps">
+
+    <helps:DoubleToGridLengthConverter x:Key="doubleToGridLengthConverter"/>
+
+    <Style x:Key="RangeSliderThumbStyle" TargetType="{x:Type Thumb}">
+        <Setter Property="Focusable" Value="false"/>
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="Height" Value="25"/>
+        <Setter Property="Width" Value="18"/>
+        <Setter Property="Background" Value="#FF777777"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Border SnapsToDevicePixels="true" Background="{TemplateBinding Background}">
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="Background" Value="#FFC1C1C1"/>
+                        </Trigger>
+                        <Trigger Property="IsDragging" Value="true">
+                            <Setter Property="Background" Value="#FFDDDDDD"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Background" Value="#FF808080"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type controls:RangeSlider}">
+        <Setter Property="Background" Value="LightSteelBlue"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:RangeSlider}">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}" 
+                            Background="{TemplateBinding Background}" 
+                            SnapsToDevicePixels="true">
+                        <Grid x:Name="grid" ShowGridLines="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="{TemplateBinding SliderWidth,Converter={StaticResource doubleToGridLengthConverter}}"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="{TemplateBinding SliderWidth,Converter={StaticResource doubleToGridLengthConverter}}"/>
+                            </Grid.ColumnDefinitions>
+                            <Path Grid.Column="1" Stroke="{TemplateBinding Foreground}" StrokeThickness="{TemplateBinding BorderThickness}" Stretch="Fill" Data="M0,0 H10" VerticalAlignment="Center"/>
+                            <Canvas x:Name="canvas" Grid.ColumnSpan="3">
+                                <Thumb x:Name="PART_LeftThumb" Canvas.Left="30"
+                                       Width="{TemplateBinding SliderWidth}"
+                                       Style="{StaticResource RangeSliderThumbStyle}"
+                                       Height="{TemplateBinding ActualHeight}"/>
+                                <Thumb x:Name="PART_CenterThumb" 
+                                       Width="40" Canvas.Left="50"
+                                       Style="{StaticResource RangeSliderThumbStyle}"
+                                       Background="{TemplateBinding SelectionForeground}" 
+                                       Height="{TemplateBinding ActualHeight}"/>
+                                <Thumb x:Name="PART_RightThumb" Canvas.Right="70"
+                                       Width="{TemplateBinding SliderWidth}" 
+                                       Style="{StaticResource RangeSliderThumbStyle}"
+                                       Height="{TemplateBinding ActualHeight}"/>
+                            </Canvas>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+</ResourceDictionary>
