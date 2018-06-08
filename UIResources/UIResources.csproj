@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="AttachedProperties\IsHandleMouseWheel.cs" />
     <Compile Include="AttachedProperties\IsHandleSelectWithCtrl.cs" />
+    <Compile Include="Controls\RangeSlider.cs" />
     <Compile Include="Datas\RelativeBindings.cs" />
     <Compile Include="AttachedProperties\RelativeVisibility.cs" />
     <Compile Include="Controls\MenuButton.cs" />
@@ -119,6 +120,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\Styles\SeparatorStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Styles\SliderStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

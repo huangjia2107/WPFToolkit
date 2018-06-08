@@ -13,8 +13,6 @@ namespace UIResources.Helps
 {
     #region IValueConverter
 
-
-
     public class BoolToVisibilityConverter : IValueConverter
     {
         public BoolToVisibilityConverter()
@@ -86,6 +84,19 @@ namespace UIResources.Helps
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DoubleToGridLengthConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return new GridLength((double)value);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
