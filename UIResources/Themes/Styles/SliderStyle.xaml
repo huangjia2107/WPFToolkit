@@ -44,14 +44,14 @@
                             SnapsToDevicePixels="true">
                         <Grid x:Name="grid" ShowGridLines="True">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="{TemplateBinding SliderWidth,Converter={StaticResource doubleToGridLengthConverter}}"/>
+                                <ColumnDefinition Width="{TemplateBinding ThumbWidth,Converter={StaticResource doubleToGridLengthConverter}}"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="{TemplateBinding SliderWidth,Converter={StaticResource doubleToGridLengthConverter}}"/>
+                                <ColumnDefinition Width="{TemplateBinding ThumbWidth,Converter={StaticResource doubleToGridLengthConverter}}"/>
                             </Grid.ColumnDefinitions>
                             <Path Grid.Column="1" Stroke="{TemplateBinding Foreground}" StrokeThickness="{TemplateBinding BorderThickness}" Stretch="Fill" Data="M0,0 H10" VerticalAlignment="Center"/>
                             <Canvas x:Name="canvas" Grid.ColumnSpan="3">
                                 <Thumb x:Name="PART_LeftThumb" Canvas.Left="30"
-                                       Width="{TemplateBinding SliderWidth}"
+                                       Width="{TemplateBinding ThumbWidth}"
                                        Style="{StaticResource RangeSliderThumbStyle}"
                                        Height="{TemplateBinding ActualHeight}"/>
                                 <Thumb x:Name="PART_CenterThumb" 
@@ -60,7 +60,7 @@
                                        Background="{TemplateBinding SelectionForeground}" 
                                        Height="{TemplateBinding ActualHeight}"/>
                                 <Thumb x:Name="PART_RightThumb" Canvas.Right="70"
-                                       Width="{TemplateBinding SliderWidth}" 
+                                       Width="{TemplateBinding ThumbWidth}" 
                                        Style="{StaticResource RangeSliderThumbStyle}"
                                        Height="{TemplateBinding ActualHeight}"/>
                             </Canvas>

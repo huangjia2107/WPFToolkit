@@ -49,10 +49,18 @@
                     <controls:ProgressCircle CornerRadius="0,20,20,20" CircleThickness="8" Foreground="Green"
                                          Value="{Binding Value,ElementName=ProgressSlider}"/>
                     <TextBlock Text="{Binding Value,ElementName=ProgressSlider}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Grid>                                                                                                     
+                </Grid>                           
 
             </StackPanel>
             <Slider x:Name="ProgressSlider" Minimum="0" Maximum="100" Value="90" SmallChange="0.5" TickFrequency="1" IsSnapToTickEnabled="True" Margin="20,5"/>
+            <controls:RangeSlider x:Name="rangeSlider" Margin="20,20,20,10"/>
+            <StackPanel Orientation="Horizontal" Margin="20,0,20,20">
+                <controls:NumericBox Value="{Binding Minimum,ElementName=rangeSlider, Mode=TwoWay}" Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center"/>
+                <controls:NumericBox Value="{Binding LeftValue,ElementName=rangeSlider, Mode=TwoWay}"  Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center" Margin="20,0"/>
+                <controls:NumericBox Value="{Binding RightValue,ElementName=rangeSlider, Mode=TwoWay}" Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center"/>
+                <controls:NumericBox Value="{Binding Maximum,ElementName=rangeSlider, Mode=TwoWay}" Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center" Margin="20,0"/>
+                <controls:NumericBox Value="{Binding ThumbWidth,ElementName=rangeSlider, Mode=TwoWay}" Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center"/>
+            </StackPanel>
         </StackPanel>
        
         <controls:ZoomBox x:Name="zoomBox" Grid.Row="1" Margin="0,20,0,0" FontSize="30" Background="White"
