@@ -1,0 +1,9 @@
+{
+    "files.exclude": {  
+        "**/*.suo": true,  
+        "**/*.user": true,  
+        "**/.git": true,  
+        "**/bin": true,  
+        "**/obj": true
+    }  
+}
