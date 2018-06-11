@@ -293,7 +293,7 @@ namespace UIResources.Controls
                 return;
 
             var leftOffset = Math.Max(0, (ActualWidth - 2 * ThumbWidth) * (LeftValue - Minimum) / (Maximum - Minimum));
-            var rightOffset = Math.Max(0, ActualWidth - (ActualWidth - 2 * ThumbWidth) * (RightValue - Minimum) / (Maximum - Minimum) - ThumbWidth);
+            var rightOffset = Math.Max(0, ActualWidth - (ActualWidth - 2 * ThumbWidth) * (RightValue - Minimum) / (Maximum - Minimum) - 2 * ThumbWidth);
             var selectionWidth = Math.Max(0, (ActualWidth - 2 * ThumbWidth) * (RightValue - LeftValue) / (Maximum - Minimum));
 
             Canvas.SetLeft(_leftThumb, leftOffset);
