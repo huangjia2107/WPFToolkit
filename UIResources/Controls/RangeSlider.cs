@@ -652,7 +652,8 @@ namespace UIResources.Controls
                 switch (thumb.Name)
                 {
                     case LeftThumbTemplateName:
-                        if (IsLinked)
+                        if (IsLinked &&
+                            (!DoubleUtil.AreClose(Canvas.GetRight(_rightThumb), 0) || DoubleUtil.GreaterThan(delta, 0)))
                         {
                             RelativeDragThumb(-delta);
 
@@ -671,7 +672,8 @@ namespace UIResources.Controls
 
                     case RightThumbTemplateName:
 
-                        if (IsLinked)
+                        if (IsLinked &&
+                            (!DoubleUtil.AreClose(Canvas.GetLeft(_leftThumb), 0) || DoubleUtil.LessThan(delta, 0)))
                         {
                             RelativeDragThumb(delta);
 
