@@ -41,8 +41,6 @@ namespace UIResources.Controls
             EventManager.RegisterClassHandler(typeof(RangeSlider), Thumb.DragDeltaEvent, new DragDeltaEventHandler(RangeSlider.OnThumbDragDelta));
             EventManager.RegisterClassHandler(typeof(RangeSlider), Thumb.DragCompletedEvent, new DragCompletedEventHandler(RangeSlider.OnThumbDragCompleted));
 
-            EventManager.RegisterClassHandler(typeof(RangeSlider), SizeChangedEvent, new SizeChangedEventHandler(RangeSlider.OnSizeChanged));
-
             DefaultStyleKeyProperty.OverrideMetadata(typeof(RangeSlider), new FrameworkPropertyMetadata(typeof(RangeSlider)));
         } 
 
@@ -554,13 +552,7 @@ namespace UIResources.Controls
 
         #endregion
 
-        #region Event
-
-        public static void OnSizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            var slider = sender as RangeSlider;
-            slider.UpdateThumbPosition();
-        } 
+        #region Event 
 
         private static void OnThumbDragStarted(object sender, DragStartedEventArgs e)
         {
