@@ -15,15 +15,18 @@ namespace UIResources.Controls
     [TemplatePart(Name = LeftThumbTemplateName, Type = typeof(Thumb))]
     [TemplatePart(Name = CenterThumbTemplateName, Type = typeof(Thumb))]
     [TemplatePart(Name = RightThumbTemplateName, Type = typeof(Thumb))]
+    [TemplatePart(Name = GridTemplateName, Type = typeof(Grid))]
     public class RangeSlider : Control
     {
         private const string LeftThumbTemplateName = "PART_LeftThumb";
         private const string CenterThumbTemplateName = "PART_CenterThumb";
         private const string RightThumbTemplateName = "PART_RightThumb";
+        private const string GridTemplateName = "PART_Grid";
 
         private Thumb _leftThumb = null;
         private Thumb _centerThumb = null;
         private Thumb _rightThumb = null;
+        private Grid _grid = null;
 
         private ToolTip _leftAutoToolTip = null;
         private ToolTip _rightAutoToolTip = null;
@@ -41,13 +44,7 @@ namespace UIResources.Controls
             EventManager.RegisterClassHandler(typeof(RangeSlider), SizeChangedEvent, new SizeChangedEventHandler(RangeSlider.OnSizeChanged));
 
             DefaultStyleKeyProperty.OverrideMetadata(typeof(RangeSlider), new FrameworkPropertyMetadata(typeof(RangeSlider)));
-        }
-
-        public RangeSlider()
-        {
-            this.Loaded += RangeSlider_Loaded;
-            this.Unloaded += RangeSlider_Unloaded;
-        }
+        } 
 
         public static readonly RoutedEvent LeftValueChangedEvent = EventManager.RegisterRoutedEvent("LeftValueChanged", RoutingStrategy.Bubble, typeof(RoutedPropertyChangedEventHandler<double>), typeof(RangeSlider));
         public event RoutedPropertyChangedEventHandler<double> LeftValueChanged
@@ -286,15 +283,17 @@ namespace UIResources.Controls
 
         private void UpdateThumbPosition()
         {
-            if (!IsLoaded || _leftThumb == null || _centerThumb == null || _rightThumb == null)
+            if (_grid == null || _leftThumb == null || _centerThumb == null || _rightThumb == null)
                 return;
 
             if (_leftThumb.IsDragging || _centerThumb.IsDragging || _rightThumb.IsDragging)
                 return;
 
-            var leftOffset = Math.Max(0, (ActualWidth - 2 * ThumbWidth) * (LeftValue - Minimum) / (Maximum - Minimum));
-            var rightOffset = Math.Max(0, ActualWidth - (ActualWidth - 2 * ThumbWidth) * (RightValue - Minimum) / (Maximum - Minimum) - 2 * ThumbWidth);
-            var selectionWidth = Math.Max(0, (ActualWidth - 2 * ThumbWidth) * (RightValue - LeftValue) / (Maximum - Minimum));
+            var rangeWidth = _grid.RenderSize.Width;
+
+            var leftOffset = Math.Max(0, (rangeWidth - 2 * ThumbWidth) * (LeftValue - Minimum) / (Maximum - Minimum));
+            var rightOffset = Math.Max(0, rangeWidth - (rangeWidth - 2 * ThumbWidth) * (RightValue - Minimum) / (Maximum - Minimum) - 2 * ThumbWidth);
+            var selectionWidth = Math.Max(0, (rangeWidth - 2 * ThumbWidth) * (RightValue - LeftValue) / (Maximum - Minimum));
 
             Canvas.SetLeft(_leftThumb, leftOffset);
             Canvas.SetRight(_rightThumb, rightOffset);
@@ -305,11 +304,13 @@ namespace UIResources.Controls
 
         private void UpdateValue()
         {
-            if (_leftThumb == null || _rightThumb == null)
+            if (_grid == null || _leftThumb == null || _rightThumb == null)
                 return;
 
-            LeftValue = Canvas.GetLeft(_leftThumb) / (this.ActualWidth - 2 * ThumbWidth) * (Maximum - Minimum);
-            RightValue = (this.ActualWidth - Canvas.GetRight(_rightThumb) - 2 * ThumbWidth) / (this.ActualWidth - 2 * ThumbWidth) * (Maximum - Minimum);
+            var rangeWidth = _grid.RenderSize.Width;
+
+            LeftValue = Canvas.GetLeft(_leftThumb) / (rangeWidth - 2 * ThumbWidth) * (Maximum - Minimum);
+            RightValue = (rangeWidth - Canvas.GetRight(_rightThumb) - 2 * ThumbWidth) / (rangeWidth - 2 * ThumbWidth) * (Maximum - Minimum);
         }
 
         private void DragLeftThumb(double delta)
@@ -326,7 +327,7 @@ namespace UIResources.Controls
             }
 
             Canvas.SetLeft(_centerThumb, Canvas.GetLeft(_leftThumb) + ThumbWidth);
-            _centerThumb.Width = ActualWidth - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth;
+            _centerThumb.Width = _grid.RenderSize.Width - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth;
         }
 
         private void DragRightThumb(double delta)
@@ -342,7 +343,7 @@ namespace UIResources.Controls
                 Canvas.SetRight(_rightThumb, Canvas.GetRight(_rightThumb) + canMoveDis);
             }
 
-            _centerThumb.Width = ActualWidth - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth;
+            _centerThumb.Width = _grid.RenderSize.Width - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth;
         }
 
         private void RelativeDragThumb(double moveDis)
@@ -358,14 +359,14 @@ namespace UIResources.Controls
             else
             {
                 var canMoveDis = Math.Min(-moveDis,
-                    (ActualWidth - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth) / 2);
+                    (_grid.RenderSize.Width - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth) / 2);
 
                 Canvas.SetLeft(_leftThumb, Canvas.GetLeft(_leftThumb) + canMoveDis);
                 Canvas.SetRight(_rightThumb, Canvas.GetRight(_rightThumb) + canMoveDis);
             }
 
             Canvas.SetLeft(_centerThumb, Canvas.GetLeft(_leftThumb) + ThumbWidth);
-            _centerThumb.Width = ActualWidth - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth;
+            _centerThumb.Width = _grid.RenderSize.Width - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth;
         }
 
         private void DragCenterThumb(double moveDis)
@@ -386,7 +387,7 @@ namespace UIResources.Controls
             }
 
             Canvas.SetLeft(_centerThumb, Canvas.GetLeft(_leftThumb) + ThumbWidth);
-            _centerThumb.Width = ActualWidth - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth;
+            _centerThumb.Width = _grid.RenderSize.Width - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth;
         }
 
         private void UnSubscribeEvents()
@@ -528,6 +529,15 @@ namespace UIResources.Controls
 
         #region Override
 
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            var size = base.ArrangeOverride(finalSize);
+
+            UpdateThumbPosition();
+
+            return size;
+        }
+
         public override void OnApplyTemplate()
         {
             UnSubscribeEvents();
@@ -537,6 +547,7 @@ namespace UIResources.Controls
             _leftThumb = GetTemplateChild(LeftThumbTemplateName) as Thumb;
             _centerThumb = GetTemplateChild(CenterThumbTemplateName) as Thumb;
             _rightThumb = GetTemplateChild(RightThumbTemplateName) as Thumb;
+            _grid = GetTemplateChild(GridTemplateName) as Grid;
 
             SubscribeEvents();
         }
@@ -549,18 +560,7 @@ namespace UIResources.Controls
         {
             var slider = sender as RangeSlider;
             slider.UpdateThumbPosition();
-        }
-
-        private void RangeSlider_Unloaded(object sender, RoutedEventArgs e)
-        {
-            UnSubscribeEvents();
-        }
-
-        private void RangeSlider_Loaded(object sender, RoutedEventArgs e)
-        {
-            SubscribeEvents();
-            UpdateThumbPosition();
-        }
+        } 
 
         private static void OnThumbDragStarted(object sender, DragStartedEventArgs e)
         {

@@ -42,14 +42,14 @@
                     <Border BorderBrush="{TemplateBinding BorderBrush}" 
                             Background="{TemplateBinding Background}" 
                             SnapsToDevicePixels="true">
-                        <Grid x:Name="grid" ShowGridLines="True">
+                        <Grid x:Name="PART_Grid" ShowGridLines="True">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="{TemplateBinding ThumbWidth,Converter={StaticResource doubleToGridLengthConverter}}"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="{TemplateBinding ThumbWidth,Converter={StaticResource doubleToGridLengthConverter}}"/>
                             </Grid.ColumnDefinitions>
                             <Path Grid.Column="1" Stroke="{TemplateBinding Foreground}" StrokeThickness="{TemplateBinding BorderThickness}" Stretch="Fill" Data="M0,0 H10" VerticalAlignment="Center"/>
-                            <Canvas x:Name="canvas" Grid.ColumnSpan="3">
+                            <Canvas x:Name="canvas" Grid.Column="0" Grid.ColumnSpan="3">
                                 <Thumb x:Name="PART_LeftThumb" Canvas.Left="30"
                                        Width="{TemplateBinding ThumbWidth}"
                                        Style="{StaticResource RangeSliderThumbStyle}"
