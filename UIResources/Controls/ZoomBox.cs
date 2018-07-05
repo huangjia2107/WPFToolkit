@@ -256,7 +256,7 @@ namespace UIResources.Controls
             var content = _partScrollContentPresenter.Content as FrameworkElement;
             if (content != null)
             {
-                _partScaleTransform = new ScaleTransform(1, 1);
+                _partScaleTransform = new ScaleTransform(Scale, Scale);
 
                 _elementContent = content;
                 _elementContent.RenderTransformOrigin = new Point(0.5, 0.5);
