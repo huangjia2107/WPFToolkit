@@ -43,13 +43,7 @@ namespace UIResources.Controls
         static ZoomBox()
         {
             DefaultStyleKeyProperty.OverrideMetadata(_typeofSelf, new FrameworkPropertyMetadata(_typeofSelf));
-        }
-
-        public ZoomBox()
-        {
-            this.Loaded += OnLoaded;
-            this.Unloaded += OnUnloaded;
-        }
+        } 
 
         #region readonly Properties
 
@@ -85,12 +79,7 @@ namespace UIResources.Controls
                 return GetValue(ContentProperty);
             }
             set { SetValue(ContentProperty, value); }
-        }
-
-        private void OnContentChanged(object sender, EventArgs e)
-        {
-            InitContent();
-        }
+        } 
 
         public static readonly DependencyProperty ScaleProperty =
             DependencyProperty.Register("Scale", typeof(double), _typeofSelf, new PropertyMetadata(1d, OnScalePropertyChanged, CoerceScale));
@@ -159,6 +148,13 @@ namespace UIResources.Controls
 
         #region Override
 
+        protected override void OnContentChanged(object oldContent, object newContent)
+        {
+            base.OnContentChanged(oldContent, newContent);
+
+            InitContent();
+        }
+
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
@@ -175,6 +171,8 @@ namespace UIResources.Controls
             }
 
             InitContent();
+            UpdateScaleTransform();
+            UpdateRulerParams();
         }
 
         #endregion
@@ -211,28 +209,7 @@ namespace UIResources.Controls
 
                 e.Handled = true;
             }
-        }
-
-        private void OnLoaded(object sender, EventArgs e)
-        {
-            if (_dependencyPropertyDescriptor == null)
-            {
-                _dependencyPropertyDescriptor = DependencyPropertyDescriptor.FromProperty(ContentProperty, _typeofSelf);
-                _dependencyPropertyDescriptor.AddValueChanged(this, OnContentChanged);
-            }
-
-            UpdateScaleTransform();
-            UpdateRulerParams();
-        }
-
-        private void OnUnloaded(object sender, EventArgs e)
-        {
-            if (_dependencyPropertyDescriptor != null)
-            {
-                _dependencyPropertyDescriptor.RemoveValueChanged(this, OnContentChanged);
-                _dependencyPropertyDescriptor = null;
-            } 
-        }
+        } 
 
         #endregion
 
@@ -243,25 +220,33 @@ namespace UIResources.Controls
             if (_partScrollContentPresenter == null)
                 return;
 
-            if (_partScrollContentPresenter.Content != null && _partScrollContentPresenter.Content is string)
+            if (Content != null)
             {
-                _partScrollContentPresenter.Content = new TextBlock { Text = (string)_partScrollContentPresenter.Content };
-                _isStringContent = true;
+                if (!(Content is FrameworkElement))
+                {
+                    _elementContent = new TextBlock { Text = Content.ToString() };
+                    _isStringContent = true;
+                }
+                else
+                {
+                    _elementContent = (FrameworkElement)Content;
+                    _isStringContent = false;
+                }
             }
             else
             {
-                _isStringContent = false;
+                _elementContent = null;
             }
 
-            var content = _partScrollContentPresenter.Content as FrameworkElement;
-            if (content != null)
+            if (_elementContent != null)
             {
                 _partScaleTransform = new ScaleTransform(Scale, Scale);
 
-                _elementContent = content;
                 _elementContent.RenderTransformOrigin = new Point(0.5, 0.5);
                 _elementContent.LayoutTransform = _partScaleTransform;
             }
+
+            _partScrollContentPresenter.Content = _elementContent;
         }
 
         private void UpdateRulerParams()

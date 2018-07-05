@@ -31,8 +31,7 @@
                             </Grid.RowDefinitions>
                             <!-- ScrollContentPresenter -->
                             <ScrollContentPresenter x:Name="PART_ScrollContentPresenter"
-                                                    Grid.Column="1" Grid.Row="1" 
-                                                    Content="{TemplateBinding Content}" 
+                                                    Grid.Column="1" Grid.Row="1"
                                                     ContentTemplate="{TemplateBinding ContentTemplate}" 
                                                     CanContentScroll="{TemplateBinding CanContentScroll}"/>
 
