@@ -6,64 +6,12 @@
         xmlns:themes="clr-namespace:UIResources.Themes;assembly=UIResources" 
         xmlns:local="clr-namespace:Test"
         Title="MainWindow" Height="382" Width="654" WindowStartupLocation="CenterScreen">
-    <Grid x:Name="rootGrid">
+    <Grid x:Name="rootGrid" Background="White">
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <StackPanel>
-            <StackPanel Margin="5" Orientation="Horizontal" VerticalAlignment="Top" Grid.IsSharedSizeScope="true">
-                <Button x:Name="testBtn" Height="50" Width="100" Content="Test" FontSize="13" Click="Button_Click_1"/>
-
-                <Grid Margin="20,0,0,0">
-                    <CheckBox Content="Vertical" Height="16" HorizontalAlignment="Right" x:Name="IsVerticalCheckBox" IsChecked="False" VerticalAlignment="Top" Width="69" Click="IsVerticalCheckBox_Click" Margin="0,8,0,0" />
-                    <CheckBox Content="IsSplit" Height="16" HorizontalAlignment="Left" x:Name="IsSpitCheckBox" VerticalAlignment="Top" Width="60" Margin="0,30,0,0" />
-                </Grid>
-
-                <controls:SpitButton x:Name="menuEx" IsSplit="{Binding IsChecked, ElementName=IsSpitCheckBox, Mode=TwoWay}" Width="100" 
-                                     Content="Test" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" >
-                    <Border BorderBrush="Red" BorderThickness="1" Height="50"/>
-                    <controls:SpitButtonMenuItem Header="AAAAAAAAAA" Icon="dd">
-                        <Border BorderBrush="Blue" BorderThickness="1" Height="50" Background="White"/>
-                        <controls:SpitButtonMenuItem Header="11111111111111">
-                            <controls:SpitButtonMenuItem Header="AAAAAAAAAAAAAAAAAAAA" IsEnabled="False"/>
-                            <controls:SpitButtonMenuItem Header="BBBBBBBBBBBBBBBBBBBB"/>
-                            <Separator Style="{DynamicResource {x:Static themes:ResourceKeys.SeparatorStyleKey}}"/>
-                            <controls:SpitButtonMenuItem Header="CCCCCCCCCCCCCCCCCCCC"/>
-                            <controls:SpitButtonMenuItem Header="DDDDDDDDDDDDDDDDDDDD"/>
-                            <controls:SpitButtonMenuItem Header="EEEEEEEEEEEEEEEEEEEE"/>
-                        </controls:SpitButtonMenuItem>
-                        <controls:SpitButtonMenuItem Header="2222222222"/>
-                        <controls:SpitButtonMenuItem Header="333333333333333333"/>
-                    </controls:SpitButtonMenuItem>
-
-                    <controls:SpitButtonMenuItem Header="BBBBBBBBBB">
-                        <Grid Height="100" Background="White" Width="300"/>
-                        <Button Height="100" Background="White" Content="Button"/>
-                    </controls:SpitButtonMenuItem>
-
-                    <controls:SpitButtonMenuItem Header="CCCCCCCCCCC"/>
-                </controls:SpitButton>
-                <Grid Width="120" Height="60" Margin="20,0,0,0">
-                    <controls:ProgressCircle CornerRadius="0,20,20,20" CircleThickness="8" Foreground="Green"
-                                         Value="{Binding Value,ElementName=ProgressSlider}"/>
-                    <TextBlock Text="{Binding Value,ElementName=ProgressSlider}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Grid>                           
-
-            </StackPanel>
-            <Slider x:Name="ProgressSlider" Minimum="0" Maximum="100" Value="90" SmallChange="0.5" TickFrequency="1" IsSnapToTickEnabled="True" Margin="20,5"/>
-            <controls:RangeSlider x:Name="rangeSlider" Margin="20,20,20,10"/>
-            <StackPanel Orientation="Horizontal" Margin="20,0,20,20">
-                <controls:NumericBox Value="{Binding Minimum,ElementName=rangeSlider, Mode=TwoWay}" Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center"/>
-                <controls:NumericBox Value="{Binding LeftValue,ElementName=rangeSlider, Mode=TwoWay}"  Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center" Margin="20,0"/>
-                <controls:NumericBox Value="{Binding RightValue,ElementName=rangeSlider, Mode=TwoWay}" Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center"/>
-                <controls:NumericBox Value="{Binding Maximum,ElementName=rangeSlider, Mode=TwoWay}" Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center" Margin="20,0"/>
-                <controls:NumericBox Value="{Binding ThumbWidth,ElementName=rangeSlider, Mode=TwoWay}" Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center"/>
-            </StackPanel>
-        </StackPanel>
-       
-        <controls:ZoomBox x:Name="zoomBox" Grid.Row="1" Margin="0,20,0,0" FontSize="30" Background="White"
+        <controls:ZoomBox x:Name="zoomBox" Grid.Row="0" Margin="1"
                           Unit="{Binding SelectedValue,ElementName=UnitComboBox}">
             <controls:ZoomBox.Ribbon>
                 <Grid>
@@ -74,22 +22,70 @@
                     </Grid.ColumnDefinitions>
                     <ComboBox x:Name="UnitComboBox"  VerticalAlignment="Center" Height="25" Width="90" FontSize="12"
                               VerticalContentAlignment="Center"
-                          ItemsSource="{x:Static local:Map.RulerUnitDictionary}"
-                          SelectedValuePath="Key"
-                          DisplayMemberPath="Value" SelectedIndex="0"/>
+                              ItemsSource="{x:Static local:Map.RulerUnitDictionary}"
+                              SelectedValuePath="Key"
+                              DisplayMemberPath="Value" SelectedIndex="0"/>
                     <controls:NumericBox Grid.Column="1" Value="{Binding Scale,ElementName=zoomBox, Mode=TwoWay}" Maximum="48"  Minimum="0.01"  Precision="2" UpDownButtonsWidth="20" MinHeight="0" TextAlignment="Center" BorderThickness="0"/>
                     <Button Grid.Column="2" Width="50" Height="25" Content="Test" Click="ZoomBoxTestButton_Click" FontSize="12"/>
                 </Grid>
             </controls:ZoomBox.Ribbon>
+       
+            <StackPanel>
+                <StackPanel Margin="5" Orientation="Horizontal" Grid.IsSharedSizeScope="true">
+                    <Button x:Name="testBtn" Height="50" Width="100" Content="Test" FontSize="13" Click="Button_Click_1"/>
 
-            <TextBlock Text="sdjhwdhwidhwid" Background="Gray" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,40,10,50"/>
+                    <Grid Margin="20,0,0,0">
+                        <CheckBox Content="Vertical" Height="16" HorizontalAlignment="Right" x:Name="IsVerticalCheckBox" IsChecked="False" VerticalAlignment="Top" Width="69" Click="IsVerticalCheckBox_Click" Margin="0,8,0,0" />
+                        <CheckBox Content="IsSplit" Height="16" HorizontalAlignment="Left" x:Name="IsSpitCheckBox" VerticalAlignment="Top" Width="60" Margin="0,30,0,0" />
+                    </Grid>
 
+                    <controls:SpitButton x:Name="menuEx" IsSplit="{Binding IsChecked, ElementName=IsSpitCheckBox, Mode=TwoWay}" Width="100" 
+                                         Content="Test" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" >
+                        <Border BorderBrush="Red" BorderThickness="1" Height="50"/>
+                        <controls:SpitButtonMenuItem Header="AAAAAAAAAA" Icon="dd">
+                            <Border BorderBrush="Blue" BorderThickness="1" Height="50" Background="White"/>
+                            <controls:SpitButtonMenuItem Header="11111111111111">
+                                <controls:SpitButtonMenuItem Header="AAAAAAAAAAAAAAAAAAAA" IsEnabled="False"/>
+                                <controls:SpitButtonMenuItem Header="BBBBBBBBBBBBBBBBBBBB"/>
+                                <Separator Style="{DynamicResource {x:Static themes:ResourceKeys.SeparatorStyleKey}}"/>
+                                <controls:SpitButtonMenuItem Header="CCCCCCCCCCCCCCCCCCCC"/>
+                                <controls:SpitButtonMenuItem Header="DDDDDDDDDDDDDDDDDDDD"/>
+                                <controls:SpitButtonMenuItem Header="EEEEEEEEEEEEEEEEEEEE"/>
+                            </controls:SpitButtonMenuItem>
+                            <controls:SpitButtonMenuItem Header="2222222222"/>
+                            <controls:SpitButtonMenuItem Header="333333333333333333"/>
+                        </controls:SpitButtonMenuItem>
+
+                        <controls:SpitButtonMenuItem Header="BBBBBBBBBB">
+                            <Grid Height="100" Background="White" Width="300"/>
+                            <Button Height="100" Background="White" Content="Button"/>
+                        </controls:SpitButtonMenuItem>
+
+                        <controls:SpitButtonMenuItem Header="CCCCCCCCCCC"/>
+                    </controls:SpitButton>
+                    <Grid Width="120" Height="60" Margin="20,0,0,0">
+                        <controls:ProgressCircle CornerRadius="0,20,20,20" CircleThickness="8" Foreground="Green"
+                                                 Value="{Binding Value,ElementName=ProgressSlider}"/>
+                        <TextBlock Text="{Binding Value,ElementName=ProgressSlider}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>                           
+
+                </StackPanel>
+                <Slider x:Name="ProgressSlider" Minimum="0" Maximum="100" Value="90" SmallChange="0.5" TickFrequency="1" IsSnapToTickEnabled="True" Margin="20,5"/>
+                <controls:RangeSlider x:Name="rangeSlider" Margin="20,20,20,10"/>
+                <StackPanel Orientation="Horizontal" Margin="20,0,20,20">
+                    <controls:NumericBox Value="{Binding Minimum,ElementName=rangeSlider, Mode=TwoWay}" Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center"/>
+                    <controls:NumericBox Value="{Binding LeftValue,ElementName=rangeSlider, Mode=TwoWay}"  Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center" Margin="20,0"/>
+                    <controls:NumericBox Value="{Binding RightValue,ElementName=rangeSlider, Mode=TwoWay}" Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center"/>
+                    <controls:NumericBox Value="{Binding Maximum,ElementName=rangeSlider, Mode=TwoWay}" Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center" Margin="20,0"/>
+                    <controls:NumericBox Value="{Binding ThumbWidth,ElementName=rangeSlider, Mode=TwoWay}" Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center"/>
+                </StackPanel>
+            </StackPanel>
         </controls:ZoomBox>
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,3,0,0">
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,3,0,0">
             <TextBlock Text="{Binding ViewportWidth,ElementName=zoomBox}" ToolTip="Viewport Width"/>
             <TextBlock Text="{Binding ExtentWidth,ElementName=zoomBox}" ToolTip="Extent Width" Margin="25,0"/>
             <TextBlock Text="{Binding HorizontalOffset,ElementName=zoomBox}" ToolTip="Vertical Offset"/>
             <TextBlock Text="{Binding ScrollableWidth,ElementName=zoomBox}" ToolTip="Scrollable Width" Margin="25,0"/>
         </StackPanel>
-    </Grid>
+    </Grid> 
 </Window>
