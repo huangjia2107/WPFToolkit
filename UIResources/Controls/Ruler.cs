@@ -157,13 +157,13 @@ namespace UIResources.Controls
         {
             using (var dc = _drawingGroup.Open())
             {
-                decimal currentStep = 0;
+                decimal mainStep = 0;
                 decimal miniStep = 0;
                 var miniStepCount = 0;
-                InitStepInfo(ref currentStep, ref miniStep, ref miniStepCount);
+                InitStepInfo(ref mainStep, ref miniStep, ref miniStepCount);
 
-                DrawOffsetRight(dc, currentStep, miniStep, miniStepCount);
-                DrawOffsetLeft(dc, currentStep, miniStep, miniStepCount);
+                DrawOffsetRight(dc, mainStep, miniStep, miniStepCount);
+                DrawOffsetLeft(dc, mainStep, miniStep, miniStepCount);
 
                 dc.DrawLine(_baselinePen, new Point(0, BaseLineOffset), new Point(ActualWidth, BaseLineOffset));
 
@@ -221,7 +221,7 @@ namespace UIResources.Controls
             return result;
         }
 
-        private void InitStepInfo(ref decimal currentStep, ref decimal miniStep, ref int miniStepCount)
+        private void InitStepInfo(ref decimal mainStep, ref decimal miniStep, ref int miniStepCount)
         {
             var tempScale = Scale * GetBaseStep();
             var tempStep = tempScale;
@@ -230,7 +230,7 @@ namespace UIResources.Controls
             {
                 if (tempStep / 4 >= 20)
                 {
-                    currentStep = tempStep;
+                    mainStep = tempStep;
                     miniStep = tempStep / 20;
                     miniStepCount = 20;
 
@@ -239,7 +239,7 @@ namespace UIResources.Controls
 
                 if (tempStep / 4 >= 10)
                 {
-                    currentStep = tempStep;
+                    mainStep = tempStep;
                     miniStep = tempStep / 10;
                     miniStepCount = 10;
 
@@ -248,7 +248,7 @@ namespace UIResources.Controls
 
                 if (tempStep / 5 >= 5)
                 {
-                    currentStep = tempStep;
+                    mainStep = tempStep;
                     miniStep = tempStep / 5;
                     miniStepCount = 5;
 
@@ -325,15 +325,15 @@ namespace UIResources.Controls
             }
 
             return input;
-        }      
+        }
 
-        private void DrawStep(DrawingContext dc, decimal stepIndex, decimal currentStep, int miniStepCount, bool ignoreFirstMark = false)
+        private void DrawStep(DrawingContext dc, decimal stepIndex, decimal mainStep, int miniStepCount, bool ignoreFirstMark = false)
         {
-            var currentStepIndex = DecimalRound(stepIndex - Shift * Scale * DpiUtil.GetPixelPerUnit(Unit));    
+            var mainStepIndex = DecimalRound(stepIndex - Shift * Scale * DpiUtil.GetPixelPerUnit(Unit));
 
-            if (currentStepIndex % currentStep == 0)
+            if (mainStepIndex % mainStep == 0)
             {
-                var mark = Math.Round(currentStepIndex / (Scale * DpiUtil.GetPixelPerUnit(Unit)), GetPrecision());
+                var mark = Math.Round(mainStepIndex / (Scale * DpiUtil.GetPixelPerUnit(Unit)), GetPrecision());
                 if (ignoreFirstMark && mark == 0)
                     return;
 
@@ -346,15 +346,14 @@ namespace UIResources.Controls
             {
                 if (miniStepCount == 5)
                 {
-                    if (currentStepIndex % (currentStep / 5) == 0)
-                        dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 2), new Point((double)stepIndex + 0.5, BaseLineOffset));
+                    dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 2), new Point((double)stepIndex + 0.5, BaseLineOffset));
                 }
 
                 if (miniStepCount == 10)
                 {
-                    if (currentStepIndex % (currentStep / 2) == 0)
+                    if (mainStepIndex % (mainStep / 2) == 0)
                         dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
-                    else if (currentStepIndex % (currentStep / 5) == 0)
+                    else if (mainStepIndex % (mainStep / 5) == 0)
                         dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 2), new Point((double)stepIndex + 0.5, BaseLineOffset));
                     else
                         dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
@@ -362,11 +361,11 @@ namespace UIResources.Controls
 
                 if (miniStepCount == 20)
                 {
-                    if (currentStepIndex % (currentStep / 2) == 0)
+                    if (mainStepIndex % (mainStep / 2) == 0)
                         dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
-                    else if (currentStepIndex % (currentStep / 4) == 0)
+                    else if (mainStepIndex % (mainStep / 4) == 0)
                         dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight * 1 / 2), new Point((double)stepIndex + 0.5, BaseLineOffset));
-                    else if (currentStepIndex % (currentStep / 10) == 0)
+                    else if (mainStepIndex % (mainStep / 10) == 0)
                         dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
                     else
                         dc.DrawLine(_markPen, new Point((double)stepIndex + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 23 / 32d : 9 / 32d)), new Point((double)stepIndex + 0.5, BaseLineOffset));
@@ -374,7 +373,7 @@ namespace UIResources.Controls
             }
         }
 
-        private void DrawOffsetRight(DrawingContext dc, decimal currentStep, decimal miniStep, int miniStepCount)
+        private void DrawOffsetRight(DrawingContext dc, decimal mainStep, decimal miniStep, int miniStepCount)
         {
             var realShift = Shift * Scale * DpiUtil.GetPixelPerUnit(Unit);
             if (realShift >= (decimal)ActualWidth)
@@ -385,11 +384,11 @@ namespace UIResources.Controls
                 if (stepIndex < 0)
                     continue;
 
-                DrawStep(dc, stepIndex, currentStep, miniStepCount);
+                DrawStep(dc, stepIndex, mainStep, miniStepCount);
             }
         }
 
-        private void DrawOffsetLeft(DrawingContext dc, decimal currentStep, decimal miniStep, int miniStepCount)
+        private void DrawOffsetLeft(DrawingContext dc, decimal mainStep, decimal miniStep, int miniStepCount)
         {
             if (Shift <= 0)
                 return;
@@ -399,7 +398,7 @@ namespace UIResources.Controls
                 if (stepIndex > (decimal)ActualWidth)
                     continue;
 
-                DrawStep(dc, stepIndex, currentStep, miniStepCount, true);
+                DrawStep(dc, stepIndex, mainStep, miniStepCount, true);
             }
         }
 
