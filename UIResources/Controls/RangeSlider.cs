@@ -261,6 +261,13 @@ namespace UIResources.Controls
             set { SetValue(IsLinkedProperty, value); }
         }
 
+        public static readonly DependencyProperty IgnoreEdgeProperty = DependencyProperty.Register("IgnoreEdge", typeof(bool), typeof(RangeSlider), new PropertyMetadata(true));
+        public bool IgnoreEdge
+        {
+            get { return (bool)GetValue(IgnoreEdgeProperty); }
+            set { SetValue(IgnoreEdgeProperty, value); }
+        }
+
         #endregion
 
         #region Func
@@ -346,15 +353,28 @@ namespace UIResources.Controls
 
         private void RelativeDragThumb(double moveDis)
         {
+            //<--  or  -->
             if (DoubleUtil.GreaterThanOrClose(moveDis, 0))
             {
-                var canMoveDis = Math.Min(moveDis,
-                    Math.Min(Canvas.GetLeft(_leftThumb), Canvas.GetRight(_rightThumb)));
+                if (DoubleUtil.AreClose(Canvas.GetRight(_rightThumb), 0))
+                {
+                    var canMoveDis = Math.Min(moveDis, Canvas.GetLeft(_leftThumb));
+                    Canvas.SetLeft(_leftThumb, Canvas.GetLeft(_leftThumb) - canMoveDis);
+                }
+                else if (DoubleUtil.AreClose(Canvas.GetLeft(_leftThumb), 0))
+                {
+                    var canMoveDis = Math.Min(moveDis, Canvas.GetRight(_rightThumb));
+                    Canvas.SetRight(_rightThumb, Canvas.GetRight(_rightThumb) - canMoveDis);
+                }
+                else
+                {
+                    var canMoveDis = Math.Min(moveDis, Math.Min(Canvas.GetLeft(_leftThumb), Canvas.GetRight(_rightThumb)));
 
-                Canvas.SetLeft(_leftThumb, Canvas.GetLeft(_leftThumb) - canMoveDis);
-                Canvas.SetRight(_rightThumb, Canvas.GetRight(_rightThumb) - canMoveDis);
+                    Canvas.SetLeft(_leftThumb, Canvas.GetLeft(_leftThumb) - canMoveDis);
+                    Canvas.SetRight(_rightThumb, Canvas.GetRight(_rightThumb) - canMoveDis);
+                }
             }
-            else
+            else //-->  or <--
             {
                 var canMoveDis = Math.Min(-moveDis,
                     (_grid.RenderSize.Width - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth) / 2);
@@ -647,6 +667,9 @@ namespace UIResources.Controls
                         if (IsLinked &&
                             (!DoubleUtil.AreClose(Canvas.GetRight(_rightThumb), 0) || DoubleUtil.GreaterThan(delta, 0)))
                         {
+                            if (!IgnoreEdge && DoubleUtil.AreClose(Canvas.GetLeft(_leftThumb), 0) && DoubleUtil.LessThan(delta, 0))
+                                return;
+
                             RelativeDragThumb(-delta);
 
                             UpdateValue();
@@ -655,7 +678,11 @@ namespace UIResources.Controls
                         }
                         else
                         {
+                            if (IsLinked && !IgnoreEdge)
+                                return;
+
                             DragLeftThumb(delta);
+
                             UpdateValue();
                             ShowThumbTooltipDuringDargging(_leftThumb, ref _leftAutoToolTip);
                         }
@@ -667,6 +694,9 @@ namespace UIResources.Controls
                         if (IsLinked &&
                             (!DoubleUtil.AreClose(Canvas.GetLeft(_leftThumb), 0) || DoubleUtil.LessThan(delta, 0)))
                         {
+                            if (!IgnoreEdge && DoubleUtil.AreClose(Canvas.GetRight(_rightThumb), 0) && DoubleUtil.GreaterThan(delta, 0))
+                                return;
+
                             RelativeDragThumb(delta);
 
                             UpdateValue();
@@ -675,6 +705,9 @@ namespace UIResources.Controls
                         }
                         else
                         {
+                            if (IsLinked && !IgnoreEdge)
+                                return;
+
                             DragRightThumb(delta);
 
                             UpdateValue();
