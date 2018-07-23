@@ -507,11 +507,9 @@ namespace UIResources.Controls
             {
                 case LeftThumbTemplateName:
                     return this.LeftValue.ToString("N", format);
-                    break;
 
                 case RightThumbTemplateName:
                     return this.RightValue.ToString("N", format);
-                    break;
             }
 
             return "0";

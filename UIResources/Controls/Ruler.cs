@@ -32,7 +32,7 @@ namespace UIResources.Controls
         private Pen _baselinePen = null;
 
         private int _deferLevel = 0;
-        private bool _needRefresh = false;
+        private bool _needRefresh = false; 
 
         public Ruler()
         {
@@ -74,10 +74,10 @@ namespace UIResources.Controls
         }
 
         public static readonly DependencyProperty ShiftProperty =
-            DependencyProperty.Register("Shift", typeof(decimal), _typeofSelf, new PropertyMetadata(0m, OnShiftPropertyChanged));
-        public decimal Shift
+            DependencyProperty.Register("Shift", typeof(double), _typeofSelf, new PropertyMetadata(0d, OnShiftPropertyChanged));
+        public double Shift
         {
-            get { return (decimal)GetValue(ShiftProperty); }
+            get { return (double)GetValue(ShiftProperty); }
             set { SetValue(ShiftProperty, value); }
         }
 
@@ -91,10 +91,10 @@ namespace UIResources.Controls
         }
 
         public static readonly DependencyProperty ScaleProperty =
-            DependencyProperty.Register("Scale", typeof(decimal), _typeofSelf, new FrameworkPropertyMetadata(1m, OnScalePropertyChanged));
-        public decimal Scale
+            DependencyProperty.Register("Scale", typeof(double), _typeofSelf, new FrameworkPropertyMetadata(1d, OnScalePropertyChanged));
+        public double Scale
         {
-            get { return (decimal)GetValue(ScaleProperty); }
+            get { return (double)GetValue(ScaleProperty); }
             set { SetValue(ScaleProperty, value); }
         }
         static void OnScalePropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
@@ -105,7 +105,7 @@ namespace UIResources.Controls
             else
                 ruler._needRefresh = true;
         }
-
+ 
         protected override void OnRender(DrawingContext drawingContext)
         {
             base.OnRender(drawingContext);
@@ -157,16 +157,17 @@ namespace UIResources.Controls
         {
             using (var dc = _drawingGroup.Open())
             {
-                decimal mainStep = 0;
-                decimal miniStep = 0;
-                var miniStepCount = 0;
+                var mainStep = 0d;
+                var miniStep = 0d;
+                var miniStepCount = 0; 
+
                 InitStepInfo(ref mainStep, ref miniStep, ref miniStepCount);
 
                 DrawOffsetRight(dc, mainStep, miniStep, miniStepCount);
                 DrawOffsetLeft(dc, mainStep, miniStep, miniStepCount);
 
-                dc.DrawLine(_baselinePen, new Point(0, BaseLineOffset), new Point(ActualWidth, BaseLineOffset));
-
+                dc.DrawLine(_baselinePen, new Point(0, BaseLineOffset), new Point(ActualWidth, BaseLineOffset)); 
+ 
                 _needRefresh = false;
             }
         }
@@ -196,39 +197,39 @@ namespace UIResources.Controls
             return result;
         }
 
-        private decimal GetBaseStep()
+        private double GetBaseStep()
         {
-            decimal result = 0;
+            var result = 0d;
             switch (Unit)
             {
                 case RulerUnit.Pixel:
                     result = 1;
                     break;
                 case RulerUnit.Inch:
-                    result = 0.96m;
+                    result = 0.96;
                     break;
                 case RulerUnit.Foot:
-                    result = 1.152m;
+                    result = 1.152;
                     break;
                 case RulerUnit.Millimeter:
-                    result = 3.7795m;
+                    result = 3.7795;
                     break;
                 case RulerUnit.Centimeter:
-                    result = 3.7795m;
+                    result = 3.7795;
                     break;
             }
 
             return result;
         }
 
-        private void InitStepInfo(ref decimal mainStep, ref decimal miniStep, ref int miniStepCount)
+        private void InitStepInfo(ref double mainStep, ref double miniStep, ref int miniStepCount)
         {
             var tempScale = Scale * GetBaseStep();
             var tempStep = tempScale;
 
             while (true)
             {
-                if (tempStep / 4 >= 20)
+                if (DoubleUtil.GreaterThanOrClose(tempStep / 4, 20))
                 {
                     mainStep = tempStep;
                     miniStep = tempStep / 20;
@@ -237,7 +238,7 @@ namespace UIResources.Controls
                     break;
                 }
 
-                if (tempStep / 4 >= 10)
+                if (DoubleUtil.GreaterThanOrClose(tempStep / 4, 10))
                 {
                     mainStep = tempStep;
                     miniStep = tempStep / 10;
@@ -246,7 +247,7 @@ namespace UIResources.Controls
                     break;
                 }
 
-                if (tempStep / 5 >= 5)
+                if (DoubleUtil.GreaterThanOrClose(tempStep / 5, 5))
                 {
                     mainStep = tempStep;
                     miniStep = tempStep / 5;
@@ -255,30 +256,30 @@ namespace UIResources.Controls
                     break;
                 }
 
-                if (Scale < (decimal)0.1)
+                if (DoubleUtil.LessThan(Scale, 0.1))
                 {
-                    if (tempStep == tempScale)
+                    if (DoubleUtil.AreClose(tempStep, tempScale))
                         tempStep = tempScale * 500;
                     else
                         tempStep += tempScale * 500;
                 }
-                else if (Scale < 1)
+                else if (DoubleUtil.LessThan(Scale, 1))
                 {
-                    if (tempStep == tempScale)
+                    if (DoubleUtil.AreClose(tempStep, tempScale))
                         tempStep = tempScale * 50;
                     else
                         tempStep += tempScale * 50;
                 }
-                else if (Scale <= 10)
+                else if (DoubleUtil.LessThanOrClose(Scale, 10))
                 {
-                    if (tempStep == tempScale)
+                    if (DoubleUtil.AreClose(tempStep, tempScale))
                         tempStep = tempScale * 5;
                     else
                         tempStep += tempScale * 5;
                 }
                 else
                 {
-                    if (tempStep == tempScale)
+                    if (DoubleUtil.AreClose(tempStep, tempScale))
                         tempStep = tempScale * 2;
                     else
                         tempStep += tempScale * 2;
@@ -327,8 +328,8 @@ namespace UIResources.Controls
             return input;
         }
 
-        private void DrawStep(DrawingContext dc, int stepIndex, decimal stepOffset, decimal mainStep, int miniStepCount, bool ignoreFirstMark = false)
-        {
+        private void DrawStep(DrawingContext dc, int stepIndex, double stepOffset, double mainStep, int miniStepCount, bool ignoreFirstMark = false)
+        { 
             if (stepIndex % miniStepCount == 0)
             {
                 var mainstepOffset = stepOffset - Shift * Scale * DpiUtil.GetPixelPerUnit(Unit);
@@ -339,48 +340,48 @@ namespace UIResources.Controls
 
                 var ft = GetFormattedText(mark.ToString("#0.###"));
 
-                dc.DrawLine(_markPen, new Point((double)stepOffset + 0.5, ActualHeight), new Point((double)stepOffset + 0.5, 0));
-                dc.DrawText(ft, new Point((double)stepOffset + 1.5, MarkDock == MarkDock.Up ? 0 : ActualHeight - ft.Height));
+                dc.DrawLine(_markPen, new Point(stepOffset, ActualHeight), new Point(stepOffset, 0));
+                dc.DrawText(ft, new Point(stepOffset + 1, MarkDock == MarkDock.Up ? 0 : ActualHeight - ft.Height));
             }
             else
             {
                 if (miniStepCount == 5)
                 {
-                    dc.DrawLine(_markPen, new Point((double)stepOffset + 0.5, ActualHeight * 1 / 2), new Point((double)stepOffset + 0.5, BaseLineOffset));
+                    dc.DrawLine(_markPen, new Point(stepOffset, ActualHeight * 1 / 2), new Point(stepOffset, BaseLineOffset));
                 }
 
                 if (miniStepCount == 10)
                 {
                     if (stepIndex % 5 == 0)
-                        dc.DrawLine(_markPen, new Point((double)stepOffset + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point((double)stepOffset + 0.5, BaseLineOffset));
+                        dc.DrawLine(_markPen, new Point(stepOffset, ActualHeight * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point(stepOffset, BaseLineOffset)); 
                     else if (stepIndex % 2 == 0)
-                        dc.DrawLine(_markPen, new Point((double)stepOffset + 0.5, ActualHeight * 1 / 2), new Point((double)stepOffset + 0.5, BaseLineOffset));
+                        dc.DrawLine(_markPen, new Point(stepOffset, ActualHeight * 1 / 2), new Point(stepOffset, BaseLineOffset));
                     else
-                        dc.DrawLine(_markPen, new Point((double)stepOffset + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point((double)stepOffset + 0.5, BaseLineOffset));
+                        dc.DrawLine(_markPen, new Point(stepOffset, ActualHeight * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point(stepOffset, BaseLineOffset));
                 }
 
                 if (miniStepCount == 20)
                 {
                     if (stepIndex % 10 == 0)
-                        dc.DrawLine(_markPen, new Point((double)stepOffset + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point((double)stepOffset + 0.5, BaseLineOffset));
+                        dc.DrawLine(_markPen, new Point(stepOffset, ActualHeight * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point(stepOffset, BaseLineOffset));
                     else if (stepIndex % 5 == 0)
-                        dc.DrawLine(_markPen, new Point((double)stepOffset + 0.5, ActualHeight * 1 / 2), new Point((double)stepOffset + 0.5, BaseLineOffset));
+                        dc.DrawLine(_markPen, new Point(stepOffset, ActualHeight * 1 / 2), new Point(stepOffset, BaseLineOffset));
                     else if (stepIndex % 2 == 0)
-                        dc.DrawLine(_markPen, new Point((double)stepOffset + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point((double)stepOffset + 0.5, BaseLineOffset));
+                        dc.DrawLine(_markPen, new Point(stepOffset, ActualHeight * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point(stepOffset, BaseLineOffset));
                     else
-                        dc.DrawLine(_markPen, new Point((double)stepOffset + 0.5, ActualHeight * (MarkDock == MarkDock.Up ? 23 / 32d : 9 / 32d)), new Point((double)stepOffset + 0.5, BaseLineOffset));
+                        dc.DrawLine(_markPen, new Point(stepOffset, ActualHeight * (MarkDock == MarkDock.Up ? 23 / 32d : 9 / 32d)), new Point(stepOffset, BaseLineOffset));
                 }
             }
-        }
+        } 
 
-        private void DrawOffsetRight(DrawingContext dc, decimal mainStep, decimal miniStep, int miniStepCount)
+        private void DrawOffsetRight(DrawingContext dc, double mainStep, double miniStep, int miniStepCount)
         {
             var realShift = Shift * Scale * DpiUtil.GetPixelPerUnit(Unit);
-            if (realShift >= (decimal)ActualWidth)
+            if (realShift >= ActualWidth)
                 return;
 
             int stepIndex = 0;
-            for (var stepOffset = realShift; stepOffset < (decimal)ActualWidth; stepOffset += miniStep)
+            for (var stepOffset = realShift; stepOffset < ActualWidth; stepOffset += miniStep)
             {
                 if (stepOffset < 0)
                     continue;
@@ -390,7 +391,7 @@ namespace UIResources.Controls
             }
         }
 
-        private void DrawOffsetLeft(DrawingContext dc, decimal mainStep, decimal miniStep, int miniStepCount)
+        private void DrawOffsetLeft(DrawingContext dc, double mainStep, double miniStep, int miniStepCount)
         {
             if (Shift <= 0)
                 return;
@@ -398,7 +399,7 @@ namespace UIResources.Controls
             int stepIndex = 0;
             for (var stepOffset = Shift * Scale * DpiUtil.GetPixelPerUnit(Unit); stepOffset >= 0; stepOffset -= miniStep)
             {
-                if (stepOffset > (decimal)ActualWidth)
+                if (stepOffset > ActualWidth)
                     continue;
 
                 DrawStep(dc, stepIndex, stepOffset, mainStep, miniStepCount, true);

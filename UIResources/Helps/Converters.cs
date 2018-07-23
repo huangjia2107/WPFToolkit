@@ -77,10 +77,10 @@ namespace UIResources.Helps
                 return 0d;
 
             var originShift = (double)values[0];
-            var scale = (decimal)values[1];
+            var scale = (double)values[1];
             var unit = (RulerUnit)values[2];
 
-            return (decimal)originShift / DpiUtil.GetPixelPerUnit(unit) / scale;
+            return originShift / DpiUtil.GetPixelPerUnit(unit) / scale;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

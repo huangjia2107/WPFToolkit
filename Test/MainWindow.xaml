@@ -31,7 +31,7 @@
             </controls:ZoomBox.Ribbon>
        
             <StackPanel>
-                <StackPanel Margin="5" Orientation="Horizontal" Grid.IsSharedSizeScope="true">
+                <StackPanel Margin="0" Orientation="Horizontal" Grid.IsSharedSizeScope="true">
                     <Button x:Name="testBtn" Height="50" Width="100" Content="Test" FontSize="13" Click="Button_Click_1"/>
 
                     <Grid Margin="20,0,0,0">

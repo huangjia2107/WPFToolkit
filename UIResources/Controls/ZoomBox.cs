@@ -36,9 +36,7 @@ namespace UIResources.Controls
         {
             public Point PointToScrollContent { get; set; }
             public Point PointToViewport { get; set; }
-        }
-
-        private DependencyPropertyDescriptor _dependencyPropertyDescriptor;
+        } 
 
         static ZoomBox()
         {
@@ -256,9 +254,9 @@ namespace UIResources.Controls
 
             using (_partHorizontalRuler.DeferRefresh())
             {
-                KeepingHorizontalViewPoint((double)_partHorizontalRuler.Scale, _partScrollContentPresenter.CanHorizontallyScroll);
+                KeepingHorizontalViewPoint(_partHorizontalRuler.Scale, _partScrollContentPresenter.CanHorizontallyScroll);
 
-                _partHorizontalRuler.Scale = (decimal)Scale;
+                _partHorizontalRuler.Scale = Scale;
                 _partHorizontalRuler.Unit = Unit;
 
                 var offset = _elementContent.TranslatePoint(new Point(), _partScrollContentPresenter);
@@ -267,9 +265,9 @@ namespace UIResources.Controls
 
             using (_partVerticalRuler.DeferRefresh())
             {
-                KeepingVerticalViewPoint((double)_partVerticalRuler.Scale, _partScrollContentPresenter.CanVerticallyScroll);
+                KeepingVerticalViewPoint(_partVerticalRuler.Scale, _partScrollContentPresenter.CanVerticallyScroll);
 
-                _partVerticalRuler.Scale = (decimal)Scale;
+                _partVerticalRuler.Scale = Scale;
                 _partVerticalRuler.Unit = Unit;
 
                 var offset = _elementContent.TranslatePoint(new Point(), _partScrollContentPresenter);

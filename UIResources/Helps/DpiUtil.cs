@@ -52,9 +52,9 @@ namespace UIResources.Helps
             return DIU * GetDpi(visual).X;
         }
 
-        public static decimal GetPixelPerUnit(RulerUnit unit)
+        public static double GetPixelPerUnit(RulerUnit unit)
         {
-            decimal result = 1;
+            double result = 1;
             switch (unit)
             {
                 case RulerUnit.Pixel:
@@ -67,10 +67,10 @@ namespace UIResources.Helps
                     result = 1152;
                     break;
                 case RulerUnit.Millimeter:
-                    result = 3.7795m;
+                    result = 3.7795;
                     break;
                 case RulerUnit.Centimeter:
-                    result = 37.795m;
+                    result = 37.795;
                     break;
             }
 
