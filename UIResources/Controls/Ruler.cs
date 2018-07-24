@@ -32,11 +32,11 @@ namespace UIResources.Controls
         private Pen _baselinePen = null;
 
         private int _deferLevel = 0;
-        private bool _needRefresh = false; 
+        private bool _needRefresh = false;
 
         public Ruler()
         {
-            RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
+            //RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
         }
 
         public static readonly DependencyProperty MarkDockProperty =
@@ -105,7 +105,7 @@ namespace UIResources.Controls
             else
                 ruler._needRefresh = true;
         }
- 
+
         protected override void OnRender(DrawingContext drawingContext)
         {
             base.OnRender(drawingContext);
@@ -150,7 +150,7 @@ namespace UIResources.Controls
 
         private double BaseLineOffset
         {
-            get { return this.MarkDock == MarkDock.Up ? ActualHeight : 0d; }
+            get { return this.MarkDock == MarkDock.Up ? ActualHeight - 1 : 0d; }
         }
 
         private void Render()
@@ -159,15 +159,15 @@ namespace UIResources.Controls
             {
                 var mainStep = 0d;
                 var miniStep = 0d;
-                var miniStepCount = 0; 
+                var miniStepCount = 0;
 
                 InitStepInfo(ref mainStep, ref miniStep, ref miniStepCount);
 
-                DrawOffsetRight(dc, mainStep, miniStep, miniStepCount);
-                DrawOffsetLeft(dc, mainStep, miniStep, miniStepCount);
+                DrawOffsetRight(dc, miniStep, miniStepCount);
+                DrawOffsetLeft(dc, miniStep, miniStepCount);
 
-                dc.DrawLine(_baselinePen, new Point(0, BaseLineOffset), new Point(ActualWidth, BaseLineOffset)); 
- 
+                dc.DrawLine(_baselinePen, new Point(0, BaseLineOffset), new Point(ActualWidth, BaseLineOffset));
+
                 _needRefresh = false;
             }
         }
@@ -300,47 +300,21 @@ namespace UIResources.Controls
             ft.TextAlignment = TextAlignment.Left;
 
             return ft;
-        }
+        } 
 
-        private decimal DecimalRound(decimal input)
-        {
-            var inputStr = input.ToString();
-
-            int decimalCount = inputStr.Contains(".") ? inputStr.Split('.')[1].Length : 0;
-            if (decimalCount == 0)
-                return input;
-
-            if (Regex.IsMatch(inputStr, @"9{2,}\d$"))
-            {
-                //Filter ##.##################9999999[0-9] to ##.##################
-                int contiguousNine = Regex.Match(inputStr, @"9{2,}\d$").Length;
-
-                return Math.Round(input, decimalCount - contiguousNine, MidpointRounding.AwayFromZero);
-            }
-            else if (Regex.IsMatch(inputStr, @"0{3,}\d$"))
-            {
-                //Filter ##.##################0000000[0-9] to ##.##################   
-                int contiguousZeroOne = Regex.Match(inputStr, @"0{3,}\d$").Length;
-
-                return Math.Round(input, decimalCount - contiguousZeroOne, MidpointRounding.AwayFromZero);
-            }
-
-            return input;
-        }
-
-        private void DrawStep(DrawingContext dc, int stepIndex, double stepOffset, double mainStep, int miniStepCount, bool ignoreFirstMark = false)
+        private void DrawStep(DrawingContext dc, int stepIndex, double stepOffset, int miniStepCount, bool ignoreFirstMark = false)
         { 
             if (stepIndex % miniStepCount == 0)
             {
                 var mainstepOffset = stepOffset - Shift * Scale * DpiUtil.GetPixelPerUnit(Unit);
                 var mark = Math.Round(mainstepOffset / (Scale * DpiUtil.GetPixelPerUnit(Unit)), GetPrecision());
 
-                if (ignoreFirstMark && mark == 0)
+                if (ignoreFirstMark && DoubleUtil.AreClose(mark, 0))
                     return;
 
                 var ft = GetFormattedText(mark.ToString("#0.###"));
 
-                dc.DrawLine(_markPen, new Point(stepOffset, ActualHeight), new Point(stepOffset, 0));
+                dc.DrawLine(_markPen, new Point(stepOffset, ActualHeight - 1), new Point(stepOffset, 0));
                 dc.DrawText(ft, new Point(stepOffset + 1, MarkDock == MarkDock.Up ? 0 : ActualHeight - ft.Height));
             }
             else
@@ -353,7 +327,7 @@ namespace UIResources.Controls
                 if (miniStepCount == 10)
                 {
                     if (stepIndex % 5 == 0)
-                        dc.DrawLine(_markPen, new Point(stepOffset, ActualHeight * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point(stepOffset, BaseLineOffset)); 
+                        dc.DrawLine(_markPen, new Point(stepOffset, ActualHeight * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point(stepOffset, BaseLineOffset));
                     else if (stepIndex % 2 == 0)
                         dc.DrawLine(_markPen, new Point(stepOffset, ActualHeight * 1 / 2), new Point(stepOffset, BaseLineOffset));
                     else
@@ -372,37 +346,37 @@ namespace UIResources.Controls
                         dc.DrawLine(_markPen, new Point(stepOffset, ActualHeight * (MarkDock == MarkDock.Up ? 23 / 32d : 9 / 32d)), new Point(stepOffset, BaseLineOffset));
                 }
             }
-        } 
+        }
 
-        private void DrawOffsetRight(DrawingContext dc, double mainStep, double miniStep, int miniStepCount)
+        private void DrawOffsetRight(DrawingContext dc, double miniStep, int miniStepCount)
         {
             var realShift = Shift * Scale * DpiUtil.GetPixelPerUnit(Unit);
-            if (realShift >= ActualWidth)
+            if (DoubleUtil.GreaterThanOrClose(realShift, ActualWidth))
                 return;
 
             int stepIndex = 0;
             for (var stepOffset = realShift; stepOffset < ActualWidth; stepOffset += miniStep)
             {
-                if (stepOffset < 0)
+                if (DoubleUtil.LessThan(stepOffset, 0))
                     continue;
 
-                DrawStep(dc, stepIndex, stepOffset, mainStep, miniStepCount);
+                DrawStep(dc, stepIndex, stepOffset, miniStepCount);
                 stepIndex++;
             }
         }
 
-        private void DrawOffsetLeft(DrawingContext dc, double mainStep, double miniStep, int miniStepCount)
+        private void DrawOffsetLeft(DrawingContext dc, double miniStep, int miniStepCount)
         {
-            if (Shift <= 0)
+            if (DoubleUtil.LessThanOrClose(Shift, 0))
                 return;
 
             int stepIndex = 0;
             for (var stepOffset = Shift * Scale * DpiUtil.GetPixelPerUnit(Unit); stepOffset >= 0; stepOffset -= miniStep)
             {
-                if (stepOffset > ActualWidth)
+                if (DoubleUtil.GreaterThan(stepOffset, ActualWidth))
                     continue;
 
-                DrawStep(dc, stepIndex, stepOffset, mainStep, miniStepCount, true);
+                DrawStep(dc, stepIndex, stepOffset, miniStepCount, true);
                 stepIndex++;
             }
         }

@@ -11,7 +11,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <controls:ZoomBox x:Name="zoomBox" Grid.Row="0" Margin="1"
+        <controls:ZoomBox x:Name="zoomBox" Grid.Row="0"
                           Unit="{Binding SelectedValue,ElementName=UnitComboBox}">
             <controls:ZoomBox.Ribbon>
                 <Grid>
