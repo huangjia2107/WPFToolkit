@@ -52,7 +52,8 @@
 
                             <!-- Vertical Ruler -->
                             <controls:Ruler x:Name="PART_VerticalRuler" 
-                                            Grid.Row="1" Grid.Column="0" MarkDock="Down"
+							                Orientation="Vertical"
+                                            Grid.Row="1" Grid.Column="0"
                                             Unit="{TemplateBinding Unit}">
                                 <controls:Ruler.Shift>
                                     <MultiBinding Converter="{StaticResource zoomBoxRulerShiftMultiConverter}">
@@ -60,11 +61,7 @@
                                         <Binding Path="Scale" RelativeSource="{RelativeSource Self}"/>
                                         <Binding Path="Unit" RelativeSource="{RelativeSource Self}"/>
                                     </MultiBinding>
-                                </controls:Ruler.Shift>
-                                <controls:Ruler.LayoutTransform>
-                                    <RotateTransform Angle="90"/>
-                                </controls:Ruler.LayoutTransform>
-
+                                </controls:Ruler.Shift>  
                             </controls:Ruler>
 
                             <!-- Horizontal ScrollBar -->

@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
 using UIResources.Helps;
+using System.Windows.Controls;
 
 namespace UIResources.Controls
 {
@@ -34,6 +35,29 @@ namespace UIResources.Controls
         private int _deferLevel = 0;
         private bool _needRefresh = false; 
 
+		public static readonly DependencyProperty OrientationProperty =
+            DependencyProperty.Register("Orientation", typeof(Orientation), _typeofSelf, new PropertyMetadata(Orientation.Horizontal, OnOrientationChanged), IsValidOrientation);
+		public Orientation Orientation
+        {
+            get { return (Orientation) GetValue(OrientationProperty); }
+            set { SetValue(OrientationProperty, value); }
+        }	
+		
+		static void OnOrientationChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            var ruler = sender as Ruler;
+            if (ruler._deferLevel == 0)
+                ruler.Render();
+            else
+                ruler._needRefresh = true;
+        }
+		
+		static bool IsValidOrientation(object o)
+        {
+            var value = (Orientation)o;
+            return value == Orientation.Horizontal || value == Orientation.Vertical;
+        }
+		
         public static readonly DependencyProperty MarkDockProperty =
             DependencyProperty.Register("MarkDock", typeof(MarkDock), _typeofSelf, new PropertyMetadata(MarkDock.Up, OnMarkDockPropertyChanged));
         public MarkDock MarkDock
@@ -145,9 +169,19 @@ namespace UIResources.Controls
 
         private double BaseLineOffset
         {
-            get { return this.MarkDock == MarkDock.Up ? ActualHeight - 1 : 0d; }
+            get { return this.MarkDock == MarkDock.Up ? MaxSpan - 1 : 0d; }
         }
 
+		private double MaxLength
+		{
+			get { return Orientation == Orientation.Horizontal ? ActualWidth : ActualHeight; }
+		}
+		
+		private double MaxSpan
+		{
+			get { return Orientation == Orientation.Horizontal ? ActualHeight : ActualWidth; }
+		}
+		
         private void Render()
         {
             var guidelineSet = new GuidelineSet();
@@ -157,14 +191,22 @@ namespace UIResources.Controls
                 var mainStep = 0d;
                 var miniStep = 0d;
                 var miniStepCount = 0;
-
+				
                 InitStepInfo(ref mainStep, ref miniStep, ref miniStepCount);
 
                 DrawOffsetRight(dc, miniStep, miniStepCount, guidelineSet);
                 DrawOffsetLeft(dc, miniStep, miniStepCount, guidelineSet);
 
-                dc.DrawLine(_baselinePen, new Point(0, BaseLineOffset), new Point(ActualWidth, BaseLineOffset));
+				if(Orientation == Orientation.Horizontal)
+                    dc.DrawLine(_baselinePen, new Point(0, BaseLineOffset), new Point(MaxLength, BaseLineOffset));
+				else
+					dc.DrawLine(_baselinePen, new Point(BaseLineOffset, 0), new Point(BaseLineOffset, MaxLength));
 
+				guidelineSet.GuidelinesX.Add(0 + 0.5);
+				guidelineSet.GuidelinesX.Add(MaxLength + 0.5);
+				guidelineSet.GuidelinesY.Add(0 + 0.5);
+				guidelineSet.GuidelinesY.Add(MaxLength + 0.5);
+					
                 _needRefresh = false;
             }
 
@@ -294,7 +336,9 @@ namespace UIResources.Controls
                        FlowDirection.LeftToRight,
                        new Typeface("Arial"),
                        DpiUtil.PtToPixel(6),
-                       Brushes.Black);
+                       Brushes.Black,
+					   null,
+					   TextFormattingMode.Display);
             ft.SetFontWeight(FontWeights.Regular);
             ft.TextAlignment = TextAlignment.Left;
 
@@ -311,63 +355,89 @@ namespace UIResources.Controls
                 if (ignoreFirstMark && DoubleUtil.AreClose(mark, 0))
                     return;
 
-                var ft = GetFormattedText(mark.ToString("#0.###"));
-
-                DrawLine(dc, new Point(stepOffset, 0), new Point(stepOffset, BaseLineOffset), guidelineSet);
-                dc.DrawText(ft, new Point(stepOffset + 1, MarkDock == MarkDock.Up ? 0 : ActualHeight - ft.Height));
+                DrawLine(dc, new Point(stepOffset, 0), new Point(stepOffset, MaxSpan - 1), guidelineSet);
+				
+				var ft = GetFormattedText(mark.ToString("#0.###"));
+				var ftXOffset = stepOffset + 1;
+				var ftYOffset = MarkDock == MarkDock.Up ? 0 : MaxSpan - ft.Height;
+		        
+				if(Orientation == Orientation.Horizontal)
+                    dc.DrawText(ft, new Point(ftXOffset, ftYOffset));
+				else
+				{
+					dc.PushTransform(new RotateTransform(90, MarkDock == MarkDock.Up ? 4 : MaxSpan - 5.5, ftXOffset + ft.Height / 2));
+					dc.DrawText(ft, new Point(ftYOffset, ftXOffset));
+					dc.Pop();
+				}
             }
             else
             {
                 if (miniStepCount == 5)
                 {
-                    DrawLine(dc, new Point(stepOffset, ActualHeight * 1 / 2), new Point(stepOffset, BaseLineOffset), guidelineSet);
+                    DrawLine(dc, new Point(stepOffset, MaxSpan * 1 / 2), new Point(stepOffset, BaseLineOffset), guidelineSet);
                 }
 
                 if (miniStepCount == 10)
                 {
                     if (stepIndex % 5 == 0)
-                        DrawLine(dc, new Point(stepOffset, ActualHeight * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point(stepOffset, BaseLineOffset), guidelineSet);
+                        DrawLine(dc, new Point(stepOffset, MaxSpan * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point(stepOffset, BaseLineOffset), guidelineSet);
                     else if (stepIndex % 2 == 0)
-                        DrawLine(dc, new Point(stepOffset, ActualHeight * 1 / 2), new Point(stepOffset, BaseLineOffset), guidelineSet);
+                        DrawLine(dc, new Point(stepOffset, MaxSpan * 1 / 2), new Point(stepOffset, BaseLineOffset), guidelineSet);
                     else
-                        DrawLine(dc, new Point(stepOffset, ActualHeight * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point(stepOffset, BaseLineOffset), guidelineSet);
+                        DrawLine(dc, new Point(stepOffset, MaxSpan * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point(stepOffset, BaseLineOffset), guidelineSet);
                 }
 
                 if (miniStepCount == 20)
                 {
                     if (stepIndex % 10 == 0)
-                        DrawLine(dc, new Point(stepOffset, ActualHeight * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point(stepOffset, BaseLineOffset), guidelineSet);
+                        DrawLine(dc, new Point(stepOffset, MaxSpan * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point(stepOffset, BaseLineOffset), guidelineSet);
                     else if (stepIndex % 5 == 0)
-                        DrawLine(dc, new Point(stepOffset, ActualHeight * 1 / 2), new Point(stepOffset, BaseLineOffset), guidelineSet);
+                        DrawLine(dc, new Point(stepOffset, MaxSpan * 1 / 2), new Point(stepOffset, BaseLineOffset), guidelineSet);
                     else if (stepIndex % 2 == 0)
-                        DrawLine(dc, new Point(stepOffset, ActualHeight * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point(stepOffset, BaseLineOffset), guidelineSet);
+                        DrawLine(dc, new Point(stepOffset, MaxSpan * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point(stepOffset, BaseLineOffset), guidelineSet);
                     else
-                        DrawLine(dc, new Point(stepOffset, ActualHeight * (MarkDock == MarkDock.Up ? 23 / 32d : 9 / 32d)), new Point(stepOffset, BaseLineOffset), guidelineSet);
+                        DrawLine(dc, new Point(stepOffset, MaxSpan * (MarkDock == MarkDock.Up ? 23 / 32d : 9 / 32d)), new Point(stepOffset, BaseLineOffset), guidelineSet);
                 }
             }
         }
 
         private void DrawLine(DrawingContext dc, Point startPoint, Point endPoint, GuidelineSet guidelineSet)
         {
-            dc.DrawLine(_markPen, startPoint, endPoint);
+			var sp = Orientation == Orientation.Horizontal ? startPoint : new Point(startPoint.Y, startPoint.X);
+			var ep = Orientation == Orientation.Horizontal ? endPoint : new Point(endPoint.Y, endPoint.X);
+			
+            dc.DrawLine(_markPen, sp, ep);
 
-            guidelineSet.GuidelinesX.Add(startPoint.X + 0.5);
-            if(!guidelineSet.GuidelinesY.Contains(startPoint.Y))
-                guidelineSet.GuidelinesY.Add(startPoint.Y);
+			if(Orientation == Orientation.Horizontal)
+			{
+				guidelineSet.GuidelinesX.Add(sp.X + 0.5);
+				if(!guidelineSet.GuidelinesY.Contains(sp.Y))
+					guidelineSet.GuidelinesY.Add(sp.Y);
 
-            guidelineSet.GuidelinesX.Add(endPoint.X + 0.5);
-            if(!guidelineSet.GuidelinesY.Contains(endPoint.Y-0.5))
-                guidelineSet.GuidelinesY.Add(endPoint.Y-0.5);
+				guidelineSet.GuidelinesX.Add(ep.X + 0.5);
+				if(!guidelineSet.GuidelinesY.Contains(ep.Y - 0.5))
+					guidelineSet.GuidelinesY.Add(ep.Y - 0.5);
+			}
+			else
+			{
+				guidelineSet.GuidelinesY.Add(sp.Y + 0.5);
+				if(!guidelineSet.GuidelinesX.Contains(sp.X))
+					guidelineSet.GuidelinesX.Add(sp.X);
+
+				guidelineSet.GuidelinesY.Add(ep.Y + 0.5);
+				if(!guidelineSet.GuidelinesX.Contains(ep.X - 0.5))
+					guidelineSet.GuidelinesX.Add(ep.X - 0.5);
+			}
         }
 
         private void DrawOffsetRight(DrawingContext dc, double miniStep, int miniStepCount, GuidelineSet guidelineSet)
         {
             var realShift = Shift * Scale * DpiUtil.GetPixelPerUnit(Unit);
-            if (DoubleUtil.GreaterThanOrClose(realShift, ActualWidth))
+            if (DoubleUtil.GreaterThanOrClose(realShift, MaxLength))
                 return;
 
             int stepIndex = 0;
-            for (var stepOffset = realShift; stepOffset < ActualWidth; stepOffset += miniStep)
+            for (var stepOffset = realShift; stepOffset < MaxLength; stepOffset += miniStep)
             {
                 if (DoubleUtil.LessThan(stepOffset, 0))
                     continue;
@@ -385,7 +455,7 @@ namespace UIResources.Controls
             int stepIndex = 0;
             for (var stepOffset = Shift * Scale * DpiUtil.GetPixelPerUnit(Unit); stepOffset >= 0; stepOffset -= miniStep)
             {
-                if (DoubleUtil.GreaterThan(stepOffset, ActualWidth))
+                if (DoubleUtil.GreaterThan(stepOffset, MaxLength))
                     continue;
 
                 DrawStep(dc, stepIndex, stepOffset, miniStepCount, guidelineSet, true);
