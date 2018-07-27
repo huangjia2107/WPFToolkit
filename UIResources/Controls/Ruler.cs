@@ -27,6 +27,7 @@ namespace UIResources.Controls
         private static readonly Type _typeofSelf = typeof(Ruler);
         private readonly DrawingGroup _drawingGroup = new DrawingGroup();
 
+        //96dpi:1   120dpi:1.25
         private double _devicePixelUnit = 1;
         private Pen _markPen = null;
         private Pen _baselinePen = null;
@@ -168,7 +169,7 @@ namespace UIResources.Controls
 
         private double BaseLineOffset
         {
-            get { return this.MarkDock == MarkDock.Up ? MaxSpan - 1 : 0d; }
+            get { return this.MarkDock == MarkDock.Up ? MaxSpan - 1.0 / _devicePixelUnit : 0d; }
         }
 
         private double MaxLength
@@ -183,6 +184,9 @@ namespace UIResources.Controls
 
         private void Render()
         {
+            if (_baselinePen == null || _markPen == null)
+                return;
+
             var guidelineSet = new GuidelineSet();
 
             using (var dc = _drawingGroup.Open())
@@ -197,14 +201,9 @@ namespace UIResources.Controls
                 DrawOffsetLeft(dc, miniStep, miniStepCount, guidelineSet);
 
                 if (Orientation == Orientation.Horizontal)
-                    dc.DrawLine(_baselinePen, new Point(-1, BaseLineOffset), new Point(MaxLength, BaseLineOffset));
+                    dc.DrawLine(_baselinePen, new Point(0, BaseLineOffset), new Point(MaxLength, BaseLineOffset));
                 else
-                    dc.DrawLine(_baselinePen, new Point(BaseLineOffset, -1), new Point(BaseLineOffset, MaxLength));
-
-                guidelineSet.GuidelinesX.Add(0 + 0.5);
-                guidelineSet.GuidelinesX.Add(MaxLength + 0.5);
-                guidelineSet.GuidelinesY.Add(0 + 0.5);
-                guidelineSet.GuidelinesY.Add(MaxLength + 0.5);
+                    dc.DrawLine(_baselinePen, new Point(BaseLineOffset, 0), new Point(BaseLineOffset, MaxLength));
 
                 _needRefresh = false;
             }
@@ -373,29 +372,29 @@ namespace UIResources.Controls
             {
                 if (miniStepCount == 5)
                 {
-                    DrawLine(dc, new Point(stepOffset, MaxSpan * 1 / 2), new Point(stepOffset, BaseLineOffset), guidelineSet);
+                    DrawLine(dc, new Point(stepOffset, MaxSpan * 0.5), new Point(stepOffset, BaseLineOffset), guidelineSet);
                 }
 
                 if (miniStepCount == 10)
                 {
                     if (stepIndex % 5 == 0)
-                        DrawLine(dc, new Point(stepOffset, MaxSpan * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point(stepOffset, BaseLineOffset), guidelineSet);
+                        DrawLine(dc, new Point(stepOffset, MaxSpan * (MarkDock == MarkDock.Up ? 0.2 : 0.8)), new Point(stepOffset, BaseLineOffset), guidelineSet);
                     else if (stepIndex % 2 == 0)
-                        DrawLine(dc, new Point(stepOffset, MaxSpan * 1 / 2), new Point(stepOffset, BaseLineOffset), guidelineSet);
+                        DrawLine(dc, new Point(stepOffset, MaxSpan * 0.5), new Point(stepOffset, BaseLineOffset), guidelineSet);
                     else
-                        DrawLine(dc, new Point(stepOffset, MaxSpan * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point(stepOffset, BaseLineOffset), guidelineSet);
+                        DrawLine(dc, new Point(stepOffset, MaxSpan * (MarkDock == MarkDock.Up ? 0.625 : 0.375)), new Point(stepOffset, BaseLineOffset), guidelineSet);
                 }
 
                 if (miniStepCount == 20)
                 {
                     if (stepIndex % 10 == 0)
-                        DrawLine(dc, new Point(stepOffset, MaxSpan * (MarkDock == MarkDock.Up ? 1 / 5d : 4 / 5d)), new Point(stepOffset, BaseLineOffset), guidelineSet);
+                        DrawLine(dc, new Point(stepOffset, MaxSpan * (MarkDock == MarkDock.Up ? 0.2 : 0.8)), new Point(stepOffset, BaseLineOffset), guidelineSet);
                     else if (stepIndex % 5 == 0)
-                        DrawLine(dc, new Point(stepOffset, MaxSpan * 1 / 2), new Point(stepOffset, BaseLineOffset), guidelineSet);
+                        DrawLine(dc, new Point(stepOffset, MaxSpan * 0.5), new Point(stepOffset, BaseLineOffset), guidelineSet);
                     else if (stepIndex % 2 == 0)
-                        DrawLine(dc, new Point(stepOffset, MaxSpan * (MarkDock == MarkDock.Up ? 5 / 8d : 3 / 8d)), new Point(stepOffset, BaseLineOffset), guidelineSet);
+                        DrawLine(dc, new Point(stepOffset, MaxSpan * (MarkDock == MarkDock.Up ? 0.625 : 0.375)), new Point(stepOffset, BaseLineOffset), guidelineSet);
                     else
-                        DrawLine(dc, new Point(stepOffset, MaxSpan * (MarkDock == MarkDock.Up ? 23 / 32d : 9 / 32d)), new Point(stepOffset, BaseLineOffset), guidelineSet);
+                        DrawLine(dc, new Point(stepOffset, MaxSpan * (MarkDock == MarkDock.Up ? 0.71875 : 0.28125)), new Point(stepOffset, BaseLineOffset), guidelineSet);
                 }
             }
         }
@@ -404,28 +403,29 @@ namespace UIResources.Controls
         {
             var sp = Orientation == Orientation.Horizontal ? startPoint : new Point(startPoint.Y, startPoint.X);
             var ep = Orientation == Orientation.Horizontal ? endPoint : new Point(endPoint.Y, endPoint.X);
+            var halfPenWidth = _markPen.Thickness / 2;
 
             dc.DrawLine(_markPen, sp, ep);
 
             if (Orientation == Orientation.Horizontal)
             {
-                guidelineSet.GuidelinesX.Add(sp.X + 0.5);
+                guidelineSet.GuidelinesX.Add(sp.X + halfPenWidth);
+
                 if (!guidelineSet.GuidelinesY.Contains(sp.Y))
                     guidelineSet.GuidelinesY.Add(sp.Y);
 
-                guidelineSet.GuidelinesX.Add(ep.X + 0.5);
-                if (!guidelineSet.GuidelinesY.Contains(ep.Y - 0.5))
-                    guidelineSet.GuidelinesY.Add(ep.Y - 0.5);
+                if (!guidelineSet.GuidelinesY.Contains(ep.Y - halfPenWidth))
+                    guidelineSet.GuidelinesY.Add(ep.Y - halfPenWidth);
             }
             else
             {
-                guidelineSet.GuidelinesY.Add(sp.Y + 0.5);
+                guidelineSet.GuidelinesY.Add(sp.Y + halfPenWidth);
+
                 if (!guidelineSet.GuidelinesX.Contains(sp.X))
                     guidelineSet.GuidelinesX.Add(sp.X);
 
-                guidelineSet.GuidelinesY.Add(ep.Y + 0.5);
-                if (!guidelineSet.GuidelinesX.Contains(ep.X - 0.5))
-                    guidelineSet.GuidelinesX.Add(ep.X - 0.5);
+                if (!guidelineSet.GuidelinesX.Contains(ep.X - halfPenWidth))
+                    guidelineSet.GuidelinesX.Add(ep.X - halfPenWidth);
             }
         }
 
@@ -455,7 +455,7 @@ namespace UIResources.Controls
             {
                 if (DoubleUtil.LessThanOrClose(stepOffset, MaxLength))
                     DrawStep(dc, stepIndex, stepOffset, miniStepCount, guidelineSet, true);
-                
+
                 stepIndex++;
             }
         }
