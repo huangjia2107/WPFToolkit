@@ -35,6 +35,20 @@ namespace UIResources.Controls
         private int _deferLevel = 0;
         private bool _needRefresh = false;
 
+        static Ruler()
+        {
+            VisibilityProperty.OverrideMetadata(_typeofSelf, new PropertyMetadata(OnVisibilityChanged));
+        }
+
+        static void OnVisibilityChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            var ruler = sender as Ruler;
+            if (ruler._deferLevel == 0)
+                ruler.Render();
+            else
+                ruler._needRefresh = true;
+        }
+
         public static readonly DependencyProperty OrientationProperty =
             DependencyProperty.Register("Orientation", typeof(Orientation), _typeofSelf, new PropertyMetadata(Orientation.Horizontal, OnOrientationChanged), IsValidOrientation);
         public Orientation Orientation
@@ -191,6 +205,12 @@ namespace UIResources.Controls
 
             using (var dc = _drawingGroup.Open())
             {
+                if(Visibility == Visibility.Collapsed)
+                {
+                    _drawingGroup.GuidelineSet = null;
+                    return;
+                }
+
                 var mainStep = 0d;
                 var miniStep = 0d;
                 var miniStepCount = 0;

@@ -20,12 +20,12 @@
                             SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="20" x:Name="FirstColumn"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="20" x:Name="FirstRow"/>
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
@@ -35,9 +35,9 @@
                                                     ContentTemplate="{TemplateBinding ContentTemplate}" 
                                                     CanContentScroll="{TemplateBinding CanContentScroll}"/>
 
-                            <Path Grid.Row="0" Grid.Column="0" Height="20"  Data="M0,0 H5 V-5" Stroke="Black" Stretch="Fill" StrokeThickness="1" RenderOptions.EdgeMode="Aliased"/> 
-                            <Path Grid.Row="0" Grid.Column="0" Height="20" Data="M3,0 V-6 M0,-3 H6" Stroke="Black" Stretch="Fill" StrokeThickness="1" RenderOptions.EdgeMode="Aliased" StrokeDashArray="1,1"/>
-		           
+                            <Path Grid.Row="0" Grid.Column="0" Data="M0,0 H5 V-5" Stroke="Black" Stretch="Fill" StrokeThickness="1" RenderOptions.EdgeMode="Aliased"/>
+                            <Path Grid.Row="0" Grid.Column="0" Data="M3,0 V-6 M0,-3 H6" Stroke="Black" Stretch="Fill" StrokeThickness="1" RenderOptions.EdgeMode="Aliased" StrokeDashArray="1,1"/>
+
                             <!-- Horizontal Ruler -->
                             <controls:Ruler x:Name="PART_HorizontalRuler" 
                                             Grid.Row="0" Grid.Column="1"
@@ -62,7 +62,7 @@
                                         <Binding Path="Scale" RelativeSource="{RelativeSource Self}"/>
                                         <Binding Path="Unit" RelativeSource="{RelativeSource Self}"/>
                                     </MultiBinding>
-                                </controls:Ruler.Shift>  
+                                </controls:Ruler.Shift>
                             </controls:Ruler>
 
                             <!-- Horizontal ScrollBar -->
@@ -78,10 +78,10 @@
                                                   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                                   Visibility="{TemplateBinding IsShowRibbon,Converter={StaticResource boolToVisibilityConverter}}"/>
-                                
+
                                 <GridSplitter Grid.Column="1" Width="3" Background="DarkGray" HorizontalAlignment="Center" VerticalAlignment="Stretch"
                                               Visibility="{TemplateBinding IsShowRibbon,Converter={StaticResource boolToVisibilityConverter}}"/>
-                                
+
                                 <ScrollBar Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" 
                                        Grid.Column="2"
                                        x:Name="PART_HorizontalScrollBar"  
@@ -103,6 +103,14 @@
                                        Maximum="{TemplateBinding ScrollableHeight}" />
                         </Grid>
                     </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="ShowRuler" Value="False">
+                            <Setter TargetName="PART_HorizontalRuler" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="PART_VerticalRuler" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="FirstColumn" Property="Width" Value="0"/>
+                            <Setter TargetName="FirstRow" Property="Height" Value="0"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

@@ -25,11 +25,14 @@
                               ItemsSource="{x:Static local:Map.RulerUnitDictionary}"
                               SelectedValuePath="Key"
                               DisplayMemberPath="Value" SelectedIndex="0"/>
-                    <controls:NumericBox Grid.Column="1" Value="{Binding Scale,ElementName=zoomBox, Mode=TwoWay}" Maximum="48"  Minimum="0.01"  Precision="2" UpDownButtonsWidth="20" MinHeight="0" TextAlignment="Center" BorderThickness="0"/>
-                    <Button Grid.Column="2" Width="50" Height="25" Content="Test" Click="ZoomBoxTestButton_Click" FontSize="12"/>
+                    <controls:NumericBox Grid.Column="1"
+                                         Maximum="48"  Minimum="0.01"  Precision="2" UpDownButtonsWidth="20" MinHeight="0" TextAlignment="Center" BorderThickness="0"
+                                         Value="{Binding Scale,ElementName=zoomBox, Mode=TwoWay}"/>
+                    <CheckBox Grid.Column="2" Content="Ruler" FontSize="12" VerticalAlignment="Center" Margin="5,0"
+                              IsChecked="{Binding ShowRuler,ElementName=zoomBox}"/>
                 </Grid>
             </controls:ZoomBox.Ribbon>
-       
+
             <StackPanel>
                 <StackPanel Margin="0" Orientation="Horizontal" Grid.IsSharedSizeScope="true">
                     <Button x:Name="testBtn" Height="50" Width="100" Content="Test" FontSize="13" Click="Button_Click_1"/>
@@ -67,7 +70,7 @@
                         <controls:ProgressCircle CornerRadius="0,20,20,20" CircleThickness="8" Foreground="Green"
                                                  Value="{Binding Value,ElementName=ProgressSlider}"/>
                         <TextBlock Text="{Binding Value,ElementName=ProgressSlider}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Grid>                           
+                    </Grid>
 
                 </StackPanel>
                 <Slider x:Name="ProgressSlider" Minimum="0" Maximum="100" Value="90" SmallChange="0.5" TickFrequency="1" IsSnapToTickEnabled="True" Margin="20,5"/>
@@ -87,5 +90,5 @@
             <TextBlock Text="{Binding HorizontalOffset,ElementName=zoomBox}" ToolTip="Vertical Offset"/>
             <TextBlock Text="{Binding ScrollableWidth,ElementName=zoomBox}" ToolTip="Scrollable Width" Margin="25,0"/>
         </StackPanel>
-    </Grid> 
+    </Grid>
 </Window>

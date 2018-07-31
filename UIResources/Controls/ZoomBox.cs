@@ -79,6 +79,14 @@ namespace UIResources.Controls
             set { SetValue(ContentProperty, value); }
         } 
 
+        public static readonly DependencyProperty ShowRulerProperty =
+            DependencyProperty.Register("ShowRuler", typeof(bool), _typeofSelf, new PropertyMetadata(true));
+        public bool ShowRuler
+        {
+            get { return (bool)GetValue(ShowRulerProperty); }
+            set { SetValue(ShowRulerProperty, value); }
+        } 
+
         public static readonly DependencyProperty ScaleProperty =
             DependencyProperty.Register("Scale", typeof(double), _typeofSelf, new PropertyMetadata(1d, OnScalePropertyChanged, CoerceScale));
         public double Scale

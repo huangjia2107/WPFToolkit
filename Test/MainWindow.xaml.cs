@@ -39,12 +39,7 @@ namespace Test
             Trace.WriteLine("asaaaaaa");
         }
 
-        public Action action;
-
-        private void ZoomBoxTestButton_Click(object sender, RoutedEventArgs e)
-        {
-             
-        }
+        public Action action; 
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
