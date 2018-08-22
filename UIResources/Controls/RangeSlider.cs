@@ -332,7 +332,7 @@ namespace UIResources.Controls
             }
 
             Canvas.SetLeft(_centerThumb, Canvas.GetLeft(_leftThumb) + ThumbWidth);
-            _centerThumb.Width = _grid.RenderSize.Width - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth;
+            _centerThumb.Width = Math.Round(_grid.RenderSize.Width - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth, 5);
         }
 
         private void DragRightThumb(double delta)
@@ -348,7 +348,7 @@ namespace UIResources.Controls
                 Canvas.SetRight(_rightThumb, Canvas.GetRight(_rightThumb) + canMoveDis);
             }
 
-            _centerThumb.Width = _grid.RenderSize.Width - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth;
+            _centerThumb.Width = Math.Round(_grid.RenderSize.Width - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth, 5);
         }
 
         private void RelativeDragThumb(double moveDis)
@@ -384,7 +384,7 @@ namespace UIResources.Controls
             }
 
             Canvas.SetLeft(_centerThumb, Canvas.GetLeft(_leftThumb) + ThumbWidth);
-            _centerThumb.Width = _grid.RenderSize.Width - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth;
+            _centerThumb.Width = Math.Round(_grid.RenderSize.Width - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth, 5);
         }
 
         private void DragCenterThumb(double moveDis)
@@ -405,7 +405,7 @@ namespace UIResources.Controls
             }
 
             Canvas.SetLeft(_centerThumb, Canvas.GetLeft(_leftThumb) + ThumbWidth);
-            _centerThumb.Width = _grid.RenderSize.Width - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth;
+            _centerThumb.Width = Math.Round(_grid.RenderSize.Width - Canvas.GetRight(_rightThumb) - Canvas.GetLeft(_leftThumb) - 2 * ThumbWidth, 5);
         }
 
         private void UnSubscribeEvents()
