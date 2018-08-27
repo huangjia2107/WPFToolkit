@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\CommonUtil.cs" />
     <Compile Include="Common\ExceptionUtil.cs" />
     <Compile Include="Common\StringUtil.cs" />
     <Compile Include="Functions\FileWatcher.cs" />
