@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="AttachedProperties\IsHandleMouseWheel.cs" />
     <Compile Include="AttachedProperties\IsHandleSelectWithCtrl.cs" />
+    <Compile Include="Controls\OutlinedTextBlock.cs" />
     <Compile Include="Controls\RangeSlider.cs" />
     <Compile Include="Datas\RelativeBindings.cs" />
     <Compile Include="AttachedProperties\RelativeVisibility.cs" />
