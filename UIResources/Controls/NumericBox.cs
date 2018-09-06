@@ -8,6 +8,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using UIResources.Datas;
 using UIResources.Helps;
+using Utils.Common;
 
 namespace UIResources.Controls
 {

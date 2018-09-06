@@ -82,6 +82,8 @@
                     <controls:NumericBox Value="{Binding Maximum,ElementName=rangeSlider, Mode=TwoWay}" Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center" Margin="20,0"/>
                     <controls:NumericBox Value="{Binding ThumbWidth,ElementName=rangeSlider, Mode=TwoWay}" Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center"/>
                 </StackPanel>
+
+                <controls:ColorPicker Width="260" Height="180" Margin="0,0,0,20"/>
             </StackPanel>
         </controls:ZoomBox>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,3,0,0">

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using UIResources.Controls;
+using Utils.Common;
 
 namespace UIResources.Helps
 {

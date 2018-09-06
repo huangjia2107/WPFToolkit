@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using UIResources.Helps;
+using Utils.Common;
 
 namespace UIResources.Controls
 {

@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using UIResources.Helps;
+using Utils.Common;
 
 namespace UIResources.Controls
 {

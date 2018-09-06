@@ -30,6 +30,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -40,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\CommonUtil.cs" />
+    <Compile Include="Common\DoubleUtil.cs" />
     <Compile Include="Common\ExceptionUtil.cs" />
     <Compile Include="Common\StringUtil.cs" />
     <Compile Include="Functions\FileWatcher.cs" />

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Media;
 using UIResources.Controls;
+using Utils.Common;
 
 namespace UIResources.Helps
 {
@@ -52,6 +53,18 @@ namespace UIResources.Helps
         }
     }
 
+    public class ColorToBrushConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return new SolidColorBrush((Color)value);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 
     public class MultipleValueConverter : IValueConverter
     {

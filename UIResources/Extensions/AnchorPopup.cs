@@ -6,6 +6,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using UIResources.Helps;
 using UIResources.Panels;
+using Utils.Common;
 
 namespace UIResources.Extensions
 {

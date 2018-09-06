@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="AttachedProperties\IsHandleMouseWheel.cs" />
     <Compile Include="AttachedProperties\IsHandleSelectWithCtrl.cs" />
+    <Compile Include="Controls\ColorPicker.cs" />
     <Compile Include="Controls\OutlinedTextBlock.cs" />
     <Compile Include="Controls\RangeSlider.cs" />
     <Compile Include="Datas\RelativeBindings.cs" />
@@ -82,7 +83,6 @@
     <Compile Include="Controls\NumericBox.cs" />
     <Compile Include="Controls\RectangleProgressBar.cs" />
     <Compile Include="Helps\Utils.cs" />
-    <Compile Include="Helps\DoubleUtil.cs" />
     <Compile Include="Helps\Win32.cs" />
     <Compile Include="Panels\AlignWrapPanel.cs" />
     <Compile Include="Panels\AnchorBorder.cs">
@@ -93,6 +93,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\Styles\ButtonStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Styles\ColorPickerStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -170,7 +174,12 @@
     </None>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Utils\Utils.csproj">
+      <Project>{e76aa177-cad9-46b4-ad51-9237d5117c05}</Project>
+      <Name>Utils</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

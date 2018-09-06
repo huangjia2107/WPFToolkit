@@ -21,6 +21,7 @@
         <ResourceDictionary Source="/UIResources;component/Themes/Styles/UserWindowStyle.xaml"/>
 
         <ResourceDictionary Source="/UIResources;component/Themes/Styles/ZoomBoxStyle.xaml"/>
+        <ResourceDictionary Source="/UIResources;component/Themes/Styles/ColorPickerStyle.xaml"/>
     </ResourceDictionary.MergedDictionaries>   
   
 </ResourceDictionary>
