@@ -58,17 +58,17 @@ namespace UIResources.Controls
             get { return (double)GetValue(SProperty); }
         }
 
-        private static readonly DependencyPropertyKey LPropertyKey =
-           DependencyProperty.RegisterReadOnly("L", typeof(double), _typeofSelf, new PropertyMetadata(1d));
-        public static readonly DependencyProperty LProperty = LPropertyKey.DependencyProperty;
-        public double L
+        private static readonly DependencyPropertyKey BPropertyKey =
+           DependencyProperty.RegisterReadOnly("B", typeof(double), _typeofSelf, new PropertyMetadata(1d));
+        public static readonly DependencyProperty BProperty = BPropertyKey.DependencyProperty;
+        public double B
         {
-            get { return (double)GetValue(LProperty); }
+            get { return (double)GetValue(BProperty); }
         }
 
         private static readonly DependencyPropertyKey LastColorPropertyKey =
            DependencyProperty.RegisterReadOnly("LastColor", typeof(Color), _typeofSelf, new PropertyMetadata(Colors.Black));
-        public static readonly DependencyProperty LastColorProperty = LPropertyKey.DependencyProperty;
+        public static readonly DependencyProperty LastColorProperty = LastColorPropertyKey.DependencyProperty;
         public Color LastColor
         {
             get { return (Color)GetValue(LastColorProperty); }
@@ -93,12 +93,12 @@ namespace UIResources.Controls
 
             var color = (Color)e.NewValue;
 
-            double h = 0, s = 0, v = 0;
-            ColorUtil.HslFromColor(color, ref h, ref s, ref v);
+            double h = 0, s = 0, b = 0;
+            ColorUtil.HsbFromColor(color, ref h, ref s, ref b);
 
             ctrl.SetValue(HPropertyKey, h);
             ctrl.SetValue(SPropertyKey, s);
-            ctrl.SetValue(LPropertyKey, v);
+            ctrl.SetValue(BPropertyKey, b);
 
             ctrl.SetValue(LastColorPropertyKey, color);
 
@@ -188,7 +188,7 @@ namespace UIResources.Controls
             Canvas.SetLeft(_selectPath, pos.X - _selectPath.ActualWidth / 2);
             Canvas.SetTop(_selectPath, pos.Y - _selectPath.ActualHeight / 2);
 
-            UpdateSL();
+            UpdateSB();
 
             _selectPath.CaptureMouse();
             _selectPath.MouseMove += OnSelectPathMouseMove;
@@ -216,7 +216,7 @@ namespace UIResources.Controls
             Canvas.SetLeft(_selectPath, Math.Max(-(_selectPath.ActualWidth / 2), Math.Min(pos.X - _selectPath.ActualWidth / 2, _colorCanvas.ActualWidth - _selectPath.ActualWidth / 2)));
             Canvas.SetTop(_selectPath, Math.Max(-(_selectPath.ActualHeight / 2), Math.Min(pos.Y - _selectPath.ActualHeight / 2, _colorCanvas.ActualHeight - _selectPath.ActualHeight / 2)));
 
-            UpdateSL();
+            UpdateSB();
         }
 
         private void OnSelectPathLostMouseCapture(object sender, MouseEventArgs e)
@@ -251,26 +251,26 @@ namespace UIResources.Controls
                 return;
 
             Canvas.SetLeft(_selectPath, S * _colorCanvas.ActualWidth - _selectPath.ActualWidth / 2);
-            Canvas.SetTop(_selectPath, (1 - L) * _colorCanvas.ActualHeight - _selectPath.ActualHeight / 2);
+            Canvas.SetTop(_selectPath, (1 - B) * _colorCanvas.ActualHeight - _selectPath.ActualHeight / 2);
         }
 
-        private void UpdateSL()
+        private void UpdateSB()
         {
             SetValue(SPropertyKey, (Canvas.GetLeft(_selectPath) + _selectPath.ActualWidth / 2) / _colorCanvas.ActualWidth);
-            SetValue(LPropertyKey, 1 - (Canvas.GetTop(_selectPath) + _selectPath.ActualHeight / 2) / _colorCanvas.ActualHeight);
+            SetValue(BPropertyKey, 1 - (Canvas.GetTop(_selectPath) + _selectPath.ActualHeight / 2) / _colorCanvas.ActualHeight);
 
             UpdateSelectedColor();
         }
 
         private void UpdateHueColor()
         {
-            SetValue(HueColorPropertyKey, ColorUtil.ColorFromHsl(H, 1, 1));
+            SetValue(HueColorPropertyKey, ColorUtil.ColorFromHsb(H, 1, 1));
         }
 
         private void UpdateSelectedColor()
         {
             _isInnerUpdateSelectedColor = true;
-            SelectedColor = ColorUtil.ColorFromAhsl(SelectedColor.A / 255d, H, S, L);
+            SelectedColor = ColorUtil.ColorFromAhsb(SelectedColor.A / 255d, H, S, B);
         }
 
         #endregion
