@@ -1,9 +1,12 @@
 {
     "files.exclude": {  
         "**/*.suo": true,  
-        "**/*.user": true,  
+        "**/*.user": true,
+        "**/*.code-workspace": true,		
         "**/.git": true,  
         "**/bin": true,  
-        "**/obj": true
+        "**/obj": true,
+        "**/packages":true,
+        "**/Libs":true,
     }  
 }
