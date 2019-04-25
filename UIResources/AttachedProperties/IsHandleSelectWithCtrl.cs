@@ -6,7 +6,7 @@ namespace UIResources.AttachedProperties
 {
     public partial class AttachedProperty
     {
-        public static RoutedEventHandler PreviewMouseLeftButtonDownEventHandler = (s, e) =>
+        public static RoutedEventHandler PreviewMouseDownEventHandler = (s, e) =>
         {
             var container = ItemsControl.ContainerFromElement(s as ItemsControl, (DependencyObject) e.OriginalSource);
             if (container != null)
@@ -38,9 +38,9 @@ namespace UIResources.AttachedProperties
             var isHandle = (bool)e.NewValue;
 
             if (isHandle)
-                obj.AddHandler(UIElement.PreviewMouseLeftButtonDownEvent, PreviewMouseLeftButtonDownEventHandler, true);
+                obj.AddHandler(UIElement.PreviewMouseDownEvent, PreviewMouseDownEventHandler, true);
             else
-                obj.RemoveHandler(UIElement.PreviewMouseLeftButtonDownEvent, PreviewMouseLeftButtonDownEventHandler);
+                obj.RemoveHandler(UIElement.PreviewMouseDownEvent, PreviewMouseDownEventHandler);
         }
 
     }
