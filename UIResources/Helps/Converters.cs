@@ -115,5 +115,18 @@ namespace UIResources.Helps
         }
     }
 
+    public class SpliterStartAndEndToHeightMultiConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return Math.Max(0, (double)values[1] - (double)values[0]);
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     #endregion
 }

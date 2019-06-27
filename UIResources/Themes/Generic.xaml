@@ -10,6 +10,7 @@
         <ResourceDictionary Source="/UIResources;component/Themes/Styles/ToggleStatusStyle.xaml"/>
 
         <ResourceDictionary Source="/UIResources;component/Themes/Styles/SliderStyle.xaml"/>
+		<ResourceDictionary Source="/UIResources;component/Themes/Styles/SpliterStyle.xaml"/>
 
         <ResourceDictionary Source="/UIResources;component/Themes/Styles/SeparatorStyle.xaml"/>
         <ResourceDictionary Source="/UIResources;component/Themes/Styles/MenuItemStyle.xaml"/>

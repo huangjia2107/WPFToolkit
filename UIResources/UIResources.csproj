@@ -53,6 +53,7 @@
     <Compile Include="Controls\ColorPicker.cs" />
     <Compile Include="Controls\OutlinedTextBlock.cs" />
     <Compile Include="Controls\RangeSlider.cs" />
+    <Compile Include="Controls\Spliter.cs" />
     <Compile Include="Datas\RelativeBindings.cs" />
     <Compile Include="AttachedProperties\RelativeVisibility.cs" />
     <Compile Include="Controls\MenuButton.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Controls\SpitButtonMenuItem.cs" />
     <Compile Include="Controls\ToggleStatus.cs" />
     <Compile Include="Controls\ZoomBox.cs" />
+    <Compile Include="Helps\Comparers.cs" />
     <Compile Include="Helps\Converters.cs" />
     <Compile Include="Helps\DeferRefresh.cs" />
     <Compile Include="Helps\DpiUtil.cs" />
@@ -133,6 +135,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\Styles\SpitButtonStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Styles\SpliterStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
