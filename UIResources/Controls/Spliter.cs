@@ -23,6 +23,8 @@ namespace UIResources.Controls
         private ObservableCollection<double> _originalItems = null;
         private ObservableCollection<SpliterSpan> _spanList = null;
 
+        private IEnumerable<double> _oldItems = null;
+
         static Spliter()
         {
             EventManager.RegisterClassHandler(typeof(Spliter), Thumb.DragStartedEvent, new DragStartedEventHandler(OnThumbDragStarted));
@@ -35,6 +37,13 @@ namespace UIResources.Controls
         public Spliter()
         {
             _spanList = new ObservableCollection<SpliterSpan>();
+        }
+
+        public static readonly RoutedEvent ItemsChangedEvent = EventManager.RegisterRoutedEvent("ItemsChanged", RoutingStrategy.Bubble, typeof(RoutedPropertyChangedEventHandler<IEnumerable<double>>), typeof(Spliter));
+        public event RoutedPropertyChangedEventHandler<IEnumerable<double>> ItemsChanged
+        {
+            add { AddHandler(ItemsChangedEvent, value); }
+            remove { RemoveHandler(ItemsChangedEvent, value); }
         }
 
         #region Dependency Property
@@ -177,7 +186,9 @@ namespace UIResources.Controls
         }
 
         private void OnThumbDragStarted(DragStartedEventArgs e)
-        { }
+        {
+            _oldItems = Items == null ? null : Items.ToArray();
+        }
 
         private void OnThumbDragDelta(DragDeltaEventArgs e)
         {
@@ -222,7 +233,6 @@ namespace UIResources.Controls
                     break;
                 case 2:
 
-                    delta = -delta; //for ScaleTransform
                     if (DoubleUtil.LessThan(delta, 0))
                     {
                         var dis = Math.Min(-delta, span.End - span.Start - 10);
@@ -240,7 +250,10 @@ namespace UIResources.Controls
         }
 
         private void OnThumbDragCompleted(DragCompletedEventArgs e)
-        { }
+        {
+            if (_oldItems != Items)
+                RaiseEvent(new RoutedPropertyChangedEventArgs<IEnumerable<double>>(_oldItems, Items, ItemsChangedEvent));
+        }
 
         #endregion
 
@@ -248,22 +261,37 @@ namespace UIResources.Controls
 
         private void CoerceItems(IEnumerable<double> items)
         {
+            _oldItems = Items == null ? null : Items.ToArray();
             if (items != null)
             {
                 //1.less than 0, reset to 0;
                 //2.greater than 1, reset to 1;
-                //3.Remove duplicate values;
+                //3.(1)merge multi duplicate values to one;
+                //  (2)merge multi duplicate values to two;
+                //  (3)remove all duplicate values;
                 //4.Sort;
 
-                var filteresItems = items.Select(v => Math.Min(1, Math.Max(0, v))).Distinct(new DoubleEqualityComparer()).OrderBy(v => v, new DoubleComparer());
+                //(1)
+                //var filteresItems = items.Select(v => Math.Min(1, Math.Max(0, v))).Distinct(new DoubleEqualityComparer()).OrderBy(v => v, new DoubleComparer());
+
+                //(2)
+                //var filteresItems = items.Select(v => Math.Min(1, Math.Max(0, v))).GroupBy(v => v, new DoubleEqualityComparer()).SelectMany(g => g.Take(2)).OrderBy(v => v, new DoubleComparer());
+
+                //(3)
+                var filteresItems = items.Select(v => Math.Min(1, Math.Max(0, v))).GroupBy(v => v, new DoubleEqualityComparer()).Where(g => g.Count() == 1).Select(g => g.Key).OrderBy(v => v, new DoubleComparer());
+
                 var count = filteresItems.Count();
 
                 SetValue(ItemsPropertyKey, count % 2 == 0 ? filteresItems : filteresItems.Take(count - 1));
+                RaiseEvent(new RoutedPropertyChangedEventArgs<IEnumerable<double>>(_oldItems, Items, ItemsChangedEvent));
 
                 return;
             }
 
             SetValue(ItemsPropertyKey, null);
+
+            if (_oldItems != null)
+                RaiseEvent(new RoutedPropertyChangedEventArgs<IEnumerable<double>>(_oldItems, null, ItemsChangedEvent));
         }
 
         private void UpdateMaxLength()

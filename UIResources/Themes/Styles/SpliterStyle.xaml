@@ -5,79 +5,33 @@
 
     <helps:SpliterStartAndEndToHeightMultiConverter x:Key="spliterStartAndEndToHeightMultiConverter"/>
     
-    <Style x:Key="VerticalSpliterThumbStyle" TargetType="{x:Type Thumb}">
-        <Setter Property="Height" Value="5"/>
-        <Setter Property="Focusable" Value="false"/>
-        <Setter Property="OverridesDefaultStyle" Value="true"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Thumb}">
-                    <Border Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
-                        <Grid SnapsToDevicePixels="true">
-                            <Path Data="M0,0 H5 L0,5 Z" Stretch="Fill" Fill="Gray" Width="5" HorizontalAlignment="Left"/>
-                            <Path Data="M0,0 H-5 L0,5 Z" Stretch="Fill" Fill="Gray" Width="5" HorizontalAlignment="Right"/>
-                        </Grid>
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <Style x:Key="HorizontalSpliterThumbStyle" TargetType="{x:Type Thumb}">
-        <Setter Property="Width" Value="5"/>
-        <Setter Property="Focusable" Value="false"/>
-        <Setter Property="OverridesDefaultStyle" Value="true"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Thumb}">
-                    <Border Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
-                        <Grid SnapsToDevicePixels="true">
-                            <Path Data="M0,0 H5 L0,5 Z" Stretch="Fill" Fill="Gray" Height="5" VerticalAlignment="Top"/>
-                            <Path Data="M0,0 H5 L0,-5 Z" Stretch="Fill" Fill="Gray" Height="5" VerticalAlignment="Bottom"/>
-                        </Grid>
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
     <DataTemplate x:Key="VerticalSpliterDataTemplate">
-        <Grid Background="#55FFFFFF">
+        <Grid Background="#22FFFFFF">
             <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
+                <RowDefinition Height="8"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="auto"/>
+                <RowDefinition Height="8"/>
             </Grid.RowDefinitions>
-            <Thumb Cursor="SizeNS" Style="{StaticResource VerticalSpliterThumbStyle}"/>
+            <Border Grid.RowSpan="3" BorderBrush="Red" BorderThickness="1"/>
+            
+            <Thumb Cursor="SizeNS" Opacity="0"/>
             <Thumb Grid.Row="1" Cursor="Hand" Opacity="0"/>
-            <Thumb Grid.Row="2" Cursor="SizeNS" Style="{StaticResource VerticalSpliterThumbStyle}">
-                <Thumb.LayoutTransform>
-                    <ScaleTransform ScaleY="-1"/>
-                </Thumb.LayoutTransform>
-            </Thumb>
+            <Thumb Grid.Row="2" Cursor="SizeNS" Opacity="0"/>
         </Grid>
     </DataTemplate>
 
     <DataTemplate x:Key="HorizontalSpliterDataTemplate">
-        <Grid Background="#55FFFFFF">
+        <Grid Background="#22FFFFFF">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="8"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="8"/>
             </Grid.ColumnDefinitions>
-            <Thumb Cursor="SizeWE" Style="{StaticResource HorizontalSpliterThumbStyle}"/>
+            <Border Grid.ColumnSpan="3" BorderBrush="Red" BorderThickness="1"/>
+            
+            <Thumb Cursor="SizeWE" Opacity="0"/>
             <Thumb Grid.Column="1" Cursor="Hand" Opacity="0"/>
-            <Thumb Grid.Column="2" Cursor="SizeWE"  Style="{StaticResource HorizontalSpliterThumbStyle}">
-                <Thumb.LayoutTransform>
-                    <ScaleTransform ScaleX="-1"/>
-                </Thumb.LayoutTransform>
-            </Thumb>
+            <Thumb Grid.Column="2" Cursor="SizeWE"  Opacity="0"/>
         </Grid>
     </DataTemplate>
 
