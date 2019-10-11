@@ -53,6 +53,7 @@
     <Compile Include="Controls\ColorPicker.cs" />
     <Compile Include="Controls\OutlinedTextBlock.cs" />
     <Compile Include="Controls\RangeSlider.cs" />
+    <Compile Include="Controls\Sector.cs" />
     <Compile Include="Controls\Spliter.cs" />
     <Compile Include="Datas\RelativeBindings.cs" />
     <Compile Include="AttachedProperties\RelativeVisibility.cs" />
