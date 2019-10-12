@@ -8,38 +8,29 @@ namespace UIResources.Controls
 {
     public class Sector : Shape
     {
-        public static readonly DependencyProperty OuterRadiusProperty =
-            DependencyProperty.Register("OuterRadius", typeof(double), typeof(Sector), new FrameworkPropertyMetadata(60d, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceOuterRadius));
-        public double OuterRadius
+        public static readonly DependencyProperty Radius1Property = DependencyProperty.Register("Radius1", typeof(double), typeof(Sector),
+            new FrameworkPropertyMetadata(10d, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceRadius));
+        public double Radius1
         {
-            get { return (double)GetValue(OuterRadiusProperty); }
-            set { SetValue(OuterRadiusProperty, value); }
-        }
-        static object CoerceOuterRadius(DependencyObject d, object value)
-        {
-            var ctrl = (Sector)d;
-            var v = (double)value;
-
-            return Math.Max(ctrl.InnerRadius, v);
+            get { return (double)GetValue(Radius1Property); }
+            set { SetValue(Radius1Property, value); }
         }
 
-        public static readonly DependencyProperty InnerRadiusProperty =
-            DependencyProperty.Register("InnerRadius", typeof(double), typeof(Sector), new FrameworkPropertyMetadata(20d, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceInnerRadius));
-        public double InnerRadius
+        public static readonly DependencyProperty Radius2Property = DependencyProperty.Register("Radius2", typeof(double), typeof(Sector),
+            new FrameworkPropertyMetadata(5d, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceRadius));
+        public double Radius2
         {
-            get { return (double)GetValue(InnerRadiusProperty); }
-            set { SetValue(InnerRadiusProperty, value); }
-        }
-        static object CoerceInnerRadius(DependencyObject d, object value)
-        {
-            var ctrl = (Sector)d;
-            var v = (double)value;
-
-            return Math.Min(Math.Max(0, v), ctrl.OuterRadius);
+            get { return (double)GetValue(Radius2Property); }
+            set { SetValue(Radius2Property, value); }
         }
 
-        public static readonly DependencyProperty AngleProperty =
-            DependencyProperty.Register("Angle", typeof(double), typeof(Sector), new FrameworkPropertyMetadata(45d, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceAngle));
+        static object CoerceRadius(DependencyObject d, object value)
+        {
+            return Math.Max(0, (double)value);
+        }
+
+        public static readonly DependencyProperty AngleProperty = DependencyProperty.Register("Angle", typeof(double), typeof(Sector),
+            new FrameworkPropertyMetadata(45d, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceAngle));
         public double Angle
         {
             get { return (double)GetValue(AngleProperty); }
@@ -55,32 +46,35 @@ namespace UIResources.Controls
         {
             get
             {
-                if (DoubleUtil.LessThanOrClose(OuterRadius, InnerRadius))
+                if (DoubleUtil.AreClose(Radius1, Radius2))
                     return Geometry.Empty;
 
                 var sectorGeometry = new StreamGeometry();
+                var outerRadius = Math.Max(Radius1, Radius2);
+                var innerRadius = Math.Min(Radius1, Radius2);
+
                 using (var sgc = sectorGeometry.Open())
                 {
                     var radian = GetRadian(Angle);
 
-                    var outerSinLenth = OuterRadius * Math.Sin(radian / 2);
-                    var outerCosLenth = OuterRadius * Math.Cos(radian / 2);
+                    var outerSinLenth = outerRadius * Math.Sin(radian / 2);
+                    var outerCosLenth = outerRadius * Math.Cos(radian / 2);
 
-                    sgc.BeginFigure(new Point(0, OuterRadius - outerCosLenth), true, true);
-                    ArcTo(sgc, new Point(outerSinLenth * 2, OuterRadius - outerCosLenth), new Size(OuterRadius, OuterRadius), Angle);
+                    sgc.BeginFigure(new Point(0, outerRadius - outerCosLenth), true, true);
+                    ArcTo(sgc, new Point(outerSinLenth * 2, outerRadius - outerCosLenth), new Size(outerRadius, outerRadius), Angle);
 
-                    if (DoubleUtil.IsZero(InnerRadius))
+                    if (DoubleUtil.IsZero(innerRadius))
                     {
-                        sgc.LineTo(new Point(outerSinLenth, OuterRadius), true, false);
+                        sgc.LineTo(new Point(outerSinLenth, outerRadius), true, false);
                     }
                     else
                     {
-                        var innerSinLenth = InnerRadius * Math.Sin(radian / 2);
-                        var innerCosLenth = InnerRadius * Math.Cos(radian / 2);
+                        var innerSinLenth = innerRadius * Math.Sin(radian / 2);
+                        var innerCosLenth = innerRadius * Math.Cos(radian / 2);
 
-                        sgc.LineTo(new Point(outerSinLenth + innerSinLenth, OuterRadius - innerCosLenth), true, false);
-                        sgc.ArcTo(new Point(outerSinLenth - innerSinLenth, OuterRadius - innerCosLenth),
-                            new Size(InnerRadius, InnerRadius),
+                        sgc.LineTo(new Point(outerSinLenth + innerSinLenth, outerRadius - innerCosLenth), true, false);
+                        sgc.ArcTo(new Point(outerSinLenth - innerSinLenth, outerRadius - innerCosLenth),
+                            new Size(innerRadius, innerRadius),
                             Angle,
                             DoubleUtil.GreaterThanOrClose(Angle, 180),
                             SweepDirection.Counterclockwise, true, false);
@@ -94,12 +88,7 @@ namespace UIResources.Controls
         private void ArcTo(StreamGeometryContext sgc, Point point, Size size, double rotationAngle)
         {
             sgc.ArcTo(point, size, rotationAngle, DoubleUtil.GreaterThanOrClose(Angle, 180), SweepDirection.Clockwise, true, false);
-        }
-
-        private void LineTo(StreamGeometryContext sgc, Point point)
-        {
-            sgc.LineTo(point, true, false);
-        }
+        } 
 
         private double GetRadian(double angle)
         {
