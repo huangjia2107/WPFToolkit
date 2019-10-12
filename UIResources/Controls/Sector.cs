@@ -55,39 +55,45 @@ namespace UIResources.Controls
 
                 using (var sgc = sectorGeometry.Open())
                 {
-                    var radian = GetRadian(Angle);
-
-                    var outerSinLenth = outerRadius * Math.Sin(radian / 2);
-                    var outerCosLenth = outerRadius * Math.Cos(radian / 2);
-
-                    sgc.BeginFigure(new Point(0, outerRadius - outerCosLenth), true, true);
-                    ArcTo(sgc, new Point(outerSinLenth * 2, outerRadius - outerCosLenth), new Size(outerRadius, outerRadius), Angle);
-
-                    if (DoubleUtil.IsZero(innerRadius))
+                    if (DoubleUtil.AreClose(Angle, 360))
                     {
-                        sgc.LineTo(new Point(outerSinLenth, outerRadius), true, false);
+                        sgc.BeginFigure(new Point(outerRadius, outerRadius * 2), true, false);
+                        sgc.ArcTo(new Point(outerRadius + 0.1, outerRadius * 2), new Size(outerRadius, outerRadius), Angle, true, SweepDirection.Clockwise, true, false);
+
+                        if (DoubleUtil.GreaterThan(innerRadius, 0))
+                        {
+                            sgc.BeginFigure(new Point(outerRadius, outerRadius + innerRadius), true, false);
+                            sgc.ArcTo(new Point(outerRadius + 0.1, outerRadius + innerRadius), new Size(innerRadius, innerRadius), Angle, true, SweepDirection.Clockwise, true, false);
+                        }
                     }
                     else
                     {
-                        var innerSinLenth = innerRadius * Math.Sin(radian / 2);
-                        var innerCosLenth = innerRadius * Math.Cos(radian / 2);
+                        var radian = GetRadian(Angle);
+                        var outerSinLenth = outerRadius * Math.Sin(radian / 2);
+                        var outerCosLenth = outerRadius * Math.Cos(radian / 2);
 
-                        sgc.LineTo(new Point(outerSinLenth + innerSinLenth, outerRadius - innerCosLenth), true, false);
-                        sgc.ArcTo(new Point(outerSinLenth - innerSinLenth, outerRadius - innerCosLenth),
-                            new Size(innerRadius, innerRadius),
-                            Angle,
-                            DoubleUtil.GreaterThanOrClose(Angle, 180),
-                            SweepDirection.Counterclockwise, true, false);
+                        var isLargeArc = DoubleUtil.GreaterThan(Angle, 180);
+
+                        sgc.BeginFigure(new Point(isLargeArc ? (outerRadius - outerSinLenth) : 0, outerRadius - outerCosLenth), true, true);
+                        sgc.ArcTo(new Point(isLargeArc ? (outerRadius + outerSinLenth) : outerSinLenth * 2, outerRadius - outerCosLenth), new Size(outerRadius, outerRadius), Angle, isLargeArc, SweepDirection.Clockwise, true, false);
+
+                        if (DoubleUtil.IsZero(innerRadius))
+                        {
+                            sgc.LineTo(new Point(isLargeArc ? outerRadius : outerSinLenth, outerRadius), true, false);
+                        }
+                        else
+                        {
+                            var innerSinLenth = innerRadius * Math.Sin(radian / 2);
+                            var innerCosLenth = innerRadius * Math.Cos(radian / 2);
+
+                            sgc.LineTo(new Point((isLargeArc ? outerRadius : outerSinLenth) + innerSinLenth, outerRadius - innerCosLenth), true, false);
+                            sgc.ArcTo(new Point((isLargeArc ? outerRadius : outerSinLenth) - innerSinLenth, outerRadius - innerCosLenth), new Size(innerRadius, innerRadius), Angle, isLargeArc, SweepDirection.Counterclockwise, true, false);
+                        }
                     }
                 }
 
                 return sectorGeometry;
             }
-        }
-
-        private void ArcTo(StreamGeometryContext sgc, Point point, Size size, double rotationAngle)
-        {
-            sgc.ArcTo(point, size, rotationAngle, DoubleUtil.GreaterThanOrClose(Angle, 180), SweepDirection.Clockwise, true, false);
         } 
 
         private double GetRadian(double angle)
