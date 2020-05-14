@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using System.IO; 
 using System.Windows.Documents.Serialization;
+using System.Windows.Xps;
 using Utils.Common;
 using Utils.Helps;
 
@@ -22,6 +23,12 @@ namespace Utils.Print
 
     public class PrintHelper
     {
+        private XpsDocumentWriter _xpsDocWriter = null;
+        private PrintDocPaginator _docPaginator = null;
+
+        private Action<WritingCompletedEventArgs> _printCompleted = null;
+        private Action<WritingProgressChangedEventArgs> _progressChanged = null;
+
         private static readonly PrintHelper _instance = new PrintHelper();
 
         private PrintHelper()
@@ -33,7 +40,10 @@ namespace Utils.Print
         }
 
         public bool Print(string printerName, string ticketSetting, int pageCount,
-            Func<Size, PageOrientation> getPageOrientation, Func<int, int, Size, Visual> getSpecifiedPage, Action<WritingCompletedEventArgs> writingCompleted)
+            Func<Size, PageOrientation> getPageOrientation, 
+            Func<int, int, Size, Visual> getPage, 
+            Action<WritingProgressChangedEventArgs> progressChanged,
+            Action<WritingCompletedEventArgs> printCompleted)
         {
             if (string.IsNullOrEmpty(printerName))
                 return false;
@@ -90,32 +100,37 @@ namespace Utils.Print
                     //printDialog.PrintDocument(new LabelDocPaginator(pageCount, originalPageSize, getSpecifiedPage), "Print Label");
 
                     //The second way
-                    var xpsDocWriter = PrintQueue.CreateXpsDocumentWriter(printer);
-                    var dp = new PrintDocPaginator(pageCount, originalPageSize, getSpecifiedPage);
+                    DisposeXpsDocWriter();
 
-                    WritingCompletedEventHandler handler = null;
-                    handler = (s, e) =>
-                    {
-                        xpsDocWriter.WritingCompleted -= handler;
-                        xpsDocWriter = null;
+                    _printCompleted = printCompleted;
+                    _progressChanged = progressChanged;
 
-                        dp.Dispose();
+                    _xpsDocWriter = PrintQueue.CreateXpsDocumentWriter(printer);
+                    _xpsDocWriter.WritingCompleted += WritingCompleted;
+                    _xpsDocWriter.WritingProgressChanged += WritingProgressChanged;
 
-                        if (writingCompleted != null)
-                            writingCompleted(e);
-                    };
-
-                    xpsDocWriter.WritingCompleted += handler;
-                    xpsDocWriter.WriteAsync(dp);
+                    _docPaginator = new PrintDocPaginator(pageCount, originalPageSize, getPage);
+                    _xpsDocWriter.WriteAsync(_docPaginator);
 
                 }
                 catch (Exception ex)
                 {
+                    DisposeXpsDocWriter();
+
+                    _printCompleted = null;
+                    _progressChanged = null;
+
                     return false;
                 }
             }
 
             return true;
+        }
+
+        public void Cancel()
+        {
+            if (_xpsDocWriter != null)
+                _xpsDocWriter.CancelAsync();
         }
 
         public List<string> GetAllPrinters()
@@ -318,6 +333,37 @@ namespace Utils.Print
             }
 
             return LocalPrintServer.GetDefaultPrintQueue();
+        }
+
+        private void WritingCompleted(object sender, WritingCompletedEventArgs e)
+        {
+            DisposeXpsDocWriter();
+
+            if (_printCompleted != null)
+                _printCompleted(e);
+        }
+
+        private void WritingProgressChanged(object sender, WritingProgressChangedEventArgs e)
+        {
+            if (_progressChanged != null && e.WritingLevel == WritingProgressChangeLevel.FixedPageWritingProgress)
+                _progressChanged(e);
+        }
+
+        private void DisposeXpsDocWriter()
+        {
+            if (_xpsDocWriter != null)
+            {
+                _xpsDocWriter.WritingCompleted -= WritingCompleted;
+                _xpsDocWriter.WritingProgressChanged -= WritingProgressChanged;
+
+                _xpsDocWriter = null;
+            }
+
+            if (_docPaginator != null)
+            {
+                _docPaginator.Dispose();
+                _docPaginator = null;
+            }
         }
     }
 }
