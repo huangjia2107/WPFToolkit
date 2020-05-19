@@ -25,6 +25,10 @@ namespace Utils.Print
     {
         private XpsDocumentWriter _xpsDocWriter = null;
         private PrintDocPaginator _docPaginator = null;
+        
+        private FrameworkElement _printedElement = null;
+        private Transform _originalTransform = null;
+        private Size? _originalSize = null;
 
         private Action<WritingCompletedEventArgs> _printCompleted = null;
         private Action<WritingProgressChangedEventArgs> _progressChanged = null;
@@ -186,12 +190,12 @@ namespace Utils.Print
             return dv;
         }
 
-        public Visual GetSpecifiedPage(FrameworkElement element, Size pageSize, bool isFill)
+        public Visual GetSpecifiedPage(FrameworkElement element, Size pageSize, bool fillToPage)
         {
             var elementSize = new Size(element.ActualWidth, element.ActualHeight);
             var printSize = elementSize;
 
-            if (isFill)
+            if (fillToPage)
             {
                 var elementRatio = elementSize.Width / elementSize.Height;
                 var pageRatio = pageSize.Width / pageSize.Height;
@@ -200,8 +204,26 @@ namespace Utils.Print
                     printSize = new Size(pageSize.Height / elementSize.Height * elementSize.Width, pageSize.Height);
                 else
                     printSize = new Size(pageSize.Width, pageSize.Width / elementSize.Width * elementSize.Height);
-            }
+                
+                if (!DoubleUtil.AreClose(printSize.Width, elementSize.Width) || !DoubleUtil.AreClose(printSize.Height, elementSize.Height))
+                {
+                    //for restore
+                    _printedElement = element;
+                    _originalTransform = element.LayoutTransform;
+                    _originalSize = elementSize;
 
+                    Resize(element,
+                        new ScaleTransform(printSize.Width / elementSize.Width, printSize.Height / elementSize.Height),
+                        new Rect(
+                            Math.Max(0, pageSize.Width - printSize.Width) / 2,
+                            Math.Max(0, pageSize.Height - printSize.Height) / 2,
+                            printSize.Width, printSize.Height));
+                }
+            }
+            
+            return element;
+
+            /*
             var dv = new DrawingVisual();
             using (var dc = dv.RenderOpen())
             {
@@ -216,7 +238,7 @@ namespace Utils.Print
             }
 
             return dv;
-
+            */
         }
 
         public string OpenPrinterProperties(Window window, string printerName, string printTicketStr)
@@ -345,10 +367,23 @@ namespace Utils.Print
 
         private void WritingProgressChanged(object sender, WritingProgressChangedEventArgs e)
         {
-            if (_progressChanged != null && e.WritingLevel == WritingProgressChangeLevel.FixedPageWritingProgress)
-                _progressChanged(e);
+            if (e.WritingLevel == WritingProgressChangeLevel.FixedPageWritingProgress)
+            {
+                if (_printedElement != null && _originalTransform != null && _originalSize != null)
+                    Resize(_printedElement, _originalTransform, new Rect(new Point(), _originalSize.Value));
+
+                if (_progressChanged != null)
+                    _progressChanged(e);
+            }
         }
 
+        private void Resize(FrameworkElement element, Transform transform, Rect finalRect)
+        {
+            element.LayoutTransform = transform;
+            element.Measure(finalRect.Size);
+            element.Arrange(finalRect);
+        }
+        
         private void DisposeXpsDocWriter()
         {
             if (_xpsDocWriter != null)
@@ -364,6 +399,10 @@ namespace Utils.Print
                 _docPaginator.Dispose();
                 _docPaginator = null;
             }
+            
+            _printedElement = null;
+            _originalTransform = null;
+            _originalSize = null;
         }
     }
 }
