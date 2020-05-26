@@ -7,7 +7,7 @@ using System.Printing;
 using System.Printing.Interop;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
-using System.IO; 
+using System.IO;
 using System.Windows.Documents.Serialization;
 using System.Windows.Xps;
 using Utils.Common;
@@ -25,7 +25,7 @@ namespace Utils.Print
     {
         private XpsDocumentWriter _xpsDocWriter = null;
         private PrintDocPaginator _docPaginator = null;
-        
+
         private FrameworkElement _printedElement = null;
         private Transform _originalTransform = null;
         private Size? _originalSize = null;
@@ -43,21 +43,19 @@ namespace Utils.Print
             return _instance;
         }
 
-        public bool Print(string printerName, string ticketSetting, int pageCount,
-            Func<Size, PageOrientation> getPageOrientation, 
-            Func<int, int, Size, Visual> getPage, 
-            Action<WritingProgressChangedEventArgs> progressChanged,
-            Action<WritingCompletedEventArgs> printCompleted)
+        public bool Print(Printer printer, int pageCount,
+            Func<Size, PageOrientation> getOrientation, Func<int, int, Size, Visual> getPage,
+            Action<WritingProgressChangedEventArgs> progressChanged, Action<WritingCompletedEventArgs> printCompleted)
         {
-            if (string.IsNullOrEmpty(printerName))
+            if (printer == null || string.IsNullOrEmpty(printer.Name))
                 return false;
 
-            using (var printer = GetPrinter(printerName))
+            using (var printQueue = GetPrinter(printer.Name))
             {
-                if (printer == null)
+                if (printQueue == null)
                     return false;
 
-                var printTicket = GetPrintTicket(printer, ticketSetting);
+                var printTicket = GetPrintTicket(printQueue, printer.Ticket);
 
                 /*The first way
                 var printDialog = new PrintDialog();
@@ -66,13 +64,13 @@ namespace Utils.Print
                 */
 
                 //The second way
-                printer.UserPrintTicket = printTicket;
+                printQueue.UserPrintTicket = printTicket;
 
                 //Page Size  1 inch = 96 pixels
                 Size originalPageSize;
                 try
                 {
-                    var pageImageableArea = printer.GetPrintCapabilities(printTicket).PageImageableArea;
+                    var pageImageableArea = printQueue.GetPrintCapabilities(printTicket).PageImageableArea;
                     originalPageSize = new Size(pageImageableArea.ExtentWidth, pageImageableArea.ExtentHeight);
                 }
                 catch
@@ -81,9 +79,9 @@ namespace Utils.Print
                 }
 
                 //Page Orientation
-                if (getPageOrientation != null)
+                if (getOrientation != null)
                 {
-                    if (getPageOrientation(originalPageSize) == PageOrientation.Landscape)
+                    if (getOrientation(originalPageSize) == PageOrientation.Landscape)
                     {
                         //exchange width and height
                         originalPageSize = new Size(originalPageSize.Height, originalPageSize.Width);
@@ -109,7 +107,7 @@ namespace Utils.Print
                     _printCompleted = printCompleted;
                     _progressChanged = progressChanged;
 
-                    _xpsDocWriter = PrintQueue.CreateXpsDocumentWriter(printer);
+                    _xpsDocWriter = PrintQueue.CreateXpsDocumentWriter(printQueue);
                     _xpsDocWriter.WritingCompleted += WritingCompleted;
                     _xpsDocWriter.WritingProgressChanged += WritingProgressChanged;
 
@@ -137,13 +135,13 @@ namespace Utils.Print
                 _xpsDocWriter.CancelAsync();
         }
 
-        public List<string> GetAllPrinters()
+        public List<Printer> GetAllPrinters()
         {
             using (var printServer = new PrintServer())
             {
                 using (var printQueues = printServer.GetPrintQueues())
                 {
-                    return printQueues.Select(p => p.FullName).ToList();
+                    return printQueues.Select(p => new Printer { Name = p.FullName }).ToList();
                 }
             }
         }
@@ -160,11 +158,11 @@ namespace Utils.Print
             return PageOrientation.Portrait;
         }
 
-        public Visual GetSpecifiedPage(Brush brush, Size elementSize, Size pageSize, bool isFill)
+        public Visual GetSpecifiedPage(Brush brush, Size elementSize, Size pageSize, bool fillToPage)
         {
             var printSize = elementSize;
 
-            if (isFill)
+            if (fillToPage)
             {
                 var elementRatio = elementSize.Width / elementSize.Height;
                 var pageRatio = pageSize.Width / pageSize.Height;
@@ -204,7 +202,7 @@ namespace Utils.Print
                     printSize = new Size(pageSize.Height / elementSize.Height * elementSize.Width, pageSize.Height);
                 else
                     printSize = new Size(pageSize.Width, pageSize.Width / elementSize.Width * elementSize.Height);
-                
+
                 if (!DoubleUtil.AreClose(printSize.Width, elementSize.Width) || !DoubleUtil.AreClose(printSize.Height, elementSize.Height))
                 {
                     //for restore
@@ -220,7 +218,7 @@ namespace Utils.Print
                             printSize.Width, printSize.Height));
                 }
             }
-            
+
             return element;
 
             /*
@@ -241,20 +239,20 @@ namespace Utils.Print
             */
         }
 
-        public string OpenPrinterProperties(Window window, string printerName, string printTicketStr)
+        public bool OpenPrinterProperties(Window window, Printer printer)
         {
-            if (string.IsNullOrEmpty(printerName))
-                return null;
+            if (printer == null || string.IsNullOrEmpty(printer.Name))
+                return false;
 
-            using (var printer = GetPrinter(printerName))
+            using (var printQueue = GetPrinter(printer.Name))
             {
-                if (printer == null)
-                    return null;
+                if (printQueue == null)
+                    return false;
 
                 PrintTicket printTicket = null;
 
-                if (string.IsNullOrEmpty(printTicketStr))
-                    printTicket = printer.DefaultPrintTicket;
+                if (string.IsNullOrEmpty(printer.Ticket))
+                    printTicket = printQueue.DefaultPrintTicket;
                 else
                 {
                     try
@@ -263,7 +261,7 @@ namespace Utils.Print
                         {
                             using (var sw = new StreamWriter(ms))
                             {
-                                sw.Write(printTicketStr);
+                                sw.Write(printer.Ticket);
                                 sw.Flush();
 
                                 ms.Position = 0;
@@ -273,19 +271,21 @@ namespace Utils.Print
                     }
                     catch
                     {
-                        printTicket = printer.DefaultPrintTicket;
+                        printTicket = printQueue.DefaultPrintTicket;
                     }
                 }
 
-                using (var result = OpenPrinterProperties(window, printer, printTicket).GetXmlStream())
+                using (var result = OpenPrinterProperties(window, printQueue, printTicket).GetXmlStream())
                 {
                     result.Position = 0;
                     using (var sr = new StreamReader(result))
                     {
-                        return sr.ReadToEnd();
+                        printer.Ticket = sr.ReadToEnd();
                     }
                 }
             }
+
+            return true;
         }
 
         public Stream OpenPrinterProperties(Window window, string printerName, Stream ticketStream)
@@ -303,17 +303,17 @@ namespace Utils.Print
             }
         }
 
-        private PrintTicket OpenPrinterProperties(Window window, PrintQueue printer, PrintTicket ticket)
+        private PrintTicket OpenPrinterProperties(Window window, PrintQueue printQueue, PrintTicket printTicket)
         {
-            var ptc = new PrintTicketConverter(printer.FullName, printer.ClientPrintSchemaVersion);
+            var ptc = new PrintTicketConverter(printQueue.FullName, printQueue.ClientPrintSchemaVersion);
             var mainWindowPtr = new WindowInteropHelper(window).Handle;
 
-            var devMode = ptc.ConvertPrintTicketToDevMode(ticket, BaseDevModeType.UserDefault);
+            var devMode = ptc.ConvertPrintTicketToDevMode(printTicket, BaseDevModeType.UserDefault);
 
             var pinnedDevMode = GCHandle.Alloc(devMode, GCHandleType.Pinned);
             var pDevMode = pinnedDevMode.AddrOfPinnedObject();
 
-            Win32.DocumentProperties(mainWindowPtr, IntPtr.Zero, printer.FullName, pDevMode, pDevMode, 14);
+            Win32.DocumentProperties(mainWindowPtr, IntPtr.Zero, printQueue.FullName, pDevMode, pDevMode, 14);
 
             var newTicket = ptc.ConvertDevModeToPrintTicket(devMode);
             pinnedDevMode.Free();
@@ -321,16 +321,16 @@ namespace Utils.Print
             return newTicket;
         }
 
-        private PrintTicket GetPrintTicket(PrintQueue printer, string ticketSetting)
+        private PrintTicket GetPrintTicket(PrintQueue printQueue, string ticket)
         {
-            if (string.IsNullOrEmpty(ticketSetting))
-                return printer.DefaultPrintTicket;
+            if (string.IsNullOrEmpty(ticket))
+                return printQueue.DefaultPrintTicket;
 
             using (var ms = new MemoryStream())
             {
                 using (var sw = new StreamWriter(ms))
                 {
-                    sw.Write(ticketSetting);
+                    sw.Write(ticket);
                     sw.Flush();
 
                     ms.Position = 0;
@@ -348,9 +348,9 @@ namespace Utils.Print
             {
                 using (var printQueues = printServer.GetPrintQueues())
                 {
-                    var printer = printQueues.FirstOrDefault(p => p.FullName == printerName);
-                    if (printer != null)
-                        return printer;
+                    var pq = printQueues.FirstOrDefault(p => p.FullName == printerName);
+                    if (pq != null)
+                        return pq;
                 }
             }
 
@@ -383,7 +383,7 @@ namespace Utils.Print
             element.Measure(finalRect.Size);
             element.Arrange(finalRect);
         }
-        
+
         private void DisposeXpsDocWriter()
         {
             if (_xpsDocWriter != null)
@@ -399,11 +399,35 @@ namespace Utils.Print
                 _docPaginator.Dispose();
                 _docPaginator = null;
             }
-            
+
             _printedElement = null;
             _originalTransform = null;
             _originalSize = null;
         }
+
+        public static List<Printer> MergePrinters(List<Printer> localPrinters, List<Printer> allPrinters, ref string selectedPrinterName)
+        {
+            var printerName = selectedPrinterName;
+
+            var newPrinters = allPrinters.Select(ap =>
+                {
+                    var savedPrinter = localPrinters.FirstOrDefault(lp => lp.Name == ap.Name);
+                    if (savedPrinter == null)
+                        return new Printer { Name = ap.Name };
+
+                    return new Printer { Name = ap.Name, Ticket = savedPrinter.Ticket };
+
+                }).ToList();
+
+            if (newPrinters != null && newPrinters.Count > 0)
+            {
+                if (!newPrinters.Exists(p => p.Name == printerName))
+                    selectedPrinterName = newPrinters[0].Name;
+            }
+            else
+                selectedPrinterName = null;
+
+            return newPrinters;
+        }
     }
 }
-
