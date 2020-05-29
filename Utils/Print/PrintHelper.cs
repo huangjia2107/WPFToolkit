@@ -27,7 +27,6 @@ namespace Utils.Print
         private PrintDocPaginator _docPaginator = null;
 
         private FrameworkElement _printedElement = null;
-        private Transform _originalTransform = null;
         private Size? _originalSize = null;
 
         private Action<WritingCompletedEventArgs> _printCompleted = null;
@@ -207,15 +206,14 @@ namespace Utils.Print
                 {
                     //for restore
                     _printedElement = element;
-                    _originalTransform = element.LayoutTransform;
                     _originalSize = elementSize;
 
-                    Resize(element,
-                        new ScaleTransform(printSize.Width / elementSize.Width, printSize.Height / elementSize.Height),
-                        new Rect(
+                    var rect = new Rect(
                             Math.Max(0, pageSize.Width - printSize.Width) / 2,
                             Math.Max(0, pageSize.Height - printSize.Height) / 2,
-                            printSize.Width, printSize.Height));
+                            printSize.Width, printSize.Height);
+
+                    Resize(element, rect);
                 }
             }
 
@@ -369,17 +367,19 @@ namespace Utils.Print
         {
             if (e.WritingLevel == WritingProgressChangeLevel.FixedPageWritingProgress)
             {
-                if (_printedElement != null && _originalTransform != null && _originalSize != null)
-                    Resize(_printedElement, _originalTransform, new Rect(new Point(), _originalSize.Value));
+                if (_printedElement != null && _originalSize != null)
+                    Resize(_printedElement, new Rect(new Point(), _originalSize.Value));
 
                 if (_progressChanged != null)
                     _progressChanged(e);
             }
         }
 
-        private void Resize(FrameworkElement element, Transform transform, Rect finalRect)
-        {
-            element.LayoutTransform = transform;
+        private void Resize(FrameworkElement element, Rect finalRect)
+        { 
+            element.Width = finalRect.Width;
+            element.Height = finalRect.Height;
+
             element.Measure(finalRect.Size);
             element.Arrange(finalRect);
         }
@@ -401,7 +401,6 @@ namespace Utils.Print
             }
 
             _printedElement = null;
-            _originalTransform = null;
             _originalSize = null;
         }
 
