@@ -83,7 +83,15 @@
                     <controls:NumericBox Value="{Binding ThumbWidth,ElementName=rangeSlider, Mode=TwoWay}" Width="70" Minimum="0"  Precision="2" UpDownButtonsWidth="20" Height="25" TextAlignment="Center"/>
                 </StackPanel>
 
-                <controls:ColorPicker Width="260" Height="180" Margin="0,0,0,20"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <controls:ColorPicker Width="260" Height="180" Margin="0,0,0,20"/>
+                    <controls:MediaPlayer Width="300" Grid.Column="1"/>
+                </Grid>
+                
             </StackPanel>
         </controls:ZoomBox>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,3,0,0">

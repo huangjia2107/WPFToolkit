@@ -14,6 +14,20 @@ namespace UIResources.Helps
 {
     #region IValueConverter
 
+    public class TimeSpanToStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var timeSpan = (TimeSpan)value;
+            return $"{(int)timeSpan.TotalHours:#00}:{timeSpan.Minutes:00}:{timeSpan.Seconds:00}";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class BoolToVisibilityConverter : IValueConverter
     {
         public BoolToVisibilityConverter()

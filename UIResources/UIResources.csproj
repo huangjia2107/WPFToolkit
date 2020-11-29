@@ -51,6 +51,7 @@
     <Compile Include="AttachedProperties\IsHandleMouseWheel.cs" />
     <Compile Include="AttachedProperties\IsHandleSelectWithCtrl.cs" />
     <Compile Include="Controls\ColorPicker.cs" />
+    <Compile Include="Controls\MediaPlayer.cs" />
     <Compile Include="Controls\OutlinedTextBlock.cs" />
     <Compile Include="Controls\RangeSlider.cs" />
     <Compile Include="Controls\Sector.cs" />
@@ -100,6 +101,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\Styles\ColorPickerStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Styles\MediaPlayerStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

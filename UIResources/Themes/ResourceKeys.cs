@@ -48,6 +48,12 @@ namespace UIResources.Themes
             get { return new ComponentResourceKey(typeof(ResourceKeys), FgRedCloseBtnStyle); }
         }
 
+        public const string OpacityButtonStyle = "OpacityButtonStyle";
+        public static ComponentResourceKey OpacityButtonStyleKey
+        {
+            get { return new ComponentResourceKey(typeof(ResourceKeys), OpacityButtonStyle); }
+        }
+
         #endregion
 
         #region RepeatButton

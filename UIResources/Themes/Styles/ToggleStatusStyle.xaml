@@ -45,12 +45,6 @@
             </Setter.Value>
         </Setter>
         <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#FFC1C1C1"/>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="#FFDDDDDD"/>
-            </Trigger>
             <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Foreground" Value="#FF808080"/>
             </Trigger>    
@@ -60,7 +54,20 @@
     <!--NormalToggleStatus-->
     <Style BasedOn="{StaticResource {x:Static themes:ResourceKeys.NoBgToggleStatusStyle}}"
            TargetType="{x:Type controls:ToggleStatus}">
-        <Setter Property="Background" Value="#FFB1B1B1"/> 
+        <Setter Property="Background" Value="#FFB1B1B1"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver"  Value="True">
+                <Setter Property="Background" Value="#FDFDFD"/>
+                <Setter Property="Foreground" Value="#007ACC"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#FDFDFD"/>
+                <Setter Property="Foreground" Value="#141414"/>
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Background" Value="#FDFDFD"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
 </ResourceDictionary>

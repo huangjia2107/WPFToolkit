@@ -23,6 +23,7 @@
 
         <ResourceDictionary Source="/UIResources;component/Themes/Styles/ZoomBoxStyle.xaml"/>
         <ResourceDictionary Source="/UIResources;component/Themes/Styles/ColorPickerStyle.xaml"/>
+        <ResourceDictionary Source="/UIResources;component/Themes/Styles/MediaPlayerStyle.xaml"/>
     </ResourceDictionary.MergedDictionaries>   
   
 </ResourceDictionary>

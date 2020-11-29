@@ -4,13 +4,13 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
 
-         <!--
+        
          <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/UIResources;component/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-         
+          <!--
         <Style BasedOn="{StaticResource NoBgBtnStyle}" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#FFB1B1B1"/>
             <Style.Triggers>
