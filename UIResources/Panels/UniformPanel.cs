@@ -30,25 +30,25 @@ namespace UIResources.Panels
             return ((Thickness)value).IsValid(false, false, false, false);
         }
 
-        public static readonly DependencyProperty ItemSpaceProperty = DependencyProperty.Register("ItemSpace", typeof(Size), typeof(UniformPanel),
+        public static readonly DependencyProperty SpaceProperty = DependencyProperty.Register("Space", typeof(Size), typeof(UniformPanel),
             new FrameworkPropertyMetadata(new Size(), FrameworkPropertyMetadataOptions.AffectsMeasure, null, CoerceItemSpaceValue));
-        public Size ItemSpace
+        public Size Space
         {
-            get { return (Size)GetValue(ItemSpaceProperty); }
-            set { SetValue(ItemSpaceProperty, value); }
+            get { return (Size)GetValue(SpaceProperty); }
+            set { SetValue(SpaceProperty, value); }
         }
 
         static object CoerceItemSpaceValue(DependencyObject d, object value)
         {
-            var itemSpace = (Size)value;
+            var space = (Size)value;
 
-            if (itemSpace.Width < 0)
-                itemSpace.Width = 0;
+            if (space.Width < 0)
+                space.Width = 0;
 
-            if (itemSpace.Height < 0)
-                itemSpace.Height = 0;
+            if (space.Height < 0)
+                space.Height = 0;
 
-            return itemSpace;
+            return space;
         }
 
         static bool ValidateRowsOrColumns(object value)
@@ -145,8 +145,8 @@ namespace UIResources.Panels
                 var columnIndex = realIndex % _realColumns;
                 var rowIndex = (uint)Math.Floor((double)realIndex / _realColumns);
 
-                childBounds.X = columnIndex * (childBounds.Width + ItemSpace.Width) + Padding.Left;
-                childBounds.Y = rowIndex * (childBounds.Height + ItemSpace.Height) + Padding.Top;
+                childBounds.X = columnIndex * (childBounds.Width + Space.Width) + Padding.Left;
+                childBounds.Y = rowIndex * (childBounds.Height + Space.Height) + Padding.Top;
 
                 child.Arrange(childBounds);
                 realIndex++;
@@ -157,13 +157,13 @@ namespace UIResources.Panels
 
         private Size GetSpaceSize(int nonCollapsedCount)
         {
-            if (nonCollapsedCount == 0 || nonCollapsedCount == 1)
+            if (nonCollapsedCount == 0)
                 return new Size(Padding.Left + Padding.Right, Padding.Top + Padding.Bottom);
 
             return new Size
             {
-                Width = (_realColumns - 1) * ItemSpace.Width + Padding.Left + Padding.Right,
-                Height = (_realRows - 1) * ItemSpace.Height + Padding.Top + Padding.Bottom
+                Width = (_realColumns - 1) * Space.Width + Padding.Left + Padding.Right,
+                Height = (_realRows - 1) * Space.Height + Padding.Top + Padding.Bottom
             };
         }
 
