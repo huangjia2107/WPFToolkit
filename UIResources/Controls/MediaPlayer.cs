@@ -9,6 +9,7 @@ namespace UIResources.Controls
 {
     [TemplatePart(Name = MediaElementTemplateName, Type = typeof(MediaElement))]
     [TemplatePart(Name = SliderTemplateName, Type = typeof(Slider))]
+    [TemplatePart(Name = PlayButtonTemplateName, Type = typeof(ToggleStatus))]
     public class MediaPlayer : Control
     {
         private static readonly Type _typeofSelf = typeof(MediaPlayer);
@@ -19,9 +20,11 @@ namespace UIResources.Controls
 
         private const string MediaElementTemplateName = "PART_MediaElement";
         private const string SliderTemplateName = "PART_Slider";
+        private const string PlayButtonTemplateName = "PART_PlayButton";
 
         private MediaElement _mediaElement = null;
         private Slider _slider = null;
+        private ToggleStatus _toggleStatus = null;
 
         private DispatcherTimer _timer = null;
         private bool _isDragging = false;
@@ -152,6 +155,7 @@ namespace UIResources.Controls
 
             _mediaElement = this.GetTemplateChild(MediaElementTemplateName) as MediaElement;
             _slider = this.GetTemplateChild(SliderTemplateName) as Slider;
+            _toggleStatus = this.GetTemplateChild(PlayButtonTemplateName) as ToggleStatus;
 
             SubscribeEvents();
         }
@@ -209,8 +213,11 @@ namespace UIResources.Controls
         {
             if (_mediaElement != null)
             {
+                _mediaElement.Loaded -= OnMediaLoaded;
                 _mediaElement.MediaOpened -= OnMediaOpened;
                 _mediaElement.MediaEnded -= OnMediaEnded;
+                _mediaElement.BufferingStarted -= OnBufferingStarted;
+                _mediaElement.BufferingEnded -= OnBufferingEnded;
             }
 
             if (_slider != null)
@@ -225,6 +232,7 @@ namespace UIResources.Controls
         {
             if (_mediaElement != null)
             {
+                _mediaElement.Loaded += OnMediaLoaded;
                 _mediaElement.MediaOpened += OnMediaOpened;
                 _mediaElement.MediaEnded += OnMediaEnded;
                 _mediaElement.BufferingStarted += OnBufferingStarted;
@@ -237,6 +245,13 @@ namespace UIResources.Controls
                 _slider.MouseMove += OnSliderMouseMove;
                 _slider.AddHandler(MouseLeftButtonUpEvent, new MouseButtonEventHandler(OnSliderMouseLeftButtonUp), true);
             }
+        }
+
+        private void OnMediaLoaded(object sender, RoutedEventArgs e)
+        {
+            //默认显示第一帧
+            _mediaElement.Play();
+            _mediaElement.Pause();
         }
 
         #endregion
@@ -252,6 +267,12 @@ namespace UIResources.Controls
         private void OnMediaEnded(object sender, RoutedEventArgs e)
         {
             _timer.Stop();
+
+            _mediaElement.Stop();
+            _toggleStatus.IsChecked = false;
+
+            _slider.Value = 0;
+            SetValue(RemainTimePropertyKey, _mediaElement.NaturalDuration.TimeSpan);
         }
 
         private void OnBufferingStarted(object sender, RoutedEventArgs e)

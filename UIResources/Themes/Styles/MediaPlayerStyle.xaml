@@ -25,7 +25,7 @@
                                           Source="{TemplateBinding Source}"/>
 
                             <!--Play-->
-                            <controls:ToggleStatus x:Name="PlayButton" Grid.Row="1" Foreground="#CCFFFFFF" Cursor="Hand" Visibility="Collapsed"
+                            <controls:ToggleStatus x:Name="PART_PlayButton" Grid.Row="1" Foreground="#CCFFFFFF" Cursor="Hand" Visibility="Collapsed"
                                                    Style="{DynamicResource {x:Static themes:ResourceKeys.NoBgToggleStatusStyle}}"
                                                    Command="{x:Static controls:MediaPlayer.PlayCommand}"
                                                    CommandParameter="{Binding IsChecked,RelativeSource={RelativeSource Self}}">
@@ -121,7 +121,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="true">
-                            <Setter TargetName="PlayButton" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="PART_PlayButton" Property="Visibility" Value="Visible"/>
                             <Setter TargetName="ControlBorder" Property="Visibility" Value="Visible"/>
                             <Setter TargetName="BufferingBorder" Property="Grid.Row" Value="2"/>
                             <Setter TargetName="BufferingBorder" Property="VerticalAlignment" Value="Top"/>
