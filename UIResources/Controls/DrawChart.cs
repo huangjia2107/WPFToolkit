@@ -5,10 +5,9 @@ using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using System.Globalization;
-using CASApp.Theme.Datas;
 using System.Windows.Media;
-using CASApp.Util.Common;
-using CASApp.Theme.Utils;
+using UIResources.Datas;
+using Utils.Common;
 
 namespace CASApp.Theme.Controls
 {
@@ -16,7 +15,7 @@ namespace CASApp.Theme.Controls
     {
         private readonly DrawingGroup _drawingGroup = null;
 
-        private readonly Dictionary<string, PointData<long, int>> _pointsDic = new Dictionary<string, PointData<long, int>>();
+        private readonly Dictionary<string, PointData<Pen, long, int>> _pointsDic = new Dictionary<string, PointData<Pen, long, int>>();
         private readonly Dictionary<string, Drawing> _visualsDic = new Dictionary<string, Drawing>();
 
         private const string XAxisTimeVisualKey = "XAxisTime";
@@ -46,7 +45,7 @@ namespace CASApp.Theme.Controls
         static void OnStartTimePropertyChanged(DependencyObject d,DependencyPropertyChangedEventArgs e)
         {
             var ctrl = d as DrawChart;
-            ctrl._minTimestamp = Common.DateTimeToTimestamp((DateTime)e.NewValue);
+            ctrl._minTimestamp = CommonUtil.DateTimeToTimestamp((DateTime)e.NewValue);
         }
 
         public static readonly DependencyProperty EndTimeProperty =
@@ -60,7 +59,7 @@ namespace CASApp.Theme.Controls
         static void OnEndTimePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var ctrl = d as DrawChart;
-            ctrl._maxTimestamp = Common.DateTimeToTimestamp((DateTime)e.NewValue);
+            ctrl._maxTimestamp = CommonUtil.DateTimeToTimestamp((DateTime)e.NewValue);
         }
 
         public static readonly DependencyProperty YMaxProperty =
@@ -147,10 +146,10 @@ namespace CASApp.Theme.Controls
             }
             else
             {
-                var pen = new Pen(CommonUtil.GetBrush(), 1);
+                var pen = new Pen(UIResources.Helps.Utils.GetBrush(), 1);
                 pen.Freeze();
 
-                var pointData = new PointData<long, int> { Pen = pen, Points = points };
+                var pointData = new PointData<Pen, long, int> { Pen = pen, Points = points };
 
                 _pointsDic.Add(key, pointData);
             }
@@ -171,7 +170,7 @@ namespace CASApp.Theme.Controls
             return DoubleUtil.IsNaN(this.Width) ? this.ActualWidth : this.Width;
         }
 
-        private void DrawLine(PointData<long,int> pointData, DrawingContext dc)
+        private void DrawLine(PointData<Pen, long, int> pointData, DrawingContext dc)
         {
             var disPerX = GetCurrentWidth() / (_maxTimestamp - _minTimestamp);
             var disPerY = (this.ActualHeight - 30) / (YMax - YMin);
@@ -179,7 +178,7 @@ namespace CASApp.Theme.Controls
             PointPair<long, int>? prePoint = null;
             var preX = 0d;
             var preY = 0d;
-             
+
             for (int i = 0; i < pointData.Points.Length; i++)
             {
                 var point = pointData.Points[i];
@@ -207,6 +206,45 @@ namespace CASApp.Theme.Controls
                 preX = x;
                 preY = y;
             }
+
+            /* 以下方式画线，坐标不正确，代码有问题，暂不采用
+            var geo = new StreamGeometry();
+            using (var geoContext = geo.Open())
+            {
+                for (int i = 0; i < pointData.Points.Length; i++)
+                {
+                    var point = pointData.Points[i];
+                    if (point.Y == -1)
+                    {
+                        prePoint = null;
+                        continue;
+                    }
+
+                    if (prePoint == null)
+                    {
+                        prePoint = point;
+                        preX = (point.X - _minTimestamp) * disPerX;
+                        preY = (YMax - point.Y) * disPerY;
+
+                        geoContext.BeginFigure(new Point(preX, preY), false, false);
+
+                        continue;
+                    }
+
+                    var x = (point.X - _minTimestamp) * disPerX;
+                    var y = (YMax - point.Y) * disPerY;
+
+                    geoContext.LineTo(new Point(x, y), true, false);
+
+                    prePoint = point;
+                    preX = x;
+                    preY = y;
+                }
+            }
+
+            //geo.Freeze();
+            dc.DrawGeometry(null, pointData.Pen, (Geometry)geo.GetAsFrozen());
+             */
         }
 
         private void Redraw()
@@ -251,7 +289,7 @@ namespace CASApp.Theme.Controls
 
             for (var i = StartTime+ TimeSpan.FromMilliseconds(formatAndInterval.interval); i < EndTime; i += TimeSpan.FromMilliseconds(formatAndInterval.interval))
             {
-                var timestamp = Common.DateTimeToTimestamp(i);
+                var timestamp = CommonUtil.DateTimeToTimestamp(i);
 
                 var x = (timestamp - _minTimestamp) * disPerX;
                 var y = this.ActualHeight - 25;
@@ -294,10 +332,7 @@ namespace CASApp.Theme.Controls
                        FlowDirection.LeftToRight,
                        new Typeface("Arial"),
                        13,
-                       Brushes.Black,
-                       null,
-                       TextFormattingMode.Display,
-                       1d);
+                       Brushes.Black);
 
             ft.SetFontWeight(FontWeights.Regular);
             ft.TextAlignment = TextAlignment.Left;
@@ -307,9 +342,7 @@ namespace CASApp.Theme.Controls
 
         public void Dispose()
         {
-            _pointsDic.Clear();
-            _visualsDic.Clear();
-            _drawingGroup.Children.Clear();
+            ClearLines();
         }
     }
 }

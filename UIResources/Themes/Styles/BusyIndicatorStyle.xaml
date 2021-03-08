@@ -1,0 +1,69 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:UIResources.Controls">
+
+    <Style TargetType="{x:Type controls:BusyIndicator}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:BusyIndicator}">
+                    <ControlTemplate.Resources>
+                        <PowerEase EasingMode="EaseInOut" x:Key="BusyIndicatorEasingFunc"/>
+
+                        <Storyboard x:Key="BusyIndicatorStoryboard" RepeatBehavior="Forever">
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Canvas.Left)" Storyboard.TargetName="RedEllipase">
+                                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="100" EasingFunction="{StaticResource BusyIndicatorEasingFunc}"/>
+                                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="200" EasingFunction="{StaticResource BusyIndicatorEasingFunc}"/>
+                                <EasingDoubleKeyFrame KeyTime="0:0:1.5" Value="100" EasingFunction="{StaticResource BusyIndicatorEasingFunc}"/>
+                                <EasingDoubleKeyFrame KeyTime="0:0:2" Value="100"/>
+                                <EasingDoubleKeyFrame KeyTime="0:0:2.5" Value="100"/>
+                                <EasingDoubleKeyFrame KeyTime="0:0:3" Value="0" EasingFunction="{StaticResource BusyIndicatorEasingFunc}"/>
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Canvas.Left)" Storyboard.TargetName="GreenEllipase">
+                                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="100"/>
+                                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="0" EasingFunction="{StaticResource BusyIndicatorEasingFunc}"/>
+                                <EasingDoubleKeyFrame KeyTime="0:0:1.5" Value="100" EasingFunction="{StaticResource BusyIndicatorEasingFunc}"/>
+                                <EasingDoubleKeyFrame KeyTime="0:0:2" Value="200" EasingFunction="{StaticResource BusyIndicatorEasingFunc}"/>
+                                <EasingDoubleKeyFrame KeyTime="0:0:2.5" Value="100" EasingFunction="{StaticResource BusyIndicatorEasingFunc}"/>
+                                <EasingDoubleKeyFrame KeyTime="0:0:3" Value="100"/>
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Canvas.Left)" Storyboard.TargetName="OrangeEllipase">
+                                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="100" EasingFunction="{StaticResource BusyIndicatorEasingFunc}"/>
+                                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="100"/>
+                                <EasingDoubleKeyFrame KeyTime="0:0:1.5" Value="100"/>
+                                <EasingDoubleKeyFrame KeyTime="0:0:2" Value="0" EasingFunction="{StaticResource BusyIndicatorEasingFunc}"/>
+                                <EasingDoubleKeyFrame KeyTime="0:0:2.5" Value="100" EasingFunction="{StaticResource BusyIndicatorEasingFunc}"/>
+                                <EasingDoubleKeyFrame KeyTime="0:0:3" Value="200" EasingFunction="{StaticResource BusyIndicatorEasingFunc}"/>
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </ControlTemplate.Resources>
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}">
+                        <Viewbox>
+                            <Canvas Width="240" Height="40">
+                                <Ellipse x:Name="RedEllipase" Canvas.Left="0" Height="40" Width="40" Fill="#FF3333"/>
+                                <Ellipse x:Name="GreenEllipase" Canvas.Left="100" Height="40" Width="40" Fill="#58C9FD"/>
+                                <Ellipse x:Name="OrangeEllipase" Canvas.Left="200" Height="40" Width="40" Fill="#FF8F40"/>
+                            </Canvas>
+                        </Viewbox>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsActive" Value="true">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard Name="storyboard" Storyboard="{StaticResource BusyIndicatorStoryboard}"/>
+                            </Trigger.EnterActions>
+                        </Trigger>
+                        <Trigger Property="IsActive" Value="false">
+                            <Trigger.EnterActions>
+                                <StopStoryboard BeginStoryboardName="storyboard"/>
+                            </Trigger.EnterActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+</ResourceDictionary>

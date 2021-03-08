@@ -1,0 +1,51 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:themes="clr-namespace:UIResources.Themes">
+
+    <Style x:Key="{x:Static themes:ResourceKeys.NormalCheckBoxStyleKey}" 
+           TargetType="{x:Type CheckBox}">
+        <!-- <Setter Property="FocusVisualStyle" Value="{x:Null}"/> -->
+        <Setter Property="Foreground" Value="#616161"/>
+        <Setter Property="BorderBrush" Value="#3E4756"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type CheckBox}">
+                    <Grid Background="Transparent">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="CheckedBorder" BorderThickness="2" CornerRadius="3"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                Width="{Binding ActualHeight,RelativeSource={RelativeSource Self}}">
+                            <Path x:Name="CheckedPath" Visibility="Collapsed" Stretch="Fill" Fill="White" Margin="4,5" 
+                                    Data="M376.123077 836.923077L51.2 510.030769c-11.815385-11.815385-11.815385-31.507692 0-43.323077l43.323077-43.323077c11.815385-11.815385 31.507692-11.815385 43.323077 0L382.030769 669.538462c7.876923 7.876923 21.661538 7.876923 29.538462 0L890.092308 187.076923c11.815385-11.815385 31.507692-11.815385 43.323077 0l43.323077 43.323077c11.815385 11.815385 11.815385 31.507692 0 43.323077L419.446154 836.923077c-11.815385 13.784615-31.507692 13.784615-43.323077 0z"/>
+                        </Border>
+                        <ContentPresenter x:Name="contentPresenter" Grid.Column="1"
+                                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                            Margin="{TemplateBinding Padding}"  
+                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/> 
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Visibility" Value="Visible" TargetName="CheckedPath"/>
+                            <Setter Property="BorderThickness" Value="0" TargetName="CheckedBorder"/>
+                            <Setter Property="Background" Value="#4980FF"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Opacity" Value="0.5"/>
+                            <Setter Property="Foreground" Value="#88808080"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

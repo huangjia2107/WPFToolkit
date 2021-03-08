@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -9,10 +9,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>UIResources</RootNamespace>
     <AssemblyName>UIResources</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,9 +33,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.2.0.78\lib\net461\Dapper.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationFramework.Aero" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -50,12 +59,20 @@
   <ItemGroup>
     <Compile Include="AttachedProperties\IsHandleMouseWheel.cs" />
     <Compile Include="AttachedProperties\IsHandleSelectWithCtrl.cs" />
+    <Compile Include="Controls\BusyIndicator.cs" />
     <Compile Include="Controls\ColorPicker.cs" />
+    <Compile Include="Controls\DrawChart.cs" />
+    <Compile Include="Controls\ImageChart.cs" />
+    <Compile Include="Controls\LiveChart.cs" />
+    <Compile Include="Controls\LiveChartGraph.cs" />
     <Compile Include="Controls\MediaPlayer.cs" />
     <Compile Include="Controls\OutlinedTextBlock.cs" />
+    <Compile Include="Controls\Pager.cs" />
     <Compile Include="Controls\RangeSlider.cs" />
     <Compile Include="Controls\Sector.cs" />
     <Compile Include="Controls\Spliter.cs" />
+    <Compile Include="Controls\VlcMediaPlayer.cs" />
+    <Compile Include="Datas\Point.cs" />
     <Compile Include="Datas\RelativeBindings.cs" />
     <Compile Include="AttachedProperties\RelativeVisibility.cs" />
     <Compile Include="Controls\MenuButton.cs" />
@@ -74,6 +91,9 @@
     <Compile Include="Helps\LayoutUtil.cs" />
     <Compile Include="Markup\BubbleVisibility.cs" />
     <Compile Include="Markup\SharedResourceDictionary.cs" />
+    <Compile Include="Pagination\CollectionPaginationProvider.cs" />
+    <Compile Include="Pagination\DatabasePaginationProvider.cs" />
+    <Compile Include="Pagination\IPaginationProvider.cs" />
     <Compile Include="Panels\FlowPanel.cs" />
     <Compile Include="Panels\GridEx.cs" />
     <Compile Include="Themes\ResourceKeys.cs" />
@@ -96,13 +116,25 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Themes\Styles\BusyIndicatorStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Themes\Styles\ButtonStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Themes\Styles\CheckBoxStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Themes\Styles\ColorPickerStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Styles\LiveChartStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Themes\Styles\MediaPlayerStyle.xaml">
       <SubType>Designer</SubType>
@@ -119,6 +151,10 @@
     <Page Include="Themes\Styles\NumericBoxStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Styles\PagerStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Themes\Styles\ProgressBarStyle.xaml">
       <SubType>Designer</SubType>
@@ -156,6 +192,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Themes\Styles\VlcMediaPlayer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Themes\Styles\ZoomBoxStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -180,6 +220,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
