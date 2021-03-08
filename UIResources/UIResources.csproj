@@ -71,6 +71,7 @@
     <Compile Include="Controls\RangeSlider.cs" />
     <Compile Include="Controls\Sector.cs" />
     <Compile Include="Controls\Spliter.cs" />
+    <Compile Include="Controls\ToggleSwitch.cs" />
     <Compile Include="Controls\VlcMediaPlayer.cs" />
     <Compile Include="Datas\Point.cs" />
     <Compile Include="Datas\RelativeBindings.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Helps\DpiUtil.cs" />
     <Compile Include="Helps\ExtensionMethod.cs" />
     <Compile Include="Helps\LayoutUtil.cs" />
+    <Compile Include="Helps\PrismUtil.cs" />
     <Compile Include="Markup\BubbleVisibility.cs" />
     <Compile Include="Markup\SharedResourceDictionary.cs" />
     <Compile Include="Pagination\CollectionPaginationProvider.cs" />
@@ -96,6 +98,8 @@
     <Compile Include="Pagination\IPaginationProvider.cs" />
     <Compile Include="Panels\FlowPanel.cs" />
     <Compile Include="Panels\GridEx.cs" />
+    <Compile Include="Regions\GridRegionAdapter.cs" />
+    <Compile Include="Regions\StackPanelRegionAdapter.cs" />
     <Compile Include="Themes\ResourceKeys.cs" />
     <Page Include="Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -131,6 +135,10 @@
     <Page Include="Themes\Styles\ColorPickerStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Styles\ImageChartStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Themes\Styles\LiveChartStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -188,6 +196,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Themes\Styles\ToggleSwitchStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Themes\Styles\UserWindowStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -220,6 +232,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
