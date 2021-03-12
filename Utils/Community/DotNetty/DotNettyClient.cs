@@ -15,19 +15,15 @@ namespace Utils.Community.DotNetty
     public class DotNettyClient
     {
         private MultithreadEventLoopGroup _group = null;
-        private Bootstrap _bootstrap = null;
         private IChannel _channel = null;
 
-        private ByteToMessageDecoder[] _decoders = null;
-
-        public DotNettyClient(params ByteToMessageDecoder[] decoders)
+        public DotNettyClient()
         {
-            _decoders = decoders;
         }
 
         public bool IsConnected => _channel != null && _channel.Active;
 
-        public async Task<bool> ConnectAsync(string ip, int port, ChannelHandlerAdapter channelHandler, bool keepAlive = true)
+        public async Task<bool> ConnectAsync(string ip, int port, ChannelHandlerAdapter channelHandler, params ByteToMessageDecoder[] decoders)
         {
             if (channelHandler == null)
                 throw new ArgumentNullException(nameof(channelHandler));
@@ -43,27 +39,24 @@ namespace Utils.Community.DotNetty
 
             try
             {
-                if (_group == null)
-                    _group = new MultithreadEventLoopGroup();
+                _group = new MultithreadEventLoopGroup();
 
-                if (_bootstrap == null)
-                {
-                    _bootstrap = new Bootstrap();
-                    _bootstrap.Group(_group)
-                              .Channel<TcpSocketChannel>()
-                              .Option(ChannelOption.TcpNodelay, false)
-                              .Option(ChannelOption.SoKeepalive, keepAlive)
-                              .Option(ChannelOption.ConnectTimeout, TimeSpan.FromSeconds(10))
-                              .Handler(new ActionChannelInitializer<ISocketChannel>(c =>
-                              {
-                                  var pipeline = c.Pipeline;
+                
+				var bootstrap = new Bootstrap();
+				bootstrap.Group(_group)
+						  .Channel<TcpSocketChannel>()
+						  .Option(ChannelOption.TcpNodelay, false)
+						  .Option(ChannelOption.SoKeepalive, true)
+						  .Option(ChannelOption.ConnectTimeout, TimeSpan.FromSeconds(10))
+						  .Handler(new ActionChannelInitializer<ISocketChannel>(c =>
+						  {
+							  var pipeline = c.Pipeline;
 
-                                  if (_decoders != null && _decoders.Length > 0)
-                                      pipeline.AddLast(_decoders);
+							  if (decoders != null && decoders.Length > 0)
+								  pipeline.AddLast(decoders);
 
-                                  pipeline.AddLast(channelHandler);
-                              }));
-                }
+							  pipeline.AddLast(channelHandler);
+						  }));
 
                 _channel = await _bootstrap.ConnectAsync(new IPEndPoint(ipAddress, port));
 
@@ -88,10 +81,16 @@ namespace Utils.Community.DotNetty
             catch (Exception ex)
             {
                 if (_channel != null)
+                {
                     await _channel.CloseAsync();
+                    _channel = null;
+                }
 
                 if (_group != null)
+                {
                     await _group?.ShutdownGracefullyAsync();
+                    _group = null;
+                }
 
                 //Logger.Instance.Common.Info($"[ Netty ] ConnectAsync, Connection Failed, Address {ipAddress}:{port}\nError:{ex.Message}");
                 return false;
@@ -117,15 +116,20 @@ namespace Utils.Community.DotNetty
         {
             if (_channel != null)
             {
+				/*
                 if (_channel.Open || _channel.Active)
                     await _channel.DisconnectAsync();
-
+                */
+				
                 await _channel.CloseAsync();
                 _channel = null;
             }
 
             if (_group != null)
+			{
                 await _group.ShutdownGracefullyAsync();
+				_group = null;
+			}
         }
     }
 }
