@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -21,8 +22,17 @@ namespace CASApp.Theme.Controls
 
         private Grid _grid = null;
         private LiveChartGraph _liveChartGraph = null;
+        private (DateTime StartTime, DateTime EndTime)? _xRange = null;
+
+        private readonly Pen _pen = null;
 
         private readonly DrawingGroup _drawingGroup = null;
+
+        public struct MarkRecord
+        {
+            public string Key { get; set; }
+            public string Color { get; set; }
+        }
 
         static LiveChart()
         {
@@ -32,6 +42,24 @@ namespace CASApp.Theme.Controls
         public LiveChart()
         {
             _drawingGroup = new DrawingGroup();
+
+            _pen = new Pen(new SolidColorBrush((Color)ColorConverter.ConvertFromString("#3D4655")), 1);
+            _pen.Freeze();
+        }
+
+        private static readonly DependencyPropertyKey RecordsPropertyKey =
+          DependencyProperty.RegisterReadOnly("Records", typeof(ObservableCollection<MarkRecord>), _typeofSelf, new PropertyMetadata(new ObservableCollection<MarkRecord>()));
+        public static readonly DependencyProperty RecordsProperty = RecordsPropertyKey.DependencyProperty;
+        public ObservableCollection<MarkRecord> Records
+        {
+            get { return (ObservableCollection<MarkRecord>)GetValue(RecordsProperty); }
+        }
+
+        public static readonly DependencyProperty MarkToolTipProperty = DependencyProperty.Register("MarkToolTip", typeof(string), _typeofSelf);
+        public string MarkToolTip
+        {
+            get { return (string)GetValue(MarkToolTipProperty); }
+            set { SetValue(MarkToolTipProperty, value); }
         }
 
         public static readonly DependencyProperty YMaxProperty =
@@ -45,7 +73,7 @@ namespace CASApp.Theme.Controls
         static void OnYMaxPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var ctrl = d as LiveChart;
-            ctrl.DrawYAxis();
+            ctrl.Redraw();
         }
 
         public static readonly DependencyProperty YMinProperty =
@@ -59,9 +87,15 @@ namespace CASApp.Theme.Controls
         static void OnYMinPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var ctrl = d as LiveChart;
-            ctrl.DrawYAxis();
+            ctrl.Redraw();
         }
 
+        public static readonly DependencyProperty DurationProperty = DependencyProperty.Register("Duration", typeof(int), _typeofSelf, new FrameworkPropertyMetadata(8));
+        public int Duration
+        {
+            get { return (int)GetValue(DurationProperty); }
+            set { SetValue(DurationProperty, value); }
+        }
 
         #region Override
 
@@ -77,7 +111,7 @@ namespace CASApp.Theme.Controls
         {
             base.OnRender(drawingContext);
 
-            DrawYAxis();
+            Redraw();
             drawingContext.DrawDrawing(_drawingGroup);
         }
 
@@ -85,16 +119,79 @@ namespace CASApp.Theme.Controls
 
         #region Public
 
-        public void AppendPoints(IDictionary<string, List<PointPair<long, int>>> dic)
+        public void Reset()
         {
-            _liveChartGraph.AppendPoints(dic, YMin, YMax);
+            _liveChartGraph.Reset();
+            Records.Clear();
+            _xRange = null;
+        }
+
+        public void AppendPoints(IDictionary<string, PointData<string, long, int>> dic, string[] visibleKeys)
+        {
+            Records.Clear();
+
+            var maxDataTimestamp = dic.Max(d => d.Value.Points.Last().X);
+            var minDataTimestamp = dic.Min(d => d.Value.Points[0].X);
+
+            var xAxisChanged = CheckXAxis(maxDataTimestamp);
+            if (xAxisChanged)
+                Redraw();
+
+            _liveChartGraph.AppendPoints(dic, YMin, YMax, minDataTimestamp, maxDataTimestamp, _xRange.Value, xAxisChanged, visibleKeys);
+
+            Records.AddRange(dic.Where(kvp => !string.IsNullOrEmpty(kvp.Value.Value) && visibleKeys.Contains(kvp.Value.Value)).Select(kvp => new MarkRecord { Key = kvp.Value.Value, Color = _liveChartGraph.GetPenByKey(kvp.Key).Brush.ToString() }));
         }
 
         #endregion
 
         #region Private
 
-        private void DrawYAxis()
+        private void Redraw()
+        {
+            using (var dc = _drawingGroup.Open())
+            {
+                DrawXAxis(dc);
+                DrawYAxis(dc);
+            }
+        }
+
+        private bool CheckXAxis(long maxTimestamp)
+        {
+            var maxTime = Common.TimestampToDateTime(maxTimestamp);
+
+            if (!_xRange.HasValue || maxTime > _xRange.Value.EndTime)
+            {
+                var endTime = new DateTime(maxTime.Year, maxTime.Month, maxTime.Day, maxTime.Hour, maxTime.Minute, maxTime.Second).AddSeconds(1);
+                var startTime = endTime.AddSeconds(-Duration);
+
+                _xRange = (startTime, endTime);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private void DrawXAxis(DrawingContext dc)
+        {
+            if (!_xRange.HasValue)
+                return;
+
+            var timeSpan = (int)(_xRange.Value.EndTime - _xRange.Value.StartTime).TotalSeconds;
+            dc.DrawLine(_pen, new Point(0, ActualHeight - 30), new Point(ActualWidth, ActualHeight - 30));
+
+            for (int i = 1; i < timeSpan; i++)
+            {
+                var timeText = GetFormattedText((_xRange.Value.StartTime + TimeSpan.FromSeconds(i)).ToString("HH:mm:ss"));
+
+                var x = ActualWidth / timeSpan * i;
+
+                dc.DrawLine(_pen, new Point(x, 0), new Point(x, ActualHeight - 30));
+                dc.DrawText(timeText, new Point(x - timeText.Width / 2, this.ActualHeight - 17));
+            }
+        }
+
+        private void DrawYAxis(DrawingContext dc)
         {
             if (_grid == null)
                 return;
@@ -118,11 +215,7 @@ namespace CASApp.Theme.Controls
             }
 
             _grid.ColumnDefinitions[0].Width = new GridLength(maxWidth);
-
-            using (var dc = _drawingGroup.Open())
-            {
-                texts.ForEach(t => dc.DrawText(t.Item1, new System.Windows.Point(maxWidth - t.Item1.Width, t.Item2)));
-            }
+            texts.ForEach(t => dc.DrawText(t.Item1, new Point(maxWidth - t.Item1.Width, t.Item2)));
         }
 
         private FormattedText GetFormattedText(string textToFormat)

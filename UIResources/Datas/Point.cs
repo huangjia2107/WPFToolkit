@@ -8,9 +8,9 @@ namespace UIResources.Datas
         public yT Y { get; set; }
     }
 
-    public class PointData<penT, xT, yT>
+    public class PointData<vT, xT, yT>
     {
-        public penT Pen { get; set; }
+        public vT Value { get; set; }
         public PointPair<xT, yT>[] Points { get; set; }
     }
 }

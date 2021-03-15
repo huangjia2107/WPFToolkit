@@ -11,13 +11,28 @@
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
                         <Grid x:Name="PART_Grid">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="30"/>
+                            </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto"/>
                                 <ColumnDefinition Width="auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Path Grid.Column="1" Stretch="Fill" Stroke="#3D4655" StrokeThickness="1" Data="M0,0 V10" Margin="10,0,0,30" Width="1" RenderOptions.EdgeMode="Aliased"/>
-                            <controls:LiveChartGraph Grid.Column="2" x:Name="PART_LiveChartGraph" ClipToBounds="True"/>
+                            <Path Grid.Column="1" Stretch="Fill" Stroke="#3D4655" StrokeThickness="1" Data="M0,0 V10" Margin="10,0,0,0" Width="1" RenderOptions.EdgeMode="Aliased"/>
+                            <Viewbox Grid.Column="2" Stretch="Fill">
+                                <controls:LiveChartGraph x:Name="PART_LiveChartGraph" ClipToBounds="True" Height="600" Width="1000"
+                                                         Duration="{TemplateBinding Duration}"/>
+                            </Viewbox>
+                            <ItemsControl Grid.Column="2" ItemsSource="{TemplateBinding Records}" VerticalAlignment="Top" HorizontalAlignment="Right" FontSize="13"
+                                          ToolTip="{TemplateBinding MarkToolTip}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Key}" Foreground="{Binding Color}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </Grid>
                     </Border>
                 </ControlTemplate>
