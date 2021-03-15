@@ -150,8 +150,9 @@ namespace CASApp.Theme.Controls
         {
             using (var dc = _drawingGroup.Open())
             {
-                DrawXAxis(dc);
-                DrawYAxis(dc);
+                var yMarkWidth = DrawYAxis(dc);
+
+                DrawXAxis(dc, yMarkWidth + 10);
             }
         }
 
@@ -172,29 +173,29 @@ namespace CASApp.Theme.Controls
             return false;
         }
 
-        private void DrawXAxis(DrawingContext dc)
+        private void DrawXAxis(DrawingContext dc, double leftMargin = 0)
         {
             if (!_xRange.HasValue)
                 return;
 
             var timeSpan = (int)(_xRange.Value.EndTime - _xRange.Value.StartTime).TotalSeconds;
-            dc.DrawLine(_pen, new Point(0, ActualHeight - 30), new Point(ActualWidth, ActualHeight - 30));
+            dc.DrawLine(_pen, new Point(leftMargin, ActualHeight - 30), new Point(ActualWidth, ActualHeight - 30));
 
             for (int i = 1; i < timeSpan; i++)
             {
                 var timeText = GetFormattedText((_xRange.Value.StartTime + TimeSpan.FromSeconds(i)).ToString("HH:mm:ss"));
 
-                var x = ActualWidth / timeSpan * i;
+                var x = (ActualWidth - leftMargin) / timeSpan * i;
 
-                dc.DrawLine(_pen, new Point(x, 0), new Point(x, ActualHeight - 30));
-                dc.DrawText(timeText, new Point(x - timeText.Width / 2, this.ActualHeight - 17));
+                dc.DrawLine(_pen, new Point(x + leftMargin, 0), new Point(x + leftMargin, ActualHeight - 30));
+                dc.DrawText(timeText, new Point(x + leftMargin - timeText.Width / 2, this.ActualHeight - 17));
             }
         }
 
-        private void DrawYAxis(DrawingContext dc)
+        private double DrawYAxis(DrawingContext dc)
         {
             if (_grid == null)
-                return;
+                return 0;
 
             var maxWidth = 0d;
             var disPerY = (_grid.ActualHeight - 30) / (YMax - YMin);
@@ -216,6 +217,8 @@ namespace CASApp.Theme.Controls
 
             _grid.ColumnDefinitions[0].Width = new GridLength(maxWidth);
             texts.ForEach(t => dc.DrawText(t.Item1, new Point(maxWidth - t.Item1.Width, t.Item2)));
+
+            return maxWidth;
         }
 
         private FormattedText GetFormattedText(string textToFormat)
