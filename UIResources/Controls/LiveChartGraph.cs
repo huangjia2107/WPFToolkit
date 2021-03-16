@@ -107,10 +107,10 @@ namespace CASApp.Theme.Controls
             var disPerX = this.ActualWidth / (maxAxisTimestamp - minAxisTimestamp);
             var disPerY = (this.ActualHeight) / (yMax - yMin);
 
-            if (xAxisChanged && _visualQueue.Count > 0)
+            if (xAxisChanged)
             {
                 //移除不在当前时间范围内的对象
-                while (true)
+                while (_visualQueue.Count > 0)
                 {
                     var vr = _visualQueue.Peek();
                     if (vr.MaxDataTimestamp <= minAxisTimestamp)
