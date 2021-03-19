@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using UIResources.Datas;
 using Utils.Common;
@@ -55,6 +56,13 @@ namespace CASApp.Theme.Controls
             get { return (ObservableCollection<MarkRecord>)GetValue(RecordsProperty); }
         }
 
+        public static readonly DependencyProperty SelectedKeyProperty = DependencyProperty.Register("SelectedKey", typeof(string), _typeofSelf);
+        public string SelectedKey
+        {
+            get { return (string)GetValue(SelectedKeyProperty); }
+            set { SetValue(SelectedKeyProperty, value); }
+        }
+
         public static readonly DependencyProperty MarkToolTipProperty = DependencyProperty.Register("MarkToolTip", typeof(string), _typeofSelf);
         public string MarkToolTip
         {
@@ -103,16 +111,42 @@ namespace CASApp.Theme.Controls
         {
             base.OnApplyTemplate();
 
+            if (_liveChartGraph != null)
+                _liveChartGraph.LineSelected -= OnLineSelected;
+
             _grid = GetTemplateChild(GridTemplateName) as Grid;
             _liveChartGraph = GetTemplateChild(LiveChartGraphTemplateName) as LiveChartGraph;
+
+            if (_liveChartGraph != null)
+                _liveChartGraph.LineSelected += OnLineSelected;
         }
 
+     
+        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
+            base.OnPreviewMouseLeftButtonDown(e);
+
+            if (_liveChartGraph == null)
+                return;
+
+            _liveChartGraph.FindKeyByPoint(e);
+        }
+         
         protected override void OnRender(DrawingContext drawingContext)
         {
             base.OnRender(drawingContext);
 
             Redraw();
             drawingContext.DrawDrawing(_drawingGroup);
+        }
+
+        #endregion
+
+        #region Event
+
+        private void OnLineSelected(object sender, RoutedPropertyChangedEventArgs<string> e)
+        {
+            SelectedKey = e.NewValue;
         }
 
         #endregion
