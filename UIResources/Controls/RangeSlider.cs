@@ -25,9 +25,11 @@ namespace UIResources.Controls
         private Grid _grid = null;
 
         private ToolTip _leftAutoToolTip = null;
+        private ToolTip _centerAutoToolTip = null;
         private ToolTip _rightAutoToolTip = null;
 
         private object _leftThumbOriginalToolTip = null;
+        private object _centerThumbOriginalToolTip = null;
         private object _rightThumbOriginalToolTip = null;
 
         static RangeSlider()
@@ -52,6 +54,13 @@ namespace UIResources.Controls
         {
             add { AddHandler(RightValueChangedEvent, value); }
             remove { RemoveHandler(RightValueChangedEvent, value); }
+        }
+
+        public static readonly RoutedEvent DragCompletedEvent = EventManager.RegisterRoutedEvent("DragCompleted", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(RangeSlider));
+        public event RoutedEventHandler DragCompleted
+        {
+            add { AddHandler(DragCompletedEvent, value); }
+            remove { RemoveHandler(DragCompletedEvent, value); }
         }
 
         #region DependencyProperties
@@ -248,6 +257,13 @@ namespace UIResources.Controls
         private static bool IsValidAutoToolTipPrecision(object o)
         {
             return (((int)o) >= 0);
+        }
+
+        public static readonly DependencyProperty AutoToolTipFormatProperty = DependencyProperty.Register("AutoToolTipFormat", typeof(Func<double, double, string>), typeof(RangeSlider), new PropertyMetadata(null));
+        public Func<double, double, string> AutoToolTipFormat
+        {
+            get { return (Func<double, double, string>)GetValue(AutoToolTipFormatProperty); }
+            set { SetValue(AutoToolTipFormatProperty, value); }
         }
 
         public static readonly DependencyProperty IsLinkedProperty = DependencyProperty.Register("IsLinked", typeof(bool), typeof(RangeSlider), new PropertyMetadata(true));
@@ -502,10 +518,13 @@ namespace UIResources.Controls
             switch (thumb.Name)
             {
                 case LeftThumbTemplateName:
-                    return this.LeftValue.ToString("N", format);
+                    return AutoToolTipFormat != null ? AutoToolTipFormat(LeftValue, double.NaN) : LeftValue.ToString("N", format);
 
                 case RightThumbTemplateName:
-                    return this.RightValue.ToString("N", format);
+                    return AutoToolTipFormat != null ? AutoToolTipFormat(RightValue, double.NaN) : RightValue.ToString("N", format);
+
+                case CenterThumbTemplateName:
+                    return AutoToolTipFormat != null ? AutoToolTipFormat(LeftValue, RightValue) : (LeftValue.ToString("N", format) + "--" + RightValue.ToString("N", format));
             }
 
             return "0";
@@ -593,8 +612,13 @@ namespace UIResources.Controls
             {
                 if (IsLinked)
                 {
-                    ShowThumbToolTip(_leftThumb, ref _leftAutoToolTip, ref _leftThumbOriginalToolTip);
-                    ShowThumbToolTip(_rightThumb, ref _rightAutoToolTip, ref _rightThumbOriginalToolTip);
+                    if (DoubleUtil.IsZero(ThumbWidth))
+                        ShowThumbToolTip(_centerThumb, ref _centerAutoToolTip, ref _centerThumbOriginalToolTip);
+                    else
+                    {
+                        ShowThumbToolTip(_leftThumb, ref _leftAutoToolTip, ref _leftThumbOriginalToolTip);
+                        ShowThumbToolTip(_rightThumb, ref _rightAutoToolTip, ref _rightThumbOriginalToolTip);
+                    }
                 }
                 else
                 {
@@ -609,8 +633,15 @@ namespace UIResources.Controls
                             break;
 
                         case CenterThumbTemplateName:
-                            ShowThumbToolTip(_leftThumb, ref _leftAutoToolTip, ref _leftThumbOriginalToolTip);
-                            ShowThumbToolTip(_rightThumb, ref _rightAutoToolTip, ref _rightThumbOriginalToolTip);
+
+                            if (DoubleUtil.IsZero(ThumbWidth))
+                                ShowThumbToolTip(_centerThumb, ref _centerAutoToolTip, ref _centerThumbOriginalToolTip);
+                            else
+                            {
+                                ShowThumbToolTip(_leftThumb, ref _leftAutoToolTip, ref _leftThumbOriginalToolTip);
+                                ShowThumbToolTip(_rightThumb, ref _rightAutoToolTip, ref _rightThumbOriginalToolTip);
+                            }
+
                             break;
                     }
                 }
@@ -624,8 +655,15 @@ namespace UIResources.Controls
             {
                 if (IsLinked)
                 {
-                    HideThumbToolTip(_leftThumb, ref _leftAutoToolTip, ref _leftThumbOriginalToolTip);
-                    HideThumbToolTip(_rightThumb, ref _rightAutoToolTip, ref _rightThumbOriginalToolTip);
+                    if (DoubleUtil.IsZero(ThumbWidth))
+                    {
+                        HideThumbToolTip(_centerThumb, ref _centerAutoToolTip, ref _centerThumbOriginalToolTip);
+                    }
+                    else
+                    {
+                        HideThumbToolTip(_leftThumb, ref _leftAutoToolTip, ref _leftThumbOriginalToolTip);
+                        HideThumbToolTip(_rightThumb, ref _rightAutoToolTip, ref _rightThumbOriginalToolTip);
+                    }
                 }
                 else
                 {
@@ -640,13 +678,23 @@ namespace UIResources.Controls
                             break;
 
                         case CenterThumbTemplateName:
-                            HideThumbToolTip(_leftThumb, ref _leftAutoToolTip, ref _leftThumbOriginalToolTip);
-                            HideThumbToolTip(_rightThumb, ref _rightAutoToolTip, ref _rightThumbOriginalToolTip);
+
+                            if (DoubleUtil.IsZero(ThumbWidth))
+                            {
+                                HideThumbToolTip(_centerThumb, ref _centerAutoToolTip, ref _centerThumbOriginalToolTip);
+                            }
+                            else
+                            {
+                                HideThumbToolTip(_leftThumb, ref _leftAutoToolTip, ref _leftThumbOriginalToolTip);
+                                HideThumbToolTip(_rightThumb, ref _rightAutoToolTip, ref _rightThumbOriginalToolTip);
+                            }
+
                             break;
                     }
                 }
-
             }
+
+            RaiseEvent(new RoutedEventArgs(DragCompletedEvent, this));
         }
 
         private void OnThumbDragDelta(DragDeltaEventArgs e)
@@ -713,8 +761,15 @@ namespace UIResources.Controls
                         DragCenterThumb(delta);
 
                         UpdateValue();
-                        ShowThumbTooltipDuringDargging(_leftThumb, ref _leftAutoToolTip);
-                        ShowThumbTooltipDuringDargging(_rightThumb, ref _rightAutoToolTip);
+
+                        if (DoubleUtil.IsZero(ThumbWidth))
+                            ShowThumbTooltipDuringDargging(_centerThumb, ref _centerAutoToolTip);
+                        else
+                        {
+                            ShowThumbTooltipDuringDargging(_leftThumb, ref _leftAutoToolTip);
+                            ShowThumbTooltipDuringDargging(_rightThumb, ref _rightAutoToolTip);
+                        }
+
                         break;
                 }
             }
