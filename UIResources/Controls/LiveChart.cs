@@ -105,6 +105,13 @@ namespace CASApp.Theme.Controls
             set { SetValue(DurationProperty, value); }
         }
 
+        public static readonly DependencyProperty IsRealtimeProperty = DependencyProperty.Register("IsRealtime", typeof(bool), _typeofSelf, new PropertyMetadata(true));
+        public bool IsRealtime
+        {
+            get { return (bool)GetValue(IsRealtimeProperty); }
+            set { SetValue(IsRealtimeProperty, value); }
+        }
+
         #region Override
 
         public override void OnApplyTemplate()
@@ -153,11 +160,12 @@ namespace CASApp.Theme.Controls
 
         #region Public
 
-        public void Reset()
+        public void Reset(bool justData = false)
         {
-            _liveChartGraph.Reset();
-            Records.Clear();
-            _xRange = null;
+            _liveChartGraph.Reset(justData);
+
+            if (!justData)
+                _xRange = null;
         }
 
         public void AppendPoints(IDictionary<string, PointData<string, long, int>> dic, string[] visibleKeys)
@@ -167,7 +175,7 @@ namespace CASApp.Theme.Controls
             var maxDataTimestamp = dic.Max(d => d.Value.Points.Last().X);
             var minDataTimestamp = dic.Min(d => d.Value.Points[0].X);
 
-            var xAxisChanged = CheckXAxis(maxDataTimestamp);
+            var xAxisChanged = CheckXAxis(minDataTimestamp, maxDataTimestamp);
             if (xAxisChanged)
                 Redraw();
 
@@ -190,18 +198,35 @@ namespace CASApp.Theme.Controls
             }
         }
 
-        private bool CheckXAxis(long maxTimestamp)
+        private bool CheckXAxis(long minTimestamp, long maxTimestamp)
         {
+            var minTime = Common.TimestampToDateTime(minTimestamp);
             var maxTime = Common.TimestampToDateTime(maxTimestamp);
 
-            if (!_xRange.HasValue || maxTime > _xRange.Value.EndTime)
+            if (IsRealtime)
             {
-                var endTime = new DateTime(maxTime.Year, maxTime.Month, maxTime.Day, maxTime.Hour, maxTime.Minute, maxTime.Second).AddSeconds(1);
-                var startTime = endTime.AddSeconds(-Duration);
+                if (!_xRange.HasValue || maxTime > _xRange.Value.EndTime)
+                {
+                    var secondDateTime = new DateTime(maxTime.Year, maxTime.Month, maxTime.Day, maxTime.Hour, maxTime.Minute, maxTime.Second);
 
-                _xRange = (startTime, endTime);
+                    var endTime = maxTime.Millisecond == 0 ? secondDateTime : secondDateTime.AddSeconds(1);
+                    var startTime = endTime.AddSeconds(-Duration);
 
-                return true;
+                    _xRange = (startTime, endTime);
+
+                    return true;
+                }
+            }
+            else
+            {
+                if (!_xRange.HasValue || minTime < _xRange.Value.StartTime || maxTime > _xRange.Value.EndTime)
+                {
+                    var startTime = new DateTime(minTime.Year, minTime.Month, minTime.Day, minTime.Hour, minTime.Minute, minTime.Second);
+                    var endTime = startTime.AddSeconds(Duration);
+
+                    _xRange = (startTime, endTime);
+                    return true;
+                }
             }
 
             return false;

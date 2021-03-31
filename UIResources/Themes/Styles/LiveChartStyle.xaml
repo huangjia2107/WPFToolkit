@@ -22,8 +22,7 @@
                             </Grid.ColumnDefinitions>
                             <Path Grid.Column="1" Stretch="Fill" Stroke="#3D4655" StrokeThickness="1" Data="M0,0 V10" Margin="10,0,0,0" Width="1" RenderOptions.EdgeMode="Aliased"/>
                             <Viewbox Grid.Column="2" Stretch="Fill">
-                                <controls:LiveChartGraph x:Name="PART_LiveChartGraph" ClipToBounds="True" Height="600" Width="1000"
-                                                         Duration="{TemplateBinding Duration}"/>
+                                <controls:LiveChartGraph x:Name="PART_LiveChartGraph" ClipToBounds="True" Height="600" Width="1000"/>
                             </Viewbox>
                             <!-- for test
                             <Rectangle Grid.Column="2" Width="20" Height="10" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,0,0,0"

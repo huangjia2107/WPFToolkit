@@ -16,7 +16,7 @@ namespace CASApp.Theme.Controls
         private VisualCollection _children;
 
         private readonly ConcurrentDictionary<string, Pen> _keyPenDic = new ConcurrentDictionary<string, Pen>();
-        private readonly Queue<VisualRecord> _recordQueue = new Queue<VisualRecord>();
+        private readonly List<VisualRecord> _recordQueue = new List<VisualRecord>();
         private readonly List<VisualRecord> _recordPool = new List<VisualRecord>();
 
         private readonly double _pointDiff = 5;
@@ -63,13 +63,6 @@ namespace CASApp.Theme.Controls
         public Brush PointBrush
         {
             get { return (Brush)GetValue(PointBrushProperty); }
-        }
-
-        public static readonly DependencyProperty DurationProperty = DependencyProperty.Register("Duration", typeof(int), typeof(LiveChartGraph), new FrameworkPropertyMetadata(8));
-        public int Duration
-        {
-            get { return (int)GetValue(DurationProperty); }
-            set { SetValue(DurationProperty, value); }
         }
 
         protected override int VisualChildrenCount
@@ -210,17 +203,18 @@ namespace CASApp.Theme.Controls
             RaiseEvent(new RoutedPropertyChangedEventArgs<string>(null, null, LineSelectedEvent));
         }
 
-        public void Reset()
+        public void Reset(bool justData = false)
         {
-            _keyPenDic.Clear();
+            if (!justData)
+                _keyPenDic.Clear();
 
-            while (_recordQueue.Count > 0)
+            _recordQueue.ForEach(vr =>
             {
-                var vr = _recordQueue.Dequeue();
-
                 vr.Reset();
                 RemoveVisual(vr.Visual);
-            }
+            });
+
+            _recordQueue.Clear();
 
             GC.Collect();
         }
@@ -250,25 +244,23 @@ namespace CASApp.Theme.Controls
 
             if (xAxisChanged)
             {
-                //移除不在当前时间范围内的对象
-                while (_recordQueue.Count > 0)
+                for (int i = 0; i < _recordQueue.Count; i++)
                 {
-                    var vr = _recordQueue.Peek();
-                    if (vr.MaxDataTimestamp <= minAxisTimestamp)
-                    {
-                        _recordQueue.Dequeue();
-                        vr.Reset();
+                    var vr = _recordQueue[i];
 
+                    //移除不在当前时间范围内的对象
+                    if (vr.MaxDataTimestamp <= minAxisTimestamp || vr.MinDataTimestamp >= maxAxisTimestamp)
+                    {
+                        _recordQueue.RemoveAt(i);
+
+                        vr.Reset();
                         RemoveVisual(vr.Visual);
+
+                        i--;
                         continue;
                     }
 
-                    break;
-                }
-
-                //平移到当前时间范围的相对位置上
-                foreach (var vr in _recordQueue)
-                {
+                    //平移到当前时间范围的相对位置上
                     var tt = vr.Visual.Transform as TranslateTransform;
 
                     if (tt == null)
@@ -277,6 +269,10 @@ namespace CASApp.Theme.Controls
                         tt.X = -disPerX * (minAxisTimestamp - vr.MinAxisTimestamp);
                 }
             }
+             
+            //若已经存在相同的数据，则返回
+            if (_recordQueue.Exists(vr => vr.MinDataTimestamp == minDataTimestamp && vr.MaxDataTimestamp == maxDataTimestamp))
+                return;
 
             var visualRecord = GetRecord(minDataTimestamp, maxDataTimestamp, minAxisTimestamp, maxAxisTimestamp);
 
@@ -346,7 +342,7 @@ namespace CASApp.Theme.Controls
             AddVisual(dv);
 
             //记录
-            _recordQueue.Enqueue(visualRecord);
+            _recordQueue.Add(visualRecord);
         }
     }
 }
