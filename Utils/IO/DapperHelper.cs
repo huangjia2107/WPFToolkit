@@ -114,6 +114,60 @@ namespace Utils.IO
         }
 
         /// <summary>
+        /// 获取某列的最小值
+        /// </summary>
+        /// <typeparam name="T">列类型</typeparam>
+        /// <param name="database">数据库文件</param>
+        /// <param name="table">表名</param>
+        /// <param name="column">列名</param>
+        /// <param name="condition">条件</param>
+        /// <param name="param">参数</param>
+        /// <param name="transaction">事务</param>
+        /// <param name="commandTimeout">超时</param>
+        public async Task<T> GetMinAsync<T>(string database, string table, string column, string condition = null, object param = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            using (var connection = new SQLiteConnection(GetConnectionString(database)))
+            {
+                try
+                {
+                    return await connection.ExecuteScalarAsync<T>($"select min({column}) from {table} {condition}".Trim(), param, transaction, commandTimeout);
+                }
+                catch (Exception ex)
+                {
+                    //Logger.Instance.Common.Error($"[ Dapper ] GetMinAsync, Database = {database}, Table = {table}, Column = {column}, Message = {ex.Message}");
+                    return default(T);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 获取某列的最大值
+        /// </summary>
+        /// <typeparam name="T">列类型</typeparam>
+        /// <param name="database">数据库文件</param>
+        /// <param name="table">表名</param>
+        /// <param name="column">列名</param>
+        /// <param name="condition">条件</param>
+        /// <param name="param">参数</param>
+        /// <param name="transaction">事务</param>
+        /// <param name="commandTimeout">超时</param>
+        public async Task<T> GetMaxAsync<T>(string database, string table, string column, string condition = null, object param = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            using (var connection = new SQLiteConnection(GetConnectionString(database)))
+            {
+                try
+                {
+                    return await connection.ExecuteScalarAsync<T>($"select max({column}) from {table} {condition}".Trim(), param, transaction, commandTimeout);
+                }
+                catch (Exception ex)
+                {
+                    //Logger.Instance.Common.Error($"[ Dapper ] GetMaxAsync, Database = {database}, Table = {table}, Column = {column}, Message = {ex.Message}");
+                    return default(T);
+                }
+            }
+        }
+
+        /// <summary>
         /// 获取总记录数
         /// </summary>
         /// <param name="database">数据库文件</param>
@@ -159,6 +213,30 @@ namespace Utils.IO
                 catch (Exception ex)
                 {
                    // Logger.Instance.Common.Error($"[ Dapper ] DeleteTable, Database = {database}, table = {table}, Message = {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 检测表是否存在
+        /// </summary>
+        /// <param name="database">数据库文件</param>
+        /// <param name="table">表名</param>
+        public async Task<bool> ExistTable(string database, string table)
+        {
+            using (var connection = new SQLiteConnection(GetConnectionString(database)))
+            {
+                try
+                {
+                    await connection.OpenAsync();
+                    var result = await connection.QueryFirstOrDefaultAsync($"SELECT * FROM sqlite_master WHERE type = 'table' AND name = '{table}'");
+
+                    return result != null;
+                }
+                catch (Exception ex)
+                {
+                    //Logger.Instance.Common.Error($"[ Dapper ] CreateTable, Database = {database}, Message = {ex.Message}");
+                    return false;
                 }
             }
         }
