@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Threading;
 
 namespace UIResources.Controls
@@ -147,6 +148,19 @@ namespace UIResources.Controls
 
         #region Override
 
+        //解决以下俩问题：
+        //1. 扩展屏上播放时，前几帧会卡顿
+        //2. 播放时，主屏与扩展屏间移动，播放停止
+        protected override void OnInitialized(EventArgs e)
+        {
+            var hwndSource = PresentationSource.FromVisual(this) as HwndSource;
+            var hwndTarget = hwndSource.CompositionTarget;
+
+            hwndTarget.RenderMode = RenderMode.SoftwareOnly;
+
+            base.OnInitialized(e);
+        }
+		
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
